@@ -57,6 +57,57 @@ AI 应该自动读取目标业务项目自己的 README / AGENTS / CLAUDE / docs
 
 更详细的对话用法见 [`docs/conversation-usage.md`](docs/conversation-usage.md)。
 
+## Clone 后快速开始
+
+别人下载这个仓库后，先做一次自检：
+
+```bash
+cd ai-coding-playbook
+bash scripts/check-playbook.sh
+```
+
+然后按需要选择一种用法。
+
+### 1. 只作为参考库
+
+不安装任何东西，直接在业务项目对话里引用本仓库路径：
+
+```text
+参考 /path/to/ai-coding-playbook，目标项目 <your-project>，梳理需求。
+```
+
+后续就可以直接说：
+
+```text
+做方案。
+执行任务。
+继续 Goal。
+做 CR。
+```
+
+### 2. 安装为 Codex / Cursor / Claude Skill
+
+安装后，AI 工具更容易自动识别“梳理需求、做方案、执行任务”等短指令：
+
+```bash
+bash scripts/install-skills.sh --target codex
+bash scripts/install-skills.sh --target cursor
+bash scripts/install-skills.sh --target claude
+```
+
+默认安装到对应工具的 skills 目录，只安装本仓库 `skills/` 下的通用 skill，不修改业务项目。
+
+### 3. 接入某个业务项目
+
+如果希望业务项目长期按这套规则协作，可以复制 Agent 模板到业务项目，再补充项目事实：
+
+```bash
+cp agents/AGENTS.template.md /path/to/project/AGENTS.md
+cp agents/CLAUDE.template.md /path/to/project/CLAUDE.md
+```
+
+复制后应在业务项目文档里补充本地启动命令、测试命令、发布脚本、数据库迁移规则和禁止 AI 擅自触碰的目录。
+
 ## 如何使用
 
 ### 方式一：只作为参考库
