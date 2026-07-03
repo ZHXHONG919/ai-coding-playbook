@@ -1,0 +1,19 @@
+# Local/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Runtime logs
+*.log
+
+# Temporary scratch files
+.tmp/
+tmp/
+
+# Secrets should never live in this playbook
+.env
+.env.*
+*.pem
+*.key
+*.config
+platforms/.build/

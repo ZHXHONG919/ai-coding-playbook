@@ -1,0 +1,54 @@
+# Worker Report <slice-id> <role> <n>
+
+Role: implementer / fixer / worktree-worker
+Slice: <slice-id>
+Worker id: <id>
+Date: <YYYY-MM-DD>
+
+## Assignment
+
+| Field | Value |
+| --- | --- |
+| Scope | |
+| Non-goals | |
+| Ownership | |
+| Required docs | |
+| Worktree | none / <path> |
+
+## Changes
+
+| File / Module | Change | Reason |
+| --- | --- | --- |
+| | | |
+
+## Scope Guard
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Stayed inside assigned scope | pending | |
+| Did not update `.goal/status.yaml` | pending | |
+| Did not commit or merge worktree | pending | |
+| Did not change unauthorized shared contracts | pending | |
+
+## Tests / Local Checks
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| | pending | |
+
+## Mock Ledger Impact
+
+| Mock ID | Action | Evidence |
+| --- | --- | --- |
+| | create / close / unchanged | |
+
+## Open Issues
+
+| ID | Issue | Suggested owner |
+| --- | --- | --- |
+| | | main / implementer / validator / reviewer / human |
+
+## Summary
+
+- Status: complete / blocked / needs-fix
+- Next recommended step:

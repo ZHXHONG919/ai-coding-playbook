@@ -1,0 +1,85 @@
+schema_version: 1
+feature: "<feature-id>"
+branch: "<branch-name>"
+
+execution:
+  state: ready
+  next_slice: R01
+  current_slice: null
+  last_commit: null
+  safe_to_commit: false
+  updated_at: "<YYYY-MM-DD>"
+
+orchestration:
+  mode: main_agent_orchestrates_workers
+  main_agent_responsibilities:
+    - dispatch_workers
+    - audit_reports
+    - update_status
+    - merge_worktrees
+    - commit
+  workers_may_update_status: false
+  workers_may_commit: false
+  workers_may_merge_worktrees: false
+
+active_workers: []
+
+last_worker_report:
+  slice: null
+  role: null
+  path: null
+  status: null
+
+last_validation:
+  slice: null
+  kind: null
+  path: null
+  result: null
+
+counters:
+  open_blocker: 0
+  open_cr_findings: 0
+  open_deferred: 0
+  open_human_intervention: 0
+  http_mock_count: 0
+  open_mock_ledger_items: 0
+  active_worktrees: 0
+
+slices:
+  R01: todo
+  R99: todo
+
+last_cr:
+  slice: null
+  path: null
+  round: null
+  blocker: null
+  open_findings: null
+  reviewer_kind: null
+  reviewer_role: null
+
+global_exit:
+  p0_acceptance: pending
+  deferred_zero: pending
+  blocker_zero: pending
+  cr_findings_zero: pending
+  human_intervention_zero_or_state_needs_human_intervention: pending
+  http_mock_zero: pending
+  mock_ledger_zero: pending
+  worktrees_merged_or_blocked: pending
+  smoke_a: pending
+  smoke_b: pending
+
+resume:
+  mode: same_thread
+  new_thread_allowed: false
+  controlled_worker_subagents_allowed: true
+  resume_doc: ".goal/resume.md"
+  worker_reports_dir: ".goal/runs"
+  validation_reports_dir: ".goal/validation"
+  checkpoint_commit_allowed: false
+
+blocked:
+  reason: null
+  evidence: null
+  needs: null

@@ -1,0 +1,14 @@
+---
+description: Cross-project engineering discipline from ai-coding-playbook
+alwaysApply: true
+---
+
+# Engineering Discipline
+
+When doing requirement analysis, planning, implementation, review, testing, release, or troubleshooting:
+
+1. Read this project's `README.md` and `AGENTS.md` first.
+2. Use the global `ai-coding-playbook` skill for stage routing and methodology.
+3. Project facts override playbook defaults; state conflicts briefly.
+4. In plan phase, do not edit business code unless the user explicitly asks to implement.
+5. Do not invent facts; mark unknowns as Pending or Assumed.

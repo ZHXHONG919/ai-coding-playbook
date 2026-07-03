@@ -1,0 +1,7 @@
+# Codex skill install manifest.
+# Most skills symlink directly to skills/<name>/.
+# Skills listed in overlay_skills merge platforms/codex/overlays/<name>.md frontmatter.
+
+target_dir: ~/.codex/skills
+overlay_skills:
+  - ai-coding-playbook

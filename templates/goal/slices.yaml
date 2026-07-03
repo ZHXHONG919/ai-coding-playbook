@@ -1,0 +1,145 @@
+schema_version: 1
+feature: "<feature-id>"
+
+slices:
+  - id: R01
+    task_ids:
+      - T01
+    user_path: "<this slice's user-visible path>"
+    scope:
+      - "<minimal implementation scope>"
+    non_goals:
+      - "<explicitly out of this slice>"
+    dependencies: []
+    parallel_group: null
+    worktree:
+      allowed: false
+      ownership:
+        - "<files or modules this slice may edit>"
+      merge_order: null
+      conflict_policy: "shared contracts must return to main agent"
+    workers:
+      implementer:
+        required: true
+        output_pattern: ".goal/runs/R01-implementer-{n}.md"
+        scope_guard:
+          - "only edit files listed in ownership or slice scope"
+          - "do not update .goal/status.yaml"
+      fixer:
+        required_when: "CR or validation finds agent-solvable issues"
+        output_pattern: ".goal/runs/R01-fixer-{n}.md"
+    validators:
+      - kind: contract
+        required: true
+        command: "<contract or API validation command>"
+        output_pattern: ".goal/validation/R01-contract-{n}.md"
+      - kind: smoke
+        required: false
+        command: "<UI or integration smoke command>"
+        output_pattern: ".goal/validation/R01-smoke-{n}.md"
+    mock_ledger:
+      creates: []
+      closes: []
+      ledger_path: ".goal/mock-ledger.md"
+    required_docs:
+      - ".goal/GOAL.md"
+      - ".goal/acceptance.md"
+      - ".goal/mock-ledger.md"
+      - ".goal/worktree-plan.md"
+      - "tasks.md"
+    tests:
+      - command: "<test command>"
+        required: true
+        purpose: "<what this proves>"
+    exit:
+      - worker_reports_present
+      - validation_reports_present_or_waived
+      - spec_green
+      - cr_files_open_findings_zero
+      - no_new_unregistered_mock
+      - mock_ledger_updated
+      - worktree_merged_or_not_used
+      - no_unresolved_nit_or_should_fix
+      - status_updated
+    cr:
+      required: true
+      reviewer_kind: subagent
+      reviewer_roles:
+        - Backend
+        - Delivery
+      output_pattern: ".goal/cr/R01-round-{n}.md"
+      pass_condition:
+        open_findings: 0
+        human_intervention_allowed: true
+
+  - id: R99
+    task_ids:
+      - QA
+    user_path: "global exit"
+    scope:
+      - "run final acceptance and smoke"
+      - "clear deferred items"
+      - "verify no unregistered HTTP mock remains"
+    non_goals: []
+    dependencies:
+      - R01
+    parallel_group: null
+    worktree:
+      allowed: false
+      ownership: []
+      merge_order: final
+      conflict_policy: "main agent owns final integration"
+    workers:
+      implementer:
+        required: false
+        output_pattern: ".goal/runs/R99-implementer-{n}.md"
+      fixer:
+        required_when: "global exit finds agent-solvable issues"
+        output_pattern: ".goal/runs/R99-fixer-{n}.md"
+    validators:
+      - kind: global-exit
+        required: true
+        command: "<global acceptance and smoke command>"
+        output_pattern: ".goal/validation/R99-global-exit-{n}.md"
+      - kind: mock-ledger
+        required: true
+        command: "<mock cleanup check command>"
+        output_pattern: ".goal/validation/R99-mock-ledger-{n}.md"
+    mock_ledger:
+      creates: []
+      closes:
+        - "*"
+      ledger_path: ".goal/mock-ledger.md"
+    required_docs:
+      - ".goal/GOAL.md"
+      - ".goal/acceptance.md"
+      - ".goal/risks-deferred.md"
+      - ".goal/mock-ledger.md"
+      - ".goal/worktree-plan.md"
+    tests:
+      - command: "<smoke or build command>"
+        required: true
+        purpose: "global exit"
+    exit:
+      - worker_reports_present_if_any
+      - validation_reports_present_or_waived
+      - p0_acceptance_green_or_waived
+      - open_deferred_zero
+      - open_blocker_zero
+      - open_cr_findings_zero
+      - human_intervention_zero_or_state_needs_human_intervention
+      - http_mock_zero_or_waived
+      - mock_ledger_zero_or_waived
+      - all_worktrees_merged_or_blocked
+      - smoke_status_recorded
+      - status_complete_or_needs_human_intervention
+    cr:
+      required: true
+      reviewer_kind: subagent
+      reviewer_roles:
+        - Delivery
+        - Release
+      output_pattern: ".goal/cr/R99-round-{n}.md"
+      pass_condition:
+        open_findings: 0
+        human_intervention_allowed: true

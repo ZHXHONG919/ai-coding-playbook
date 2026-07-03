@@ -1,0 +1,5 @@
+# Cursor skill install manifest.
+
+target_dir: ~/.cursor/skills
+overlay_skills:
+  - ai-coding-playbook

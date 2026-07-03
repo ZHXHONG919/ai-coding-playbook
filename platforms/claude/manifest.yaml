@@ -1,0 +1,5 @@
+# Claude Code skill install manifest.
+
+target_dir: ~/.claude/skills
+overlay_skills:
+  - ai-coding-playbook
