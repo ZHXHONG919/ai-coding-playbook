@@ -3,11 +3,12 @@ name: ai-coding-playbook
 description: >
   Shared AI coding playbook for natural-language engineering commands such as 梳理需求,
   确认需求, 做方案, 写方案, 做 UI Flow, 做原型, 拆任务, 执行任务, 开始实现,
-  继续 Goal, 续跑, 做 CR, review, 测试范围, 发布检查, and 排查问题.
+  继续 Goal, 续跑, 做 CR, review, 测试范围, 发布检查, 部署, 部署下,
+  部署一下, 上线, 发版, 发测试, 发生产, and 排查问题.
   Covers requirement analysis, feature planning, technical design, implementation breakdown,
-  code review, test scope, release safety, bug investigation,
+  code review, test scope, release safety, deployment, bug investigation,
   and NestJS/React/PostgreSQL/Chrome Extension/AI provider guidance.
-  Use when the user is doing engineering planning, implementation, tests, review, release, or troubleshooting.
+  Use when the user is doing engineering planning, implementation, tests, review, release, deploy, or troubleshooting.
   Do not use for simple command output, pure factual Q&A, casual chat, or ordinary translation unless
   the content itself is about engineering rules, plans, or review.
 ---

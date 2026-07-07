@@ -30,7 +30,7 @@
 | 继续任务 / 继续 Goal / 续跑 / 按 status.yaml 继续 | Goal Execute |
 | 做 CR / review / 检查风险 | Review 阶段 |
 | 测什么 / 测试范围 / 测试策略 | 测试范围分析 |
-| 发布检查 / 回滚方案 / Go No-Go | 发布阶段 |
+| 发布检查 / 回滚方案 / Go No-Go / 部署 / 部署下 / 部署一下 / 上线 / 发版 / 发测试 / 发生产 | 发布阶段 |
 | 排查问题 / 看报错 / bugfix | Bugfix / 排障 |
 
 如果当前窗口有多个项目或目标不明确，先轻问一句目标项目；如果用户已说“目标项目是 lume-tuber”或当前工作目录就是业务项目，就不要反复要求用户写长提示。
@@ -55,7 +55,7 @@
 | 按 Goal 执行 / 续跑 goal / 从 status.yaml next_slice 继续 | `skills/goal-execute/SKILL.md` + `references/stages/implementation.md` |
 | Review / 检查代码 / 看风险 | `references/stages/review.md` + `references/review-kit/*` + `skills/ts-code-review/SKILL.md` |
 | bug / 报错 / 排障 / 事故分析 | `references/stages/bugfix.md` + `workflows/incident-workflow.md` |
-| 发布前检查 / 回滚方案 | `references/stages/release.md` + `skills/release-safety-review/SKILL.md` |
+| 发布前检查 / 回滚方案 / 部署 / 部署下 / 部署一下 / 上线 / 发版 | `references/stages/release.md` + `skills/release-safety-review/SKILL.md` |
 | 测试范围 / 测试策略 | `skills/test-scope-analysis/SKILL.md` + `references/scenarios/pnpm-monorepo.md` |
 | 规则不生效 / skill 没触发 / 知识库没约束 Agent | `references/stages/rule-diagnostics.md` + `skills/skill-maintenance/SKILL.md` |
 | 业务项目 AI-Ready / 接入 AI-SDLC 前检查 | `references/scenarios/ai-ready.md` + `docs/adoption-guide.md` |

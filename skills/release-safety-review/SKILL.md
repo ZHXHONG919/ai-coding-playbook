@@ -1,6 +1,6 @@
 ---
 name: release-safety-review
-description: Review release readiness, migration safety, env changes, deploy targets, backup, rollback, and smoke plans. Use for release check, 发布前检查, Go/No-Go, rollback plan, or deploy safety review before apply.
+description: Review release readiness, deployment order, migration safety, env changes, deploy targets, backup, rollback, and smoke plans. Use for release check, 发布前检查, Go/No-Go, rollback plan, 部署, 部署下, 部署一下, 上线, 发版, 发测试, 发生产, or deploy safety review before apply.
 ---
 
 # Release Safety Review
@@ -8,6 +8,7 @@ description: Review release readiness, migration safety, env changes, deploy tar
 ## 使用时机
 
 - 发布前检查、回滚方案评估、发布 Go / No-Go。
+- 用户要求部署、部署下、部署一下、上线、发版、发测试、发生产，或说已经 merge main 后要求部署。
 - 评审 PR 中的 migration、env、deploy script、targets 变更。
 - 用户提到 `--apply`、生产发布、备份恢复、健康检查。
 
@@ -28,6 +29,12 @@ description: Review release readiness, migration safety, env changes, deploy tar
 ### 发布前置
 
 - 当前代码是否在允许发布的分支；工作区是否干净；`HEAD` 是否满足项目要求。
+- 默认发布顺序是否满足：读取项目发布 SOP -> 部署测试 / staging -> smoke / 验收 -> 等待人工通知 -> 生产发布。
+- 未收到用户明确生产授权前，不执行生产发布命令，只输出生产发布计划、阻塞项和等待确认状态。
+- 未指定环境的部署请求默认只允许测试 / staging；如果项目没有测试发布入口，停止并列阻塞项，不得回退到生产。
+- 生产发布必须同时满足：已有测试 / staging 发布结果，且用户明确说“确认发生产 / 可以部署生产 / 继续生产发布”等生产授权语。
+- `merge main`、`部署下吧`、`上线吧`、`发版吧` 只代表发布请求，不代表生产授权。
+- 生产目标的 `--apply`、生产域名、生产主机或生产 DB 写操作，在生产门禁满足前不得执行。
 - 是否先 dry-run，再 `--apply`。
 - `targets` 是否最小化，避免重启无关服务。
 
@@ -71,6 +78,8 @@ Go | No-Go
 ## Irreversible Operations
 
 ## Suggested Release Commands
+
+## Staging Result / Production Gate
 
 ## Rollback Notes
 

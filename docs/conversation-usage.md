@@ -190,11 +190,19 @@ AI 应该输出：
 按 playbook 帮我做发布前检查。
 ```
 
+也可以直接说：
+
+```text
+我merge 到main分支了，部署下吧。
+```
+
 AI 应该输出：
 
 - Go / No-Go
 - 分支、工作区、migration、env、targets、备份、回滚、健康检查
 - 阻塞项和建议发布命令
+- 未指定环境时先部署测试 / staging，完成 smoke 后等待生产发布确认
+- 说明 `merge main`、`部署下吧` 不等于生产授权
 
 ## 什么时候才需要安装 skills
 

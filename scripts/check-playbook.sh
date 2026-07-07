@@ -79,6 +79,7 @@ required=(
   "evals/usage/simple-stage-commands.md"
   "evals/plan/boundary-cases-required.md"
   "evals/plan/prototype-confirmation-gate.md"
+  "evals/release-safety/staging-before-production.md"
   "evals/goal-handoff/goal-package-required.md"
   "evals/goal-handoff/design-cr-ready-requires-goal.md"
   "evals/goal-execute/no-fake-cr.md"
