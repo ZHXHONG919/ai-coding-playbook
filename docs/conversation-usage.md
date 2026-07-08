@@ -44,13 +44,13 @@
 继续 Goal，使用子 agent 做实现、验证和 CR。
 ```
 
-如果希望 Codex app 顶部显示 Goal 进度条，可以明确说：
+在 Codex 中，进入 Goal Execute 时应自动创建或复用 app goal 进度条镜像；你不需要额外点名。需要显式强调时可以说：
 
 ```text
 按项目 .goal 执行，并创建 app goal 进度条跟踪。
 ```
 
-AI 应该先读项目 `.goal/status.yaml`，再用 `get_goal` / `create_goal` 创建或复用 Codex app goal；app goal 只是 UI 镜像，切片进度仍回写 `.goal/status.yaml`。
+AI 应该先读项目 `.goal/status.yaml`，再用 `get_goal` / `create_goal` 创建或复用 Codex app goal；app goal 只是 UI 镜像，切片进度仍回写 `.goal/status.yaml`。其他工具没有等价 UI goal 能力时直接跳过镜像，不影响 `.goal` 执行。
 
 ## 进阶说法
 

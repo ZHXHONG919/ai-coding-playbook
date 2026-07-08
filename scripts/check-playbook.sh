@@ -340,13 +340,38 @@ if ! grep -q 'codex_app_goal:' "$ROOT_DIR/templates/goal/status.yaml"; then
   exit 1
 fi
 
-if ! grep -q 'role: ui_mirror_only' "$ROOT_DIR/templates/goal/status.yaml"; then
+if ! awk '/^codex_app_goal:/{in_block=1; next} /^[^[:space:]][^:]*:/{in_block=0} in_block && /enabled: true/{found=1} END{exit !found}' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status Codex app goal should default enabled" >&2
+  exit 1
+fi
+
+if ! awk '/^codex_app_goal:/{in_block=1; next} /^[^[:space:]][^:]*:/{in_block=0} in_block && /role: ui_mirror_only/{found=1} END{exit !found}' "$ROOT_DIR/templates/goal/status.yaml"; then
   echo "goal status Codex app goal must remain UI mirror only" >&2
   exit 1
 fi
 
-if ! grep -q 'source_of_truth: ".goal/status.yaml"' "$ROOT_DIR/templates/goal/status.yaml"; then
+if ! awk '/^codex_app_goal:/{in_block=1; next} /^[^[:space:]][^:]*:/{in_block=0} in_block && /source_of_truth: ".goal\/status.yaml"/{found=1} END{exit !found}' "$ROOT_DIR/templates/goal/status.yaml"; then
   echo "goal status Codex app goal source of truth must be .goal/status.yaml" >&2
+  exit 1
+fi
+
+if ! awk '/^codex_app_goal:/{in_block=1; next} /^[^[:space:]][^:]*:/{in_block=0} in_block && /create_on_execute_when_available: true/{found=1} END{exit !found}' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status Codex app goal should create on execute when available" >&2
+  exit 1
+fi
+
+if ! grep -q 'codex_app_goal.enabled: false' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing Codex app goal disabled escape hatch" >&2
+  exit 1
+fi
+
+if ! grep -q 'create_goal' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing automatic create_goal behavior" >&2
+  exit 1
+fi
+
+if ! grep -q '不需要用户额外点名' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing automatic Codex app goal mirror default" >&2
   exit 1
 fi
 

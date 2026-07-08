@@ -39,10 +39,11 @@ Codex app goal 只作为 UI 可视化镜像，不能替代 `.goal/status.yaml`�
 当运行环境提供 Codex app goal 工具时：
 
 1. 先读取项目 `.goal/status.yaml` 和 `.goal/GOAL.md`，再用 `get_goal` 检查 app 级 goal 状态。
-2. 如果用户明确说“创建 app goal 进度条 / 按项目 .goal 执行并创建 app goal”，或 `.goal/status.yaml` 中有 `codex_app_goal.enabled: true`，且当前没有匹配的 active app goal，则调用 `create_goal` 创建 app-level goal，objective 应来自项目 `.goal/GOAL.md`、feature id 和当前 `next_slice`。
-3. 如果已经存在匹配 app goal，复用它；如果存在不匹配的 active app goal，不要覆盖，继续以 `.goal/status.yaml` 执行，并在同步中说明冲突。
-4. 每个 slice 的真实进度只更新 `.goal/status.yaml`；app goal 只同步线程级目标存在感和终态。
-5. Goal 完成时按 app 工具契约调用 `update_goal` 标记 complete；若 `.goal/status.yaml` 进入 `blocked` 或 `needs_human_intervention`，只有在 app 工具规则允许时才标记 blocked，否则在最终回复和 `status.yaml` 中说明人工接手入口。
+2. Goal Execute 在 Codex app 中默认启用 UI 镜像；如果 `.goal/status.yaml` 没有 `codex_app_goal` 字段，按 `enabled: true` 处理。只有明确写 `codex_app_goal.enabled: false` 时才跳过 app goal 镜像。
+3. 如果当前没有匹配的 active app goal，则调用 `create_goal` 创建 app-level goal，objective 应来自项目 `.goal/GOAL.md`、feature id 和当前 `next_slice`；不需要用户额外点名“创建 app goal 进度条”。
+4. 如果已经存在匹配 app goal，复用它；如果存在不匹配的 active app goal，不要覆盖，继续以 `.goal/status.yaml` 执行，并在同步中说明冲突。
+5. 每个 slice 的真实进度只更新 `.goal/status.yaml`；app goal 只同步线程级目标存在感和终态。
+6. Goal 完成时按 app 工具契约调用 `update_goal` 标记 complete；若 `.goal/status.yaml` 进入 `blocked` 或 `needs_human_intervention`，只有在 app 工具规则允许时才标记 blocked，否则在最终回复和 `status.yaml` 中说明人工接手入口。
 
 如果没有 app goal 工具，Goal Execute 仍正常运行；不要为了 UI 进度条阻塞 `.goal` 执行。
 
@@ -103,7 +104,7 @@ Codex app goal 只作为 UI 可视化镜像，不能替代 `.goal/status.yaml`�
 
 ```text
 读取 status.yaml + slices.yaml[next]
-→ 若 Codex app goal 可用且契约要求镜像，创建或复用 app-level goal
+→ 若 Codex app goal 可用且未显式关闭，创建或复用 app-level goal
 → 若有未提交改动，收敛 current_slice
 → 主 agent 生成当前 slice 执行包
 → 派发 implementer / fixer 完成当前 slice.scope；未授权 self-run 时主 agent 不直接改业务代码
