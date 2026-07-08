@@ -32,6 +32,7 @@ description: Review technical plans, requirements, UI flows, and architecture do
 - 是否有已确认需求口径，区分 `Confirmed / Pending / Assumed`。
 - 非目标是否写清。
 - 需求文档之间是否互相冲突。
+- 是否逐条对账用户原话和最新确认业务规则；影响按钮可用、数量、额度、人工动作边界的规则是否被工程安全直觉静默覆盖。
 
 ### 2. 证据与抽象
 
@@ -56,6 +57,12 @@ description: Review technical plans, requirements, UI flows, and architecture do
 - 是否有决策表和本轮待确认问题。
 - `tasks.md` 是否能从方案直接拆出，而不是实现时临时发明。
 - 测试与验收标准是否覆盖主链路和关键异常。
+
+### 6. 最新口径和跨文档一致性
+
+- 用户最新口径是否已同步到 `requirements.md`、`plan.md`、`tasks.md`、`ui-flow.md` 和 `.goal/*`。
+- 是否执行过 Cross-doc Consistency Scan，扫描词是否覆盖业务动作名、数量上限、额度、manual/auto、action gate、blocked reason。
+- 同一动作若存在互斥约束，是否列为 Blocking，而不是选择“更严格 / 更安全”的实现。
 
 ## 角色视角
 
@@ -92,3 +99,4 @@ description: Review technical plans, requirements, UI flows, and architecture do
 
 - 复杂方案没有通过 design CR，不进入实现。
 - 若评审中发现需求边界问题，回到需求确认，不在方案里偷偷改口径。
+- 若评审中发现用户确认业务规则和工程限制冲突，必须列为 Blocking；不能用工程安全直觉替代产品口径。

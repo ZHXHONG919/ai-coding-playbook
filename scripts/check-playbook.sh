@@ -78,6 +78,7 @@ required=(
   "evals/ai-coding-playbook-routing.md"
   "evals/usage/simple-stage-commands.md"
   "evals/plan/boundary-cases-required.md"
+  "evals/plan/latest-requirement-delta-gate.md"
   "evals/plan/prototype-confirmation-gate.md"
   "evals/release-safety/staging-before-production.md"
   "evals/goal-handoff/goal-package-required.md"
@@ -216,6 +217,26 @@ fi
 
 if ! grep -q 'Product Flow Gate' "$ROOT_DIR/references/stages/plan.md"; then
   echo "plan stage missing Product Flow Gate" >&2
+  exit 1
+fi
+
+if ! grep -q 'Latest Requirement Delta Gate' "$ROOT_DIR/references/stages/plan.md"; then
+  echo "plan stage missing Latest Requirement Delta Gate" >&2
+  exit 1
+fi
+
+if ! grep -q 'Cross-doc Consistency Scan' "$ROOT_DIR/references/stages/implementation.md"; then
+  echo "implementation stage missing cross-doc consistency scan" >&2
+  exit 1
+fi
+
+if ! grep -q '用户原话和最新确认业务规则' "$ROOT_DIR/skills/design-review/SKILL.md"; then
+  echo "design-review missing original business rule reconciliation" >&2
+  exit 1
+fi
+
+if ! grep -q '更严格 / 更安全' "$ROOT_DIR/references/stages/plan.md"; then
+  echo "plan stage missing business-rule-vs-safety conflict gate" >&2
   exit 1
 fi
 

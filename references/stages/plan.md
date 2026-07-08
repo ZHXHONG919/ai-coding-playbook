@@ -12,7 +12,54 @@
 - 需求阶段提出且会影响方案结构的问题，不能在方案阶段才决定；方案阶段只做论证、建模、工程映射和取舍说明。
 - 关键决策表只记录业务 / 领域 / 架构决策，不能直接把字段名、表字段、DTO 字段或任务项写成已确认结论；字段必须经过 `references/plan/field-ownership.md` 的归属判断后，才能进入数据模型、API 和 `tasks.md`。
 - 方案讨论中采纳用户反馈时，必须执行变更同步协议；不能只改 `plan.md` 而漏掉 `requirements.md`、`tasks.md`、`ui-flow.md` 或原型。
+- 用户提出“最新要求 / 改方案并修逻辑 / 口径调整”时，必须先通过 Latest Requirement Delta Gate；若最新业务规则与旧方案、UI flow、任务或 `.goal` 契约冲突，先标 Blocking，不进入实现。
 - 复杂方案在进入任务拆解或实现前，必须经过设计 CR；如果用户授权使用子 agent 且当前环境支持，优先唤起 scoped design CR 子 agent。
+
+## 业务规则冲突门禁
+
+### 原始业务规则优先级
+
+用户原话、最新确认业务规则和需求确认基线优先于工程直觉。尤其是影响按钮可用、数量、额度、人工动作边界、审核对象或运营权限的规则，不能被“更严格 / 更安全 / 防 worker 压力 / input max”等工程限制静默覆盖。
+
+如果出现以下情况，必须标为 Blocking 并回到需求确认或方案同步，而不是自行选择实现：
+
+- 同一业务动作同时出现两个互斥约束，例如“手动新增固定 1 篇且不受 6 篇限制”与“本轮总 generation 不超过 6”。
+- 业务规则说“不占额度 / 不读预算信号 / 不受上限约束”，工程方案或 UI flow 又把额度、预算或上限作为 action gate。
+- 方案中的“安全 gate / provider readiness / worker 压力”会改变用户确认过的可用按钮、数量、人工动作边界或运营流程。
+- 子 agent、CR 或实现者倾向于选择“看起来更保守”的实现，但该实现会降低业务可用性或改变产品口径。
+
+### Latest Requirement Delta Gate
+
+用户给出最新口径、推翻旧口径，或要求“按最新要求改方案并修逻辑”时，先输出并执行 Delta Gate：
+
+| 最新口径 | 覆盖的旧口径 | 受影响文件 | 受影响代码 / 契约 | 冲突状态 |
+| --- | --- | --- | --- | --- |
+| 用户原话或需求确认结论 | 旧 requirements / plan / ui-flow / tasks / .goal 中的相反约束 | 必须同步的文档 | API / DTO / ViewModel / action gate / tests | Done / Blocking / Pending |
+
+Delta Gate 通过标准：
+
+- 最新口径已经写入 `requirements.md` 或等价需求基线。
+- `plan.md`、`tasks.md`、`ui-flow.md`、原型说明和 `.goal/*` 没有旧口径残留。
+- 对关键动作的按钮可用、数量、额度、状态 gate、人工动作边界有唯一解释。
+- 所有仍存在的冲突都被列为 `Blocking`，等待用户确认，不能被实现阶段自行裁决。
+
+### Cross-doc Consistency Scan
+
+复杂方案进入实现前，必须围绕最新口径提取关键业务词和互斥约束，跨文档扫描：
+
+```text
+requirements.md
+plan.md
+tasks.md
+ui-flow.md
+design-review.md
+.goal/GOAL.md
+.goal/slices.yaml
+.goal/acceptance.md
+.goal/cr/*
+```
+
+推荐扫描词包括：业务动作名、按钮名、字段名、状态名、数量上限、额度、预算、manual / auto、provider readiness、blocked reason、action gate。扫描发现旧口径时，必须回到 Change Sync 或需求确认。
 
 ## 复杂 vs 轻量方案
 
@@ -127,6 +174,7 @@
 - 改了字段、表、API、DTO 或实现边界：必须同步 `tasks.md`；如果字段仍是 `Pending`，任务只能写“确认字段归属后落地”。
 - 改了页面入口、审核对象、用户路径、操作按钮、状态映射或错误态：必须同步 `ui-flow.md`，必要时同步 `prototype/`。
 - 改了测试、发布、回滚或 provider 开关：必须同步 `plan.md` 测试 / 发布章节和 `tasks.md` QA / Release 任务。
+- 改了业务动作的可用条件、数量、额度、人工/自动边界或按钮文案：必须同步 `requirements.md`、`plan.md`、`tasks.md`、`ui-flow.md` 和 `.goal/*` 中对应验收、slice、CR 条目；不能只同步代码文件。
 - 如果只改一个文件，必须在回复或文档中说明其它文件不需要同步的理由。
 
 方案定稿前必须检查 `Change Sync` 没有 `Pending Blocking`；否则不能进入实现。

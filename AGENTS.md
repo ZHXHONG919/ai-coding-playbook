@@ -96,6 +96,7 @@
 ### 关键门禁
 
 - 没有证据，不写成事实。
+- 用户原话和最新确认业务规则优先于工程直觉；当业务规则与“更安全 / 更严格 / 防压力”的工程限制冲突时，不能自行选择工程保守实现，必须把冲突列为 Blocking 并回到需求确认。
 - 复杂方案定义：命中任一强触发项（DB/migration、状态流、异步/LLM/外部链路、权限安全计费、发布回滚补偿、跨两个以上端、用户要求多角度评审），或命中两个及以上累积触发项（多模块多文件、新 API/DTO/ViewModel/Job/页面、新业务概念、兼容旧数据/旧接口、人工审核/批量操作、异常分支、新测试策略、待确认风险、任务依赖链）。
 - 复杂需求没有需求确认，不进入方案阶段；需求阶段提出的问题必须在需求阶段收口，不能拖到方案阶段决定。
 - 没有区分 `Confirmed / Pending / Assumed`，不把需求分析稿当方案依据。
@@ -108,6 +109,7 @@
 - 有异步 / LLM / 审核 / 同步链路，就必须有数据流或产物流图。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态的全栈方案，进入任务拆解前必须补 UI flow；页面流程不直观时补静态原型或说明不需要的理由。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，原型 / UI Flow 完成后必须停下；没有用户明确确认并授权进入详细方案设计，不写详细 `plan.md`、不拆 `tasks.md`、不生成 Goal。
+- 用户提出“最新要求 / 改方案并修逻辑 / 口径调整”时，必须先做 Latest Requirement Delta Gate：逐条对比用户原话、最新确认业务规则、旧方案和当前文档，执行跨文档一致性扫描；若 `requirements.md`、`plan.md`、`tasks.md`、`ui-flow.md`、`.goal/*` 仍有互相冲突的业务约束，不能进入实现。
 - 复杂方案进入任务拆解或实现前，必须经过 design CR（`skills/design-review/SKILL.md`）；用户授权且环境支持时优先唤起 scoped design CR 子 agent。
 - 复杂长链路方案在 Design CR Ready 后、实现前，必须进入 Goal Handoff：生成 `.goal/` 执行契约并通过 Goal Gate；没有 `.goal/status.yaml` 和 `gate.md: Ready`，不进入代码实现。
 - 复杂 Goal 执行默认采用主 agent 编排模型：主 agent 只负责读取契约、派发 worker / validator / reviewer、审计证据、更新 `.goal/status.yaml`、合并和提交；实现、验证、CR 和局部修复必须委派给子 agent / worker，主 agent 不直接编辑业务代码。只有用户明确授权 self-run，或 `.goal/GOAL.md` / `.goal/gate.md` 明确允许 `self_run_allowed: true` 时，主 agent 才能临时承担实现角色，并必须文件化说明原因、范围和风险。
