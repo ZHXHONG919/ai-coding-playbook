@@ -44,6 +44,14 @@
 继续 Goal，使用子 agent 做实现、验证和 CR。
 ```
 
+如果希望 Codex app 顶部显示 Goal 进度条，可以明确说：
+
+```text
+按项目 .goal 执行，并创建 app goal 进度条跟踪。
+```
+
+AI 应该先读项目 `.goal/status.yaml`，再用 `get_goal` / `create_goal` 创建或复用 Codex app goal；app goal 只是 UI 镜像，切片进度仍回写 `.goal/status.yaml`。
+
 ## 进阶说法
 
 下面这些完整句式适合跨项目、首次进入上下文、或需要明确约束时使用。

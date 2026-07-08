@@ -110,8 +110,9 @@
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，原型 / UI Flow 完成后必须停下；没有用户明确确认并授权进入详细方案设计，不写详细 `plan.md`、不拆 `tasks.md`、不生成 Goal。
 - 复杂方案进入任务拆解或实现前，必须经过 design CR（`skills/design-review/SKILL.md`）；用户授权且环境支持时优先唤起 scoped design CR 子 agent。
 - 复杂长链路方案在 Design CR Ready 后、实现前，必须进入 Goal Handoff：生成 `.goal/` 执行契约并通过 Goal Gate；没有 `.goal/status.yaml` 和 `gate.md: Ready`，不进入代码实现。
-- 复杂 Goal 执行默认采用主 agent 编排模型：主 agent 只负责读取契约、派发 worker / validator / reviewer、审计证据、更新 `.goal/status.yaml`、合并和提交；实现、验证、CR 和局部修复可委派给子 agent，但子 agent 输出必须文件化，不能替代 `status.yaml`。
+- 复杂 Goal 执行默认采用主 agent 编排模型：主 agent 只负责读取契约、派发 worker / validator / reviewer、审计证据、更新 `.goal/status.yaml`、合并和提交；实现、验证、CR 和局部修复必须委派给子 agent / worker，主 agent 不直接编辑业务代码。只有用户明确授权 self-run，或 `.goal/GOAL.md` / `.goal/gate.md` 明确允许 `self_run_allowed: true` 时，主 agent 才能临时承担实现角色，并必须文件化说明原因、范围和风险。
 - Goal 执行允许使用受控子 agent、worker session 或 worktree worker 来降低主线程上下文负担；这不等于为上下文压缩主动新开替代线程，恢复权威仍然只有 `.goal/status.yaml` 和 `.goal/resume.md`。
+- Codex app 的 Goal 进度条只是 UI 可视化镜像；执行权威仍是 `.goal/status.yaml`。在 Codex 环境中，若用户明确要求“创建 app goal 进度条 / 按项目 .goal 执行并创建 app goal”，或 Goal 包 `codex_app_goal.enabled: true`，主 agent 应先读取项目 `.goal`，再用 `get_goal` / `create_goal` 创建或复用 app-level goal，并按工具契约同步完成 / 阻塞终态；不要用 app goal 替代 `status.yaml`。
 - 已存在 `.goal/status.yaml` 且用户要求续跑 Goal 时，进入 `skills/goal-execute/SKILL.md`；不要用聊天历史或平行 Markdown 进度表覆盖 `status.yaml`。
 - 没有字段、状态、接口、任务和验收细节，不进入实现。
 - 进入 kickoff 的需求必须有 `plan.md` 和 `tasks.md`；实现阶段每个任务完成前必须经过实现、测试、CR 闸口。

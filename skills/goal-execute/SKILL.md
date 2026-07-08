@@ -5,7 +5,7 @@ description: Execute a prepared .goal package for complex features. Use when the
 
 # Goal Execute
 
-Goal Execute 默认采用 orchestrator-worker 模型：主 agent 负责编排、证据审计、状态更新、合并和提交；实现、验证、CR 和局部修复可以委派给受控子 agent、worker session 或 worktree worker。
+Goal Execute 默认采用 orchestrator-worker 模型：主 agent 负责编排、证据审计、状态更新、合并和提交；实现、验证、CR 和局部修复必须委派给受控子 agent、worker session 或 worktree worker。主 agent 默认不得直接编辑业务代码。
 
 ## 使用时机
 
@@ -32,6 +32,20 @@ Goal Execute 默认采用 orchestrator-worker 模型：主 agent 负责编排、
 
 聊天历史不是权威来源。若聊天与 `.goal/status.yaml` 冲突，以 `status.yaml` 为准；若 `status.yaml` 与 git 明显冲突，先核对并回写状态。
 
+## Codex App Goal 镜像
+
+Codex app goal 只作为 UI 可视化镜像，不能替代 `.goal/status.yaml`、`.goal/resume.md` 或文件化报告。详细切片进度仍写入项目 `.goal/status.yaml`。
+
+当运行环境提供 Codex app goal 工具时：
+
+1. 先读取项目 `.goal/status.yaml` 和 `.goal/GOAL.md`，再用 `get_goal` 检查 app 级 goal 状态。
+2. 如果用户明确说“创建 app goal 进度条 / 按项目 .goal 执行并创建 app goal”，或 `.goal/status.yaml` 中有 `codex_app_goal.enabled: true`，且当前没有匹配的 active app goal，则调用 `create_goal` 创建 app-level goal，objective 应来自项目 `.goal/GOAL.md`、feature id 和当前 `next_slice`。
+3. 如果已经存在匹配 app goal，复用它；如果存在不匹配的 active app goal，不要覆盖，继续以 `.goal/status.yaml` 执行，并在同步中说明冲突。
+4. 每个 slice 的真实进度只更新 `.goal/status.yaml`；app goal 只同步线程级目标存在感和终态。
+5. Goal 完成时按 app 工具契约调用 `update_goal` 标记 complete；若 `.goal/status.yaml` 进入 `blocked` 或 `needs_human_intervention`，只有在 app 工具规则允许时才标记 blocked，否则在最终回复和 `status.yaml` 中说明人工接手入口。
+
+如果没有 app goal 工具，Goal Execute 仍正常运行；不要为了 UI 进度条阻塞 `.goal` 执行。
+
 ## 主 Agent 职责
 
 主 agent 是 orchestrator / final integrator，只做这些事：
@@ -42,7 +56,19 @@ Goal Execute 默认采用 orchestrator-worker 模型：主 agent 负责编排、
 - 判断问题归属：局部实现问题交给 implementer / fixer，验证脚本问题交给 validator，设计偏差回到方案阶段。
 - 只有主 agent 可以更新 `.goal/status.yaml`、合并 worktree、提交 commit、推进下一片。
 
-主 agent 不应把所有实现细节长期带在主线程里；它应依赖文件化报告恢复上下文。
+主 agent 默认不得直接编辑当前 slice 的业务代码、测试代码或实现细节。允许的直接编辑范围仅限：
+
+- `.goal/status.yaml`、`.goal/resume.md`、`.goal/runs/`、`.goal/validation/`、`.goal/cr/`、`.goal/mock-ledger.md` 等执行状态和报告。
+- worker 输出后的合并冲突收口、报告索引、最终集成记录。
+- 用户明确要求主线程修正的元数据、文档或状态文件。
+
+如果没有可用子 agent / worker 工具，主 agent 必须停止直接实现，改为：
+
+1. 写出当前 slice 的 worker handoff prompt、已知 diff 和风险。
+2. 在 `.goal/status.yaml` / `.goal/resume.md` 中登记 `blocked` 或 `needs_human_intervention`，说明工具不可用。
+3. 等待用户明确授权 `self-run`，或等 `.goal/GOAL.md` / `.goal/gate.md` 明确允许 `self_run_allowed: true`。
+
+主 agent 不应把所有实现细节长期带在主线程里；它应依赖文件化报告恢复上下文。若已经误在主线程编辑业务代码，必须立即停止继续实现，把已产生 diff 收敛为 worker 输入，并在报告中说明偏差和补救。只有能明确隔离为主 agent 本轮产生的 diff 且用户授权时，才允许回滚；不得回滚用户或其他 worker 的未提交改动。
 
 ## 子 Agent 职责
 
@@ -58,13 +84,29 @@ Goal Execute 默认采用 orchestrator-worker 模型：主 agent 负责编排、
 - 扩大 slice scope，或修改未授权的共享契约。
 - 用聊天回复代替文件化报告。
 
+## Self-run 例外
+
+复杂 Goal 默认禁止 self-run。只有以下条件之一满足时，主 agent 才能临时承担 implementer / fixer：
+
+- 用户在当前轮明确说“允许主线程 self-run / 主线程直接实现”。
+- `.goal/GOAL.md` 或 `.goal/gate.md` 明确写有 `self_run_allowed: true`，并列出允许的 slice、文件范围和原因。
+
+即使允许 self-run，也必须满足：
+
+- 在 `.goal/runs/<slice>-self-run-<n>.md` 写明原因、范围、改动、测试和风险。
+- 后续仍必须有独立 validation report 和 CR report；self-run 不能替代 validator 或 reviewer。
+- `status.yaml` 中记录 self-run 例外；不能因为 self-run 跳过 worker report、validation、CR 或 Exit 检查。
+
+不满足以上条件时，主 agent 不能用“工具不可用”“改动很小”“先修一点”作为理由直接编辑业务代码。
+
 ## 执行循环
 
 ```text
 读取 status.yaml + slices.yaml[next]
+→ 若 Codex app goal 可用且契约要求镜像，创建或复用 app-level goal
 → 若有未提交改动，收敛 current_slice
 → 主 agent 生成当前 slice 执行包
-→ 派发 implementer / fixer 完成当前 slice.scope
+→ 派发 implementer / fixer 完成当前 slice.scope；未授权 self-run 时主 agent 不直接改业务代码
 → 派发 validator 运行 slice.tests、contract、smoke 或 mock 清理检查
 → 派发 reviewer 生成 .goal/cr/<slice>-round-1.md
 → 主 agent 审计报告和 diff
@@ -73,6 +115,7 @@ Goal Execute 默认采用 orchestrator-worker 模型：主 agent 负责编排、
 → 运行 Goal Exit 检查
 → 更新 status.yaml
 → commit
+→ 若达到 Goal 终态，按 app goal 工具契约同步完成 / 阻塞终态
 → 工具和上下文允许时继续下一 slice
 ```
 
@@ -192,7 +235,7 @@ Human Intervention 必须同时满足：
 每个 slice commit 前必须确认：
 
 - `slice.tests` 必跑项 exit 0，或失败原因已写入 `status.yaml.execution.state: blocked`。
-- `.goal/runs/<slice>-*.md` 中必要 worker report 存在，且 scope 未越界。
+- `.goal/runs/<slice>-*.md` 中必要 worker report 存在，且 scope 未越界；若是 self-run，必须有授权证据和 `.goal/runs/<slice>-self-run-<n>.md`。
 - `.goal/validation/<slice>-*.md` 中必要验证报告存在，或缺失原因已写入 slice exit / status。
 - `.goal/cr/<slice>-round-<n>.md` 存在，且除 Human Intervention 外 `Open findings: 0`。
 - 没有新增未登记 HTTP mock、fixture-only 读路径或 pending API。

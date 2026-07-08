@@ -21,6 +21,19 @@ orchestration:
   workers_may_update_status: false
   workers_may_commit: false
   workers_may_merge_worktrees: false
+  main_agent_may_edit_business_code: false
+  self_run_allowed: false
+  self_run_requires_explicit_user_or_goal_gate: true
+
+codex_app_goal:
+  enabled: true
+  role: ui_mirror_only
+  source_of_truth: ".goal/status.yaml"
+  objective: "<feature-id> Goal Execute"
+  create_on_execute_when_available: true
+  sync_terminal_state_when_allowed: true
+  app_goal_state: unknown
+  last_sync_at: null
 
 active_workers: []
 

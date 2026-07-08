@@ -37,6 +37,16 @@ bash scripts/check-playbook.sh
 - **references/**：不自动注入；skill 路由后按需 Read。
 - **业务项目 AGENTS.md**：打开对应项目时优先。
 
+## Codex App Goal 进度条
+
+项目 `.goal/status.yaml` 是 Goal Execute 的唯一执行状态源；Codex app 自带的 goal 进度条只用于 UI 可视化。需要两者同时工作时，直接说：
+
+```text
+按项目 .goal 执行，并创建 app goal 进度条跟踪。
+```
+
+AI 应该先读取项目 `.goal` 包，再用 `get_goal` / `create_goal` 创建或复用 Codex app goal；每个 slice 的详细状态仍写回 `.goal/status.yaml`，完成或阻塞终态按 app 工具契约同步。
+
 ## 维护
 
 | 改什么 | 改哪里 | 然后 |

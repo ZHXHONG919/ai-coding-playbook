@@ -29,7 +29,9 @@
 
 - 执行阶段只认 `.goal/status.yaml` 和 `.goal/slices.yaml`，聊天历史不是权威来源。
 - 主 agent 是 orchestrator / final integrator，只负责读取契约、派发 worker / validator / reviewer、审计证据、更新状态、合并和提交。
-- 子 agent、worker session 或 worktree worker 可以负责局部实现、验证、CR 和修复，但输出必须文件化，不能替代 `.goal/status.yaml`。
+- 子 agent、worker session 或 worktree worker 负责局部实现、验证、CR 和修复，输出必须文件化，不能替代 `.goal/status.yaml`。
+- 主 agent 默认不得直接编辑业务代码；只有本文件或 `gate.md` 明确允许 `self_run_allowed: true`，或用户当前轮明确授权 self-run，才可临时承担 implementer / fixer。
+- Codex app goal 如可用，只作为 UI 进度条镜像；详细执行进度仍以 `.goal/status.yaml` 为准。
 - 每个 slice 必须实现、验证、CR、修复、更新状态后才能 commit。
 - 可验功能应尽早验证；validator report 必须进入 CR 输入。
 - 代码改动默认必须生成 `.goal/cr/<slice>-round-<n>.md`；所有 CR findings 必须关闭，包括 Nit/P2。
@@ -45,7 +47,7 @@
 
 | 角色 | 允许做什么 | 禁止做什么 | 输出 |
 | --- | --- | --- | --- |
-| Main agent | 派发任务、审计报告、更新 status、合并、commit | 长期携带所有实现细节、跳过文件化证据 | `.goal/status.yaml`、commit、最终总结 |
+| Main agent | 派发任务、审计报告、更新 status、合并、commit | 直接编辑业务代码、长期携带所有实现细节、跳过文件化证据 | `.goal/status.yaml`、commit、最终总结 |
 | Implementer / Fixer | 当前 slice scope 内实现和修复 | 扩大 scope、推进 status、提交 commit | `.goal/runs/<slice>-<role>-<n>.md` |
 | Validator | 运行测试、contract、smoke、mock 清理检查 | 用验证报告代替 CR、擅自改业务逻辑 | `.goal/validation/<slice>-<kind>-<n>.md` |
 | Reviewer | scoped CR、多角色风险检查 | 继续开发、替代 validator | `.goal/cr/<slice>-round-<n>.md` |
@@ -73,11 +75,19 @@
 | Smoke A | 本地或手点 smoke | pending | |
 | Smoke B | 预发或发布前 smoke | pending | |
 
-## 6. Self Review 例外
+## 6. Self-run / Self Review 例外
 
-默认不允许主 agent 自评代替 CR。
+默认不允许主 agent 直接实现，也不允许主 agent 自评代替 CR。
+
+如当前环境没有子 agent / worker 能力，是否允许主 agent self-run：
+
+- self_run_allowed: false
+- Allowed slices:
+- Allowed files:
+- Reason:
+- Required report: `.goal/runs/<slice>-self-run-<n>.md`
 
 如当前环境没有子 agent / 外部 CR 能力，是否允许 self review：
 
-- Allowed: no
+- self_review_allowed: false
 - Reason:

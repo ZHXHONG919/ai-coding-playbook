@@ -37,7 +37,7 @@
 5. 每完成一个可验证单元，运行最小有效检查；可提前验证的功能不要积压到最后。
 6. 如果实现需要偏离方案，先说明偏差、原因和风险。
 
-普通轻量任务可以由主 agent 直接实现、验证和自审。复杂 Goal 或多切片任务默认采用主 agent 编排模型：
+普通轻量任务可以由主 agent 直接实现、验证和自审。复杂 Goal 或多切片任务默认采用主 agent 编排模型；未明确授权 self-run 时，主 agent 不直接编辑业务代码：
 
 ```text
 主 agent 读取任务 / slice 契约
@@ -51,11 +51,11 @@
 
 职责边界：
 
-- 主 agent 是 orchestrator 和 final integrator，负责读取契约、拆执行包、审计证据、控制 scope、更新 `tasks.md` / `.goal/status.yaml`、合并和提交。
+- 主 agent 是 orchestrator 和 final integrator，负责读取契约、拆执行包、审计证据、控制 scope、更新 `tasks.md` / `.goal/status.yaml`、合并和提交；复杂 Goal 下默认不得直接实现当前 slice 的业务代码。
 - implementer / fixer 子 agent 负责局部实现和局部修复；不得扩大 scope，不得修改权威状态源。
 - validator 子 agent 负责验证可验功能，例如 UI mock smoke、API contract test、service unit test、mock 清理检查；验证报告必须进入 CR 输入。
 - reviewer 子 agent 负责 scoped CR；不能用“worker 已验证”替代 CR。
-- 如果没有可用子 agent，则主 agent 可以本地完成对应角色，但必须在任务记录中标明 `self-run` / `self-reviewed` 及原因。
+- 如果复杂 Goal 没有可用子 agent / worker 工具，主 agent 必须停止直接实现，写明 worker handoff、阻塞原因和可恢复状态；只有用户明确授权 self-run，或 `.goal/GOAL.md` / `.goal/gate.md` 明确允许 `self_run_allowed: true` 时，才能本地完成对应角色，并必须在 `.goal/runs/` 和任务记录中标明 `self-run` 原因、范围和风险。
 
 ## 单任务完成闸口
 
@@ -78,7 +78,7 @@
 - CR 子 agent 不直接继续后续开发；主 agent 必须吸收 CR 结论后再进入下一任务。
 - 如果没有可用子 agent，则主 agent 按 Review 姿态自审，并在任务记录里标明 `CR: self-reviewed`。
 
-复杂 Goal 下，以上职责改为主 agent 调度和审计，具体实现 / 验证 / CR / 修复可以由不同子 agent 承担；但只有主 agent 能更新 `.goal/status.yaml`、合并 worktree、提交 commit 或推进下一片。
+复杂 Goal 下，以上职责改为主 agent 调度和审计，具体实现 / 验证 / CR / 修复必须由不同子 agent / worker 承担，除非存在明确 self-run 授权；但只有主 agent 能更新 `.goal/status.yaml`、合并 worktree、提交 commit 或推进下一片。
 
 CR 输入应包含：
 

@@ -85,9 +85,11 @@ required=(
   "evals/goal-execute/no-fake-cr.md"
   "evals/goal-execute/no-deferred-final-done.md"
   "evals/goal-execute/resume-from-status.md"
+  "evals/goal-execute/codex-app-goal-mirror.md"
   "evals/goal-execute/no-new-thread-on-context.md"
   "evals/goal-execute/all-cr-findings-closed.md"
   "evals/goal-execute/orchestrator-delegates-workers.md"
+  "evals/goal-execute/no-main-thread-implementation.md"
   "evals/goal-execute/worker-cannot-update-status.md"
   "evals/goal-execute/validation-before-cr.md"
   "evals/goal-execute/mock-ledger-required.md"
@@ -207,6 +209,11 @@ if ! grep -q '继续 Goal' "$ROOT_DIR/platforms/codex/overlays/ai-coding-playboo
   exit 1
 fi
 
+if ! grep -q 'app goal 进度条' "$ROOT_DIR/platforms/codex/overlays/ai-coding-playbook.md"; then
+  echo "codex overlay missing app goal progress trigger" >&2
+  exit 1
+fi
+
 if ! grep -q 'Product Flow Gate' "$ROOT_DIR/references/stages/plan.md"; then
   echo "plan stage missing Product Flow Gate" >&2
   exit 1
@@ -253,6 +260,16 @@ if ! grep -q 'orchestrator-worker' "$ROOT_DIR/skills/goal-execute/SKILL.md"; the
   exit 1
 fi
 
+if ! grep -q '默认不得直接编辑当前 slice 的业务代码' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing main-agent no-business-code rule" >&2
+  exit 1
+fi
+
+if ! grep -q 'self_run_allowed: true' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing explicit self-run gate" >&2
+  exit 1
+fi
+
 if ! grep -q 'worker report' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
   echo "goal-execute missing worker report evidence rule" >&2
   exit 1
@@ -273,6 +290,11 @@ if ! grep -q 'worktree-plan.md' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
   exit 1
 fi
 
+if ! grep -q 'Codex App Goal 镜像' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing Codex app goal mirror rule" >&2
+  exit 1
+fi
+
 if grep -Eq 'open_deferred > 0.*(除非|允许|可).*waiver' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
   echo "goal-execute allows final open deferred waiver" >&2
   exit 1
@@ -288,6 +310,16 @@ if ! grep -q 'workers_may_update_status: false' "$ROOT_DIR/templates/goal/status
   exit 1
 fi
 
+if ! grep -q 'main_agent_may_edit_business_code: false' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status missing main-agent business-code boundary" >&2
+  exit 1
+fi
+
+if ! grep -q 'self_run_allowed: false' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status missing self_run_allowed=false" >&2
+  exit 1
+fi
+
 if ! grep -q 'active_workers' "$ROOT_DIR/templates/goal/status.yaml"; then
   echo "goal status missing active worker tracking" >&2
   exit 1
@@ -300,6 +332,21 @@ fi
 
 if ! grep -q 'checkpoint_commit_allowed: false' "$ROOT_DIR/templates/goal/status.yaml"; then
   echo "goal status missing checkpoint_commit_allowed=false" >&2
+  exit 1
+fi
+
+if ! grep -q 'codex_app_goal:' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status missing Codex app goal mirror policy" >&2
+  exit 1
+fi
+
+if ! grep -q 'role: ui_mirror_only' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status Codex app goal must remain UI mirror only" >&2
+  exit 1
+fi
+
+if ! grep -q 'source_of_truth: ".goal/status.yaml"' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status Codex app goal source of truth must be .goal/status.yaml" >&2
   exit 1
 fi
 

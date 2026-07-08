@@ -235,4 +235,4 @@ references/
 
 方案阶段的核心原则：先用业务、领域、架构、交付和 Review 视角补齐盲区，再做轻量领域抽象，不套完整 DDD；复杂方案在任务拆解或实现前做 scoped design CR；涉及复杂后台页面、运营流程、审核流或批量操作时先补 UI flow，必要时用静态原型验证页面风格和业务流程；最后用图表和细节把方案落到可编码、可测试、可评审。复杂长链路方案通过 Design CR 后，必须进入 Goal Handoff，把方案和 `tasks.md` 转成 `.goal/` 执行契约，并通过 Goal Gate 后才能实现。
 
-实现阶段的核心原则：按 `tasks.md` 小步推进；每个任务完成前先补必要测试并运行最小有效验证，再做 scoped CR，主 agent 吸收 CR 结论后才能继续后续任务。若 feature 已有 `.goal/status.yaml`，执行阶段以 `goal-execute` 续跑，状态只认 `.goal/status.yaml`。复杂 Goal 默认采用主 agent 编排模型：主 agent 派发 worker / validator / reviewer，子 agent 输出文件化报告，主 agent 审计证据、更新状态、合并和提交。
+实现阶段的核心原则：按 `tasks.md` 小步推进；每个任务完成前先补必要测试并运行最小有效验证，再做 scoped CR，主 agent 吸收 CR 结论后才能继续后续任务。若 feature 已有 `.goal/status.yaml`，执行阶段以 `goal-execute` 续跑，状态只认 `.goal/status.yaml`。复杂 Goal 默认采用主 agent 编排模型：主 agent 派发 worker / validator / reviewer，子 agent 输出文件化报告，主 agent 审计证据、更新状态、合并和提交。在 Codex app 中，app goal 进度条只作为 UI 镜像；详细切片进度仍以项目 `.goal/status.yaml` 为准。

@@ -71,7 +71,7 @@ docs/features/<feature>/.goal/
 | `GOAL.md` | 范围、非目标、分支、来源文档、全局完成标准、允许停止条件 |
 | `acceptance.md` | 按用户路径写 P0/P1 验收，绑定写 API、读 API、页面可见结果和失败态 |
 | `slices.yaml` | 每个切片的 scope、non-goals、必读文档、测试命令、Exit 清单和 CR 要求 |
-| `status.yaml` | 唯一执行状态源：next slice、当前状态、active workers、last reports、open blocker/deferred、last CR、global exit |
+| `status.yaml` | 唯一执行状态源：next slice、当前状态、active workers、last reports、open blocker/deferred、last CR、global exit；可包含 Codex app goal UI 镜像策略 |
 | `review-policy.md` | CR 审核流程、角色矩阵、轮次、通过条件和所有 findings 的关闭规则 |
 | `mock-ledger.md` | 记录 mock / pending API / fixture-only 读路径的创建、到期、清理和 waiver |
 | `worktree-plan.md` | 记录允许并行的 worktree worker、ownership、merge order 和冲突策略 |
@@ -87,12 +87,13 @@ docs/features/<feature>/.goal/
 ## 核心原则
 
 - `.goal/status.yaml` 是执行阶段唯一状态源；不要同时维护 `execution-progress.md`、`tasks.md` 状态表和自然语言 goal 三本账。
+- Codex app goal 进度条可以作为 UI 可视化镜像，但不是第二状态源；生成 Goal 包时应在 `status.yaml.codex_app_goal` 写明是否启用，非 Codex 环境可忽略该字段。
 - `tasks.md` 是设计阶段的任务来源，Goal Handoff 后执行进度只回写 `status.yaml`。
 - 切片按用户路径拆，不按纯技术层拆；P0 页面主读接口必须在对应用户路径切片内真实化。
 - Goal 包只写执行契约，不把业务事实从业务项目搬到 playbook。
 - Goal Handoff 不能绕过 Design CR；如果生成 Goal 包时发现方案缺口，回到方案阶段。
 - Goal 不主动新开替代线程；上下文压缩后仍在当前线程按 `status.yaml` 恢复。允许主 agent 在同一 Goal 内调度受控子 agent、worker session 或 worktree worker，但它们不能替代主线程权威状态。
-- 主 agent 是 orchestrator / final integrator：只负责读取契约、派发 worker / validator / reviewer、审计证据、更新 `status.yaml`、合并和提交；实现、验证、CR 和局部修复可委派给子 agent。
+- 主 agent 是 orchestrator / final integrator：只负责读取契约、派发 worker / validator / reviewer、审计证据、更新 `status.yaml`、合并和提交；实现、验证、CR 和局部修复默认必须委派给子 agent / worker，主 agent 不直接编辑业务代码。若确需 self-run，必须在 Goal 包中显式写明 `self_run_allowed: true`、允许范围和原因。
 - 子 agent 输出必须文件化到 `runs/`、`validation/` 或 `cr/`；聊天回复、子线程摘要或 worker 自述不能替代 `status.yaml`。
 - CR findings 默认全部必须关闭，包括 Nit/P2；只有 `human-intervention.md` 登记的人为介入项可以遗留。
 
@@ -110,6 +111,7 @@ Ready 条件：
 - `worktree-plan.md` 已说明哪些任务允许并行、ownership、merge order 和共享契约冲突处理；共享 DTO / Entity / migration / 状态机默认不并行改。
 - `human-intervention.md` 初始为空；如允许人为介入，必须写清触发条件、代码 TODO 规则和最终状态 `needs_human_intervention`。
 - `resume.md` 明确上下文压缩后不新开线程、不做半成品 checkpoint commit。
+- `status.yaml.codex_app_goal` 已写明 Codex app UI 镜像策略；启用时仍声明 `.goal/status.yaml` 为 source of truth。
 - 最后一片有 global exit：`open_deferred=0`、`open_cr_findings=0`、HTTP mock 白名单为空或计数为 0、P0 acceptance 全绿或有书面 waiver、smoke A/B 状态明确。
 - Deferred 默认禁止；若允许，必须写入 `risks-deferred.md`，包含 `expires_at_slice`、`user_visible_impact`、`code_stub` 和处理责任。
 - `status.yaml` 初始化为 `next_slice` 指向第一片，`open_blocker=0`，`open_cr_findings=0`，`open_deferred=0`。
