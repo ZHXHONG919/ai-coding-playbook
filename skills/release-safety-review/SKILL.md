@@ -1,6 +1,6 @@
 ---
 name: release-safety-review
-description: Review release readiness, deployment order, migration safety, env changes, deploy targets, backup, rollback, and smoke plans. Use for release check, 发布前检查, Go/No-Go, rollback plan, 部署, 部署下, 部署一下, 上线, 发版, 发测试, 发生产, or deploy safety review before apply.
+description: Review release readiness, deployment order, migration safety, env changes, deploy targets, backup, rollback, and smoke plans. Use for explicit release requests: release check, 发布前检查, Go/No-Go, rollback plan, 上线, 发版, 发测试, 发生产, deploy safety review before apply, or 部署/部署下 when the context already mentions merge main, release/hotfix branches, staging, production, or a concrete release command.
 ---
 
 # Release Safety Review
@@ -8,7 +8,8 @@ description: Review release readiness, deployment order, migration safety, env c
 ## 使用时机
 
 - 发布前检查、回滚方案评估、发布 Go / No-Go。
-- 用户要求部署、部署下、部署一下、上线、发版、发测试、发生产，或说已经 merge main 后要求部署。
+- 用户要求发布检查、回滚方案、Go / No-Go、上线、发版、发测试、发生产，或说已经 merge main / release 分支 / hotfix 分支后要求部署。
+- 用户提到测试环境、staging、生产、发布窗口、`--apply` 或具体发布命令，并要求执行或评审发布安全。
 - 评审 PR 中的 migration、env、deploy script、targets 变更。
 - 用户提到 `--apply`、生产发布、备份恢复、健康检查。
 
@@ -16,19 +17,22 @@ description: Review release readiness, deployment order, migration safety, env c
 
 - 只是在写功能代码，尚未进入发布窗口。
 - 用户只要求解释项目发布文档，不涉及本次变更风险评估。
+- 用户只是问“需要部署服务么 / 本地需不需要部署 / 部署哪个服务 / 只重启哪个 target / deploy 脚本参数是什么意思”；先回答本地运行、服务范围或命令解释，不默认推到测试 / staging / 生产。
 
 ## 必读材料
 
 1. 目标业务项目 `AGENTS.md`、发布文档、deploy 脚本说明。
 2. `references/stages/release.md`。
-3. 如有 DB 变更：`references/review-kit/database.md`。
-4. 本次 PR diff、migration 列表、env diff、target 列表、release plan。
+3. `references/git-safety.md`。
+4. 如有 DB 变更：`references/review-kit/database.md`。
+5. 本次 PR diff、migration 列表、env diff、target 列表、release plan。
 
 ## 检查清单
 
 ### 发布前置
 
 - 当前代码是否在允许发布的分支；工作区是否干净；`HEAD` 是否满足项目要求。
+- 发布检查不得为了同步主干本地执行 `git pull`、`git merge origin/main`、`git rebase origin/main` 或 `--autostash`；项目要求 PR-only 时只提示走 PR 页面 / merge queue。
 - 默认发布顺序是否满足：读取项目发布 SOP -> 部署测试 / staging -> smoke / 验收 -> 等待人工通知 -> 生产发布。
 - 未收到用户明确生产授权前，不执行生产发布命令，只输出生产发布计划、阻塞项和等待确认状态。
 - 未指定环境的部署请求默认只允许测试 / staging；如果项目没有测试发布入口，停止并列阻塞项，不得回退到生产。

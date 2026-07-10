@@ -21,6 +21,7 @@
 - 先读现有模块、命名、错误处理、测试风格。
 - 使用项目已有 helper、API client、组件库、DTO、Guard、migration 规则。
 - 不引入新依赖，除非现有工具明显不足，并说明原因。
+- Git 只读检查和 `git fetch` 可以用于确认状态；不要自动 `pull`、`merge/rebase main` 或用 `--autostash` 同步主干。
 
 ## 4. Verification Loop
 
@@ -37,6 +38,7 @@
 - 相关测试是否通过。
 - 文档、env example、migration 是否同步。
 - 是否留下了调试日志、临时代码、真实凭据。
+- 前端页面、后台工具、审核流、表单、表格或复杂 UI 状态改动是否对照 `ui-flow.md` / `prototype/` 做过 UI Drift 检查；若项目安装 `.agents/skills/impeccable`，记录使用的 `shape / critique / audit / polish` 命令或 skipped 原因。
 
 ## 5. Stop Conditions
 
@@ -44,4 +46,5 @@
 
 - 需要生产凭据、真实账号、付费 API、大规模数据操作。
 - 会触发生产发布、删除数据、重写历史、迁移不可逆 schema。
+- 需要本地合并主干、rebase 主干、force push，或绕过 PR 页面 / merge queue。
 - 本地代码和文档冲突，且无法判断哪个是事实来源。

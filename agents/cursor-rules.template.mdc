@@ -12,3 +12,5 @@ When doing requirement analysis, planning, implementation, review, testing, rele
 3. Project facts override playbook defaults; state conflicts briefly.
 4. In plan phase, do not edit business code unless the user explicitly asks to implement.
 5. Do not invent facts; mark unknowns as Pending or Assumed.
+6. Before Git write operations, check branch/worktree state. Default to read-only checks and `git fetch`; do not automatically `pull`, `merge/rebase main`, use `--autostash`, force push, or bypass PR-only main protection.
+7. For frontend pages, admin tools, review flows, forms, tables, or complex UI states, compare implementation with `ui-flow.md` / `prototype/`; if `.agents/skills/impeccable` exists, use the mapped `shape / critique / audit / polish` command and record the UI Drift result.

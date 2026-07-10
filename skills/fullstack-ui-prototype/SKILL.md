@@ -65,6 +65,33 @@ prototype/<surface-or-feature>/
 
 复杂全栈方案进入详细技术方案前，必须先补 UI flow；如果页面流程不直观，必须补静态原型或明确说明为什么不需要。
 
+## Impeccable 接入
+
+`impeccable` 是 UI/UX 质量增强层，不替代本 skill 的业务流程、ViewModel、API、状态和权限推导。
+
+适用时机：
+
+- 生成或评审静态原型前，如果目标项目存在 `.agents/skills/impeccable/SKILL.md`，先读取该 skill。
+- 原型完成后，使用 impeccable 的 audit / critique / polish 视角检查信息层级、视觉层级、交互状态、响应式、可访问性和常见 AI UI 反模式。
+- 实现阶段对照已确认的 `ui-flow.md` / `prototype/` 检查页面偏差时，进入 `references/stages/implementation.md` 的 UI Drift Gate。
+
+默认命令映射：
+
+- 新建或重构页面结构 / 交互路径：按 `impeccable shape` 读取对应流程，先设计页面结构和交互，再进入原型或实现。
+- 原型完成后的设计审查：按 `impeccable critique` 检查视觉层级、信息架构、清晰度、情绪表达和 AI UI 反模式。
+- 原型或实现后的技术质量检查：按 `impeccable audit` 检查可访问性、响应式、性能、溢出、状态覆盖等问题。
+- CR 后的前端修复：按 `impeccable polish` 修视觉、布局、文案和状态细节；修完再按 `impeccable audit` 复验，若担心偏离已确认原型则补 `impeccable critique`。
+- 上线前或任务收尾打磨：按 `impeccable polish` 处理视觉、布局、文案、状态和细节一致性。
+- 风格方向不合适时：按问题选择 `impeccable bolder`、`impeccable quieter`、`impeccable colorize`、`impeccable layout`、`impeccable clarify` 等专项命令。
+
+这些命令由 agent 按阶段自动选择；用户显式指定某个 impeccable 命令时，以用户指定为准。
+
+边界：
+
+- impeccable 发现的视觉、布局、文案、状态覆盖问题，可以同步回 `ui-flow.md`、`prototype/`、`tasks.md`。
+- 如果发现主用户路径、审核对象、状态流、权限或操作矩阵需要变化，必须回到 UI Flow / 方案阶段做 Change Sync，并再次等待用户确认。
+- 目标项目未安装 impeccable 时，不阻塞原型阶段；改用本 skill 的静态原型要求和浏览器 smoke 做自审。
+
 Product Flow Gate：
 
 - UI Flow / 静态原型完成后，必须停下来让用户确认。
@@ -76,6 +103,7 @@ Product Flow Gate：
 
 - 需求确认阶段：至少有页面流 / 审核对象草图，用来确认用户看什么、审什么、改什么。
 - Product Flow Gate 前：补 `ui-flow.md` 初版和必要的静态原型，用页面路径反推 ViewModel、API、状态、权限和错误态。
+- Product Flow Gate 前：如目标项目已安装 impeccable，必须完成一次 impeccable 视角的原型质量检查，并记录采纳项、拒绝项和需要回到需求 / 方案确认的阻塞项。
 - 详细技术方案前：核心静态原型或等价 UI flow 必须经用户确认；主链路页面、操作矩阵、状态映射和浏览器 smoke 路径不能再悬空。
 - 详细技术方案阶段：如技术约束反推需要调整原型或主用户路径，回到 UI Flow / 原型阶段并再次确认，不要静默改方案。
 - 实现阶段：可以微调视觉和布局，但不能再改审核对象、状态流或主操作路径；如需修改，回到方案讨论并执行 Change Sync。
@@ -112,6 +140,7 @@ UI flow 至少回答：
 - `ui-flow.md`：页面地图、用户路径、ViewModel、操作矩阵、状态映射、权限和 smoke。
 - 可选 `prototype/`：静态页面和 mock 数据。
 - Product Flow Gate 结论：等待确认 / 已确认进入详细方案。
+- Impeccable Check：已执行 / 未安装跳过；采纳项、拒绝项、Blocking 项。
 - 对 `plan.md` 的回写：补齐 UI flow 发现的 API、DTO、状态、权限、任务或测试缺口。
 - 对 `tasks.md` 的回写：新增或细化 FE / API / QA 任务，确保原型暴露的问题有落地任务。
 

@@ -36,6 +36,18 @@ Date: <YYYY-MM-DD>
 | --- | --- | --- |
 | | pending | |
 
+## UI / Impeccable Impact
+
+Required when the worker or fixer touches frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state.
+
+| Item | Value |
+| --- | --- |
+| UI touched | yes / no |
+| Compared docs | `ui-flow.md` / `prototype/` / n/a |
+| Impeccable command used | shape / critique / audit / polish / bolder / quieter / colorize / layout / clarify / skipped |
+| UI Drift status | Passed / Fixed / Blocking / Skipped |
+| Notes | |
+
 ## Mock Ledger Impact
 
 | Mock ID | Action | Evidence |

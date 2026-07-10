@@ -23,7 +23,18 @@ Review 阶段默认站在 Staff Reviewer、专项 Reviewer 和发布风险负责
 2. 收集证据：diff、测试结果、项目约束、相关设计文档。
 3. 预检：优先运行项目已有 lint / typecheck / test / build；不能运行要说明。
 4. 按角色视角和维度审查：正确性、安全、性能、并发、数据一致性、可维护性、测试充分性、发布风险。
-5. 输出问题清单，按严重程度排序。
+5. 如果 review 范围涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态，必须执行 UI Drift Review。
+6. 输出问题清单，按严重程度排序。
+
+## UI Drift Review
+
+当前 diff 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时：
+
+- 定位已确认的 `ui-flow.md` / `prototype/`，检查实现是否偏离主用户路径、审核对象、操作矩阵、状态映射、权限和错误态。
+- 如果目标项目存在 `.agents/skills/impeccable/SKILL.md`，默认按 `impeccable audit` 检查可访问性、响应式、性能、溢出和状态覆盖；若主要风险是信息架构、主次操作、视觉层级或清晰度偏离原型，再按 `impeccable critique` 补设计审查。
+- Review 输出必须记录使用的 impeccable 命令或 skipped 原因，以及 `UI Drift: Passed / Fixed / Blocking / Skipped`。
+- impeccable 只能作为 UI/UX 质量增强层；不得用视觉建议覆盖已确认的主用户路径、审核对象、权限、状态流或 API/ViewModel 契约。
+- 目标项目未安装 impeccable 时，不阻塞 Review；按 `ui-flow.md` / `prototype/` 和浏览器 smoke 证据自审，并记录 skipped。
 
 ## 分级
 

@@ -29,6 +29,7 @@ Goal Execute 默认采用 orchestrator-worker 模型：主 agent 负责编排、
 4. `.goal/GOAL.md`、`.goal/acceptance.md`、`.goal/design-handoff.md`、`.goal/review-policy.md`、`.goal/mock-ledger.md`、`.goal/worktree-plan.md`、`.goal/human-intervention.md`、`.goal/resume.md`、`.goal/risks-deferred.md`。
 5. 当前切片列出的 `required_docs`。
 6. `git status`、当前分支、最近 commit。
+7. `references/git-safety.md`，并按项目规则确认是否禁止本地 merge / rebase 主干。
 
 聊天历史不是权威来源。若聊天与 `.goal/status.yaml` 冲突，以 `status.yaml` 为准；若 `status.yaml` 与 git 明显冲突，先核对并回写状态。
 
@@ -105,7 +106,7 @@ Codex app goal 只作为 UI 可视化镜像，不能替代 `.goal/status.yaml`�
 ```text
 读取 status.yaml + slices.yaml[next]
 → 若 Codex app goal 可用且未显式关闭，创建或复用 app-level goal
-→ 若有未提交改动，收敛 current_slice
+→ 若有未提交改动，收敛 current_slice；不得用 `--autostash` 自动 merge / rebase 主干
 → 主 agent 生成当前 slice 执行包
 → 派发 implementer / fixer 完成当前 slice.scope；未授权 self-run 时主 agent 不直接改业务代码
 → 派发 validator 运行 slice.tests、contract、smoke 或 mock 清理检查
@@ -160,6 +161,14 @@ Codex app goal 只作为 UI 可视化镜像，不能替代 `.goal/status.yaml`�
 - Mock 清理检查：验证 mock ledger 对应项已关闭。
 - Integration smoke：验证写 API、读 API、页面可见结果和失败态闭环。
 
+当前 slice 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时，验证必须包含 UI Drift Gate：
+
+- 对照已确认的 `ui-flow.md` / `prototype/` 检查实现是否偏离主路径、操作矩阵、状态映射、权限和错误态。
+- 如果目标项目存在 `.agents/skills/impeccable/SKILL.md`，默认按 `impeccable audit` 做技术质量检查；若主要风险是信息架构、主次操作、视觉层级或清晰度偏离原型，再按 `impeccable critique` 补设计审查。
+- 如果是在 CR 后修复前端问题，默认按 `impeccable polish` 做视觉、布局、文案和状态细节修复；修完再按 `impeccable audit` 复验，必要时补 `impeccable critique`。
+- 验证报告必须记录使用的 impeccable 命令或 skipped 原因，以及 `UI Drift: Passed / Fixed / Blocking / Skipped`。
+- 发现主用户路径、审核对象、状态流、权限或 API/ViewModel 契约变化时，不能在 slice 内静默修复，必须标为 Blocking 并回到 UI Flow / 方案阶段做 Change Sync。
+
 验证报告必须写入 `.goal/validation/`，并作为 CR 输入。测试绿不能替代验证报告；验证报告也不能替代 CR。
 
 ## CR 要求
@@ -178,6 +187,7 @@ CR 文件必须包含：
 - 输入的 worker report 和 validation report。
 - 已运行测试命令及结果。
 - acceptance 覆盖表。
+- 前端 slice 的 UI Drift 结论、impeccable 命令或 skipped 原因。
 - Findings：Blocker / Should-fix / Nit。
 - 每条 finding 的关闭状态：`fixed` / `rejected_false_positive` / `human_intervention`。
 - `Open findings: 0` 才能进入正常 commit。
@@ -201,6 +211,7 @@ CR 文件必须包含：
 运行验证
 → 子 agent CR
 → 修复 Blocker / Should-fix / Nit
+→ 若修复改到前端页面 / UI 状态，重新执行 UI Drift Gate
 → 对误报写 rejected_false_positive 及理由
 → 重跑受影响验证
 → 再次 CR

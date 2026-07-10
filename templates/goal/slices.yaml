@@ -37,6 +37,10 @@ slices:
         required: false
         command: "<UI or integration smoke command>"
         output_pattern: ".goal/validation/R01-smoke-{n}.md"
+      - kind: ui-drift
+        required_when: "slice touches frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state"
+        command: "compare implementation with ui-flow.md / prototype; if .agents/skills/impeccable exists, run the mapped impeccable command"
+        output_pattern: ".goal/validation/R01-ui-drift-{n}.md"
     mock_ledger:
       creates: []
       closes: []
@@ -54,6 +58,7 @@ slices:
     exit:
       - worker_reports_present
       - validation_reports_present_or_waived
+      - ui_drift_passed_or_skipped_when_frontend
       - spec_green
       - cr_files_open_findings_zero
       - no_new_unregistered_mock

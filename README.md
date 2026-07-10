@@ -13,6 +13,7 @@
 - 让 AI 先理解、计划、验证，再改代码。
 - 让 feature 设计、测试、发布和回滚有固定检查点。
 - 让新需求从分支、方案文档、任务列表到单任务 CR 都可追踪。
+- 让 Git 分支操作保持可控：默认只做只读检查和 `git fetch`，不擅自本地 merge / rebase 主干或绕过 PR 保护。
 - 让不同项目共享同一套基础 Skills，而项目细节仍留在业务仓库自己的 `AGENTS.md` 中。
 - 避免把历史公司的业务、平台、Java 技术栈、内部工具绑定到新项目。
 
@@ -45,7 +46,7 @@ ai-coding-playbook/
 做 CR
 测试范围
 发布检查
-部署
+上线 / 发测试 / 发生产
 ```
 
 如果当前窗口有多个项目，第一次加目标项目即可：
@@ -168,7 +169,7 @@ AI_CODING_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh --target cur
 | 层级 | 放在哪里 | 是否跨项目共用 | 说明 |
 | --- | --- | --- | --- |
 | AI 行为边界 | `agents/` | 高 | 不乱改、不越权发布、先验证后收尾 |
-| 活规则 | `references/` | 高 | 阶段路由、kickoff、方案门禁、review-kit、场景专项 |
+| 活规则 | `references/` | 高 | 阶段路由、Git 安全边界、kickoff、方案门禁、review-kit、场景专项 |
 | 工作流 | `workflows/` | 高 | 旧版 feature、review、test、release、incident，保留兼容 |
 | 文档模板 | `templates/` | 高 | 复杂方案 `feature-design.md`、轻量方案 `plan-light.md`、PR、migration |
 | Skills | `skills/` | 高 | Code Review、测试范围、设计 CR、Nest API、React feature 等 |
@@ -206,6 +207,20 @@ AI_CODING_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh --target cur
 | `skill-prompt-convert` | Prompt / AGENTS / SKILL.md 互转 |
 | `codegen-diagram` | 基于项目事实生成 Mermaid 架构图、ER 图、状态图、数据流图 |
 | `codegen-doc` | 基于项目事实生成项目文档、模块说明和交接材料 |
+
+## Impeccable 接入
+
+`impeccable` 是目标业务项目可选安装的前端/UI 质量增强 skill。playbook 不把它当作通用必装 skill；只有目标项目存在 `.agents/skills/impeccable/SKILL.md` 时才启用，未安装时不阻塞流程。
+
+默认阶段映射：
+
+- UI Flow 或静态原型前：需要新建或重构页面结构时按 `impeccable shape`。
+- 原型完成后：按 `impeccable critique` 做视觉层级、信息架构、清晰度和 AI UI 反模式检查。
+- 实现完成后：按 `impeccable audit` 做可访问性、响应式、性能、溢出和状态覆盖检查。
+- CR 后前端 fix：按 `impeccable polish` 修视觉、布局、文案和状态细节，修完再按 `impeccable audit` 复验；担心偏离原型时补 `impeccable critique`。
+- 风格专项问题：按问题选择 `impeccable bolder`、`impeccable quieter`、`impeccable colorize`、`impeccable layout`、`impeccable clarify`。
+
+impeccable 只能修 UI 质量和表达，不能覆盖已确认的主用户路径、审核对象、权限、状态流或 API/ViewModel 契约；发现这些变化必须回到 UI Flow / 方案阶段做 Change Sync。
 
 ## 规则生效诊断与评测
 

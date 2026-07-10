@@ -26,6 +26,20 @@
 | UI flow / prototype | | |
 | Release / smoke | | |
 
+## UI / Impeccable Baseline
+
+Required when execution includes frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state.
+
+| Item | Value |
+| --- | --- |
+| UI baseline docs | `ui-flow.md` / `prototype/` / n/a |
+| Target project has `.agents/skills/impeccable` | yes / no |
+| Product Flow Gate status | confirmed / skipped / n/a |
+| Required UI Drift validation | yes / no |
+| Default impeccable commands | `shape` before new structure, `critique` after prototype, `audit` after implementation, `polish` after CR fix |
+
+Execution must block and return to UI Flow / plan Change Sync if a slice needs to change confirmed main path, review object, operation matrix, permission, state flow, or API/ViewModel contract.
+
 ## Execution Boundaries
 
 - 执行期不得新增范围：

@@ -18,6 +18,7 @@
 | 维度 | 要求 |
 | --- | --- |
 | 变更范围 | 本次发布包含哪些模块、接口、迁移、Job、前端页面 |
+| 分支状态 | 当前分支、工作区、HEAD 是否符合项目 SOP；遵守 `references/git-safety.md`，不为发布检查本地 merge / rebase 主干 |
 | 环境顺序 | 是否已按项目 SOP 先发布测试 / staging；生产发布是否等待明确人工通知 |
 | 验证 | lint/typecheck/test/build/smoke 是否完成 |
 | 数据 | migration 是否可重放，是否有回滚或补偿方案 |
@@ -41,8 +42,11 @@
 
 ## 部署顺序门禁
 
-- 用户说“部署”“部署下”“部署一下”“上线”“发版”“发测试”“发生产”，或说“已经 merge main，部署吧”时，进入发布阶段。
+- 用户明确要求发布检查、回滚方案、Go / No-Go、上线、发版、发测试、发生产，或说“已经 merge main / release 分支 / hotfix 分支，部署吧”时，进入发布阶段。
+- “部署 / 部署下 / 部署一下”只有在当前上下文已经是发布、测试环境、staging、生产、merge main、release 或 hotfix 时才作为发布请求处理。
+- 用户只是问“需要部署服务么 / 本地需不需要部署 / 部署哪个服务 / 只重启哪个 target / deploy 脚本参数是什么意思”时，不得默认扩展成测试或生产发布；先回答服务范围、本地启动方式、target 选择或命令含义，必要时再轻问是否要进入发布检查。
 - Agent 必须先读取目标项目自己的发布 SOP / `AGENTS.md` / deploy 脚本说明。
+- 发布检查只允许确认分支和 HEAD，不允许为了“让分支最新”在本地执行 `git merge origin/main`、`git rebase origin/main`、`git pull` 或 `--autostash`；若项目要求 PR 页面更新 base，必须提示走 PR 页面。
 - 默认先按项目标准流程部署测试 / staging，并完成 smoke 或验收记录。
 - 没有用户明确通知或授权前，不执行生产发布；只能输出生产发布计划、阻塞项和等待确认状态。
 - 即使分支已经 merge main，也不代表生产授权已经给出。

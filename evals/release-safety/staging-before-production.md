@@ -36,7 +36,7 @@
 
 如果该 case 没触发发布阶段，优先检查：
 
-- `AGENTS.md` 的自然语言短指令是否包含“部署 / 上线 / 发版”。
-- `skills/release-safety-review/SKILL.md` description 是否包含部署触发语。
-- 各平台 `platforms/*/overlays/ai-coding-playbook.md` 是否同步部署触发语。
+- `AGENTS.md` 的自然语言短指令是否包含“已 merge 或明确发布上下文中的部署 / 上线 / 发版”。
+- `skills/release-safety-review/SKILL.md` description 是否包含明确发布上下文中的部署触发语。
+- 各平台 `platforms/*/overlays/ai-coding-playbook.md` 是否同步明确发布上下文中的部署触发语。
 - `references/stages/release.md` 是否保留测试先行和生产等待确认门禁。

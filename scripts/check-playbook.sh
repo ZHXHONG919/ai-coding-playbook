@@ -33,6 +33,7 @@ required=(
   "references/stages/rule-diagnostics.md"
   "references/stages/bugfix.md"
   "references/stages/release.md"
+  "references/git-safety.md"
   "references/plan/evidence-first.md"
   "references/plan/role-lens.md"
   "references/plan/domain-design.md"
@@ -77,10 +78,14 @@ required=(
   "evals/README.md"
   "evals/ai-coding-playbook-routing.md"
   "evals/usage/simple-stage-commands.md"
+  "evals/usage/claude-ui-flow-trigger.md"
   "evals/plan/boundary-cases-required.md"
   "evals/plan/latest-requirement-delta-gate.md"
   "evals/plan/prototype-confirmation-gate.md"
+  "evals/implementation/ui-drift-gate-impeccable.md"
+  "evals/release-safety/local-deploy-question-not-release.md"
   "evals/release-safety/staging-before-production.md"
+  "evals/git-safety/no-automerge-main-into-feature.md"
   "evals/goal-handoff/goal-package-required.md"
   "evals/goal-handoff/design-cr-ready-requires-goal.md"
   "evals/goal-execute/no-fake-cr.md"
@@ -95,6 +100,8 @@ required=(
   "evals/goal-execute/validation-before-cr.md"
   "evals/goal-execute/mock-ledger-required.md"
   "evals/goal-execute/worktree-parallel-boundary.md"
+  "evals/goal-execute/ui-drift-gate-impeccable.md"
+  "evals/review/ui-drift-gate-impeccable.md"
   "profiles/nest-react-postgres.md"
   "skills/ai-coding-playbook/SKILL.md"
   "skills/design-review/SKILL.md"
@@ -185,6 +192,11 @@ if ! grep -q 'rule-diagnostics' "$ROOT_DIR/AGENTS.md"; then
   exit 1
 fi
 
+if ! grep -q 'references/git-safety.md' "$ROOT_DIR/AGENTS.md"; then
+  echo "AGENTS.md missing git-safety route" >&2
+  exit 1
+fi
+
 if ! grep -q 'ai-ready' "$ROOT_DIR/AGENTS.md"; then
   echo "AGENTS.md missing ai-ready route" >&2
   exit 1
@@ -230,6 +242,16 @@ if ! grep -q 'Cross-doc Consistency Scan' "$ROOT_DIR/references/stages/implement
   exit 1
 fi
 
+if ! grep -q 'git merge origin/main' "$ROOT_DIR/references/git-safety.md"; then
+  echo "git-safety missing protected main merge rule" >&2
+  exit 1
+fi
+
+if ! grep -q -- '--autostash' "$ROOT_DIR/references/git-safety.md"; then
+  echo "git-safety missing autostash ban" >&2
+  exit 1
+fi
+
 if ! grep -q '用户原话和最新确认业务规则' "$ROOT_DIR/skills/design-review/SKILL.md"; then
   echo "design-review missing original business rule reconciliation" >&2
   exit 1
@@ -242,6 +264,106 @@ fi
 
 if ! grep -q '原型确认，进入详细技术方案' "$ROOT_DIR/skills/fullstack-ui-prototype/SKILL.md"; then
   echo "fullstack-ui-prototype missing explicit prototype confirmation gate" >&2
+  exit 1
+fi
+
+if ! grep -q 'impeccable shape' "$ROOT_DIR/skills/fullstack-ui-prototype/SKILL.md"; then
+  echo "fullstack-ui-prototype missing impeccable shape command mapping" >&2
+  exit 1
+fi
+
+if ! grep -q 'impeccable audit' "$ROOT_DIR/skills/fullstack-ui-prototype/SKILL.md"; then
+  echo "fullstack-ui-prototype missing impeccable audit command mapping" >&2
+  exit 1
+fi
+
+if ! grep -q 'impeccable 视角的原型质量检查' "$ROOT_DIR/references/stages/plan.md"; then
+  echo "plan stage missing impeccable prototype quality check" >&2
+  exit 1
+fi
+
+if ! grep -q 'UI Drift Gate' "$ROOT_DIR/references/stages/implementation.md"; then
+  echo "implementation stage missing UI Drift Gate" >&2
+  exit 1
+fi
+
+if ! grep -q 'UI Drift Review' "$ROOT_DIR/references/stages/review.md"; then
+  echo "review stage missing UI Drift Review" >&2
+  exit 1
+fi
+
+if ! grep -q 'UI Drift Review' "$ROOT_DIR/skills/ts-code-review/SKILL.md"; then
+  echo "ts-code-review missing UI Drift Review guidance" >&2
+  exit 1
+fi
+
+if ! grep -q 'impeccable polish' "$ROOT_DIR/references/stages/implementation.md"; then
+  echo "implementation stage missing impeccable fix command mapping" >&2
+  exit 1
+fi
+
+if ! grep -q 'UI Drift Gate' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing UI Drift Gate validation rule" >&2
+  exit 1
+fi
+
+if ! grep -q 'ui-drift' "$ROOT_DIR/templates/goal/slices.yaml"; then
+  echo "goal slices template missing ui-drift validator" >&2
+  exit 1
+fi
+
+if ! grep -q 'Impeccable command' "$ROOT_DIR/templates/goal/validation-report.md"; then
+  echo "validation report template missing impeccable command evidence" >&2
+  exit 1
+fi
+
+if ! grep -q 'UI Drift Review' "$ROOT_DIR/templates/goal/cr-template.md"; then
+  echo "CR template missing UI Drift Review section" >&2
+  exit 1
+fi
+
+if ! grep -q 'UI / Impeccable Baseline' "$ROOT_DIR/templates/goal/design-handoff.md"; then
+  echo "design handoff template missing UI / Impeccable baseline" >&2
+  exit 1
+fi
+
+if ! grep -q '做 UI Flow' "$ROOT_DIR/platforms/claude/overlays/ai-coding-playbook.md"; then
+  echo "claude overlay missing UI Flow trigger" >&2
+  exit 1
+fi
+
+if ! grep -q '做原型' "$ROOT_DIR/platforms/claude/overlays/ai-coding-playbook.md"; then
+  echo "claude overlay missing prototype trigger" >&2
+  exit 1
+fi
+
+if ! grep -q 'impeccable polish' "$ROOT_DIR/README.md"; then
+  echo "README missing impeccable command mapping" >&2
+  exit 1
+fi
+
+if ! grep -q '用户不需要每次手写这些命令' "$ROOT_DIR/docs/conversation-usage.md"; then
+  echo "conversation usage missing automatic impeccable command guidance" >&2
+  exit 1
+fi
+
+if ! grep -q '未安装 impeccable 时，不阻塞' "$ROOT_DIR/references/stages/implementation.md"; then
+  echo "implementation stage missing non-blocking impeccable fallback" >&2
+  exit 1
+fi
+
+if ! grep -q '不得用视觉建议覆盖' "$ROOT_DIR/references/stages/review.md"; then
+  echo "review stage missing business-contract override ban" >&2
+  exit 1
+fi
+
+if ! grep -q '^\.agents/$' "$ROOT_DIR/.gitignore"; then
+  echo ".gitignore missing local .agents ignore" >&2
+  exit 1
+fi
+
+if ! grep -q '^\.codex/$' "$ROOT_DIR/.gitignore"; then
+  echo ".gitignore missing local .codex ignore" >&2
   exit 1
 fi
 

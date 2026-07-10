@@ -65,10 +65,19 @@ AI 应该先读项目 `.goal/status.yaml`，再用 `get_goal` / `create_goal` �
 AI 应该执行：
 
 - 检查当前分支、工作区和项目本地规则。
-- 在安全边界内处理主干拉取和功能分支创建；有未提交改动或分支意图不明确时先询问。
+- 在安全边界内处理主干状态和功能分支创建；只读检查和 `git fetch` 可以直接做，有未提交改动或分支意图不明确时先询问。
+- 不自动 `git pull`、`git merge origin/main`、`git rebase origin/main`，也不使用 `--autostash` 绕过脏工作区；项目要求 PR-only 时提示到 PR 页面 / merge queue 更新 base。
 - 创建 `docs/features/YYYYMMDD-short-topic/`。
 - 初始化 `requirements.md`、`plan.md`、`tasks.md`、`notes.md`。
 - 复杂需求先进入需求分析 / 需求确认阶段，确认后再进入方案阶段；不直接改业务代码。
+
+### Git 分支安全
+
+```text
+当前分支跟 main 有冲突，帮我同步一下 main。
+```
+
+AI 应该先检查当前分支和工作区，只允许 `git fetch` 等只读动作。默认不得本地执行 `pull`、`merge/rebase main`、`--autostash` 或 force push；如果项目要求只能从 PR 页面合并 / 更新 base，AI 应该直接提示走 PR 页面或项目 SOP。
 
 ### 技术方案
 
@@ -124,6 +133,15 @@ AI 应该输出：
 
 原型不必早于所有技术方案，但必须早于方案定稿和任务拆解。
 
+如果目标项目安装了 `.agents/skills/impeccable`，AI 应在前端链路自动选择对应命令：
+
+- UI Flow / 原型需要新建或重构页面结构时，用 `impeccable shape`。
+- 原型完成后，用 `impeccable critique` 做设计审查。
+- 页面实现完成后，用 `impeccable audit` 做 UI Drift Gate。
+- CR 后修前端问题时，用 `impeccable polish` 修复，再用 `impeccable audit` 复验。
+
+用户不需要每次手写这些命令；显式指定某个 impeccable 命令时，以用户指定为准。impeccable 发现主路径、审核对象、权限、状态流或 API/ViewModel 契约变化时，不能直接改代码，必须回到 UI Flow / 方案阶段做 Change Sync。
+
 复杂方案在任务拆解或定稿前应做设计 CR。用户可以明确授权：
 
 ```text
@@ -161,8 +179,9 @@ AI 应该执行：
 
 - 按任务依赖顺序小步修改。
 - 每个任务完成后补必要测试并运行最小有效测试。
+- 涉及前端页面、后台工具、审核流、表单、表格或复杂 UI 状态时，对照已确认的 `ui-flow.md` / `prototype/` 执行 UI Drift Gate；如果安装了 impeccable，记录使用的命令和 `UI Drift: Passed / Fixed / Blocking / Skipped`。
 - 唤起 scoped CR 子 agent；不可用时按 Review 姿态自审并记录。
-- 修复阻塞 CR 问题，必要时复审。
+- 修复阻塞 CR 问题；如果 fix 改到前端页面或 UI 状态，重新执行 UI Drift Gate，必要时复审。
 - 更新 `tasks.md` 的状态、验证结果和 CR 记录。
 
 ### 测试范围
@@ -211,6 +230,17 @@ AI 应该输出：
 - 阻塞项和建议发布命令
 - 未指定环境时先部署测试 / staging，完成 smoke 后等待生产发布确认
 - 说明 `merge main`、`部署下吧` 不等于生产授权
+
+下面这类问题不应自动扩展成测试 / 生产发布：
+
+```text
+需要部署服务么？
+本地需不需要部署？
+这次只部署 api target 吗？
+deploy/scripts/release.sh 的 --targets 是什么意思？
+```
+
+AI 应该先回答本地运行方式、服务范围、target 选择或命令含义；只有你明确说要发测试 / staging / 生产，或上下文已经是 merge main、release / hotfix 发布窗口时，才进入发布检查。
 
 ## 什么时候才需要安装 skills
 

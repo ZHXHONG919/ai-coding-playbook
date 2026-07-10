@@ -26,6 +26,7 @@ Date: <YYYY-MM-DD>
 | No unauthorized shared contract changes | pending | |
 | Mock ledger updated | pending | |
 | Worktree merge policy followed | pending / n/a | |
+| UI Drift Gate reviewed when frontend changed | pending / passed / skipped / blocking | |
 
 ## Tests Run
 
@@ -37,7 +38,17 @@ Date: <YYYY-MM-DD>
 
 | Report | Kind | Result | Notes |
 | --- | --- | --- | --- |
-| | contract / smoke / mock-ledger / global-exit | pending | |
+| | contract / smoke / ui-drift / mock-ledger / global-exit | pending | |
+
+## UI Drift Review
+
+Required when the slice or CR fix touches frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state.
+
+| Item | Result | Evidence |
+| --- | --- | --- |
+| Impeccable command or skipped reason recorded | pending / passed / skipped | |
+| `UI Drift: Passed / Fixed / Blocking / Skipped` recorded | pending / passed / blocking | |
+| No change to confirmed main path, review object, permissions, state flow, or API/ViewModel contract | pending / passed / blocking | |
 
 ## Acceptance Coverage
 

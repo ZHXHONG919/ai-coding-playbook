@@ -16,6 +16,7 @@
 - 不做顺手重构，不格式化无关文件，不删除自己没引入的旧代码。
 - 发现无关问题可以在总结里提示，但不要擅自修。
 - 改接口、DB、鉴权、发布脚本、环境变量时，必须同步文档或说明为什么不需要。
+- Git 写操作先确认分支和工作区；默认只允许 `git status`、`git diff`、`git log`、`git fetch` 等只读/取远端引用动作。
 
 ## 安全边界
 
@@ -23,6 +24,8 @@
 - 不把真实用户数据写进测试、文档或日志示例。
 - 不绕过项目标准发布脚本，不手写一整段临时发布命令替代 SOP。
 - 不在 feature 分支或脏工作区直接做生产发布。
+- 不自动执行 `git pull`、`git merge origin/main`、`git rebase origin/main` 或 `--autostash` 来同步主干；如项目要求 PR-only，只能提示到 PR 页面 / merge queue 更新 base。
+- 不在本地把功能分支合进 `main` / `master`，不直接推送受保护主干；主干合并走 PR 页面或项目 SOP。
 
 ## 发布默认规则
 
@@ -46,3 +49,9 @@
 - 前端改动：`<fill frontend build/test command>`
 - 部署脚本改动：`<fill shellcheck/bash -n command>`
 - AI provider / 外部平台改动：优先跑 mock smoke，再跑真实 provider 最小 case。
+
+## 前端 / UI 质量
+
+- 涉及后台页面、运营流程、审核流、表单、表格或复杂 UI 状态时，优先维护 `ui-flow.md` / `prototype/` 作为交互基线。
+- 如果项目安装了 `.agents/skills/impeccable`，按阶段使用其 `shape / critique / audit / polish` 等命令；未安装时不阻塞实现，改用浏览器 smoke 和原型对照自审。
+- impeccable 只能改进视觉、布局、文案、状态覆盖和可访问性；不得擅自改变已确认的主用户路径、审核对象、权限、状态流或 API/ViewModel 契约。

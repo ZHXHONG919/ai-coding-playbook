@@ -21,6 +21,8 @@
 5. 验证成功后停止；不要混入无关重构。
 6. 如果无法复现，先给证据缺口和下一步观测点，不要直接猜修。
 
+涉及 Git 写操作时必须先读 `references/git-safety.md`。排障可以执行只读检查和 `git fetch`，但不得为了“先同步主干”自动 `pull`、`merge/rebase main` 或使用 `--autostash`。
+
 ## 输出
 
 - 根因或最可能原因。

@@ -12,6 +12,7 @@
 2. playbook 只提供通用方法论。
 3. 项目本地事实优先于 playbook 默认规则。
 4. 如果 playbook 与项目文档冲突，遵循项目文档，并简短说明冲突。
+5. 执行任何 Git 写操作前先遵守 `references/git-safety.md`；默认只允许只读检查和 `git fetch`，不得擅自 `pull`、`merge/rebase main`、`--autostash` 或本地合并受保护主干。
 
 触发后用一句短话标明阶段，例如：“我按 ai-coding-playbook 进入方案阶段，先不改代码。”
 
@@ -30,7 +31,7 @@
 | 继续任务 / 继续 Goal / 续跑 / 按 status.yaml 继续 | Goal Execute |
 | 做 CR / review / 检查风险 | Review 阶段 |
 | 测什么 / 测试范围 / 测试策略 | 测试范围分析 |
-| 发布检查 / 回滚方案 / Go No-Go / 部署 / 部署下 / 部署一下 / 上线 / 发版 / 发测试 / 发生产 | 发布阶段 |
+| 发布检查 / 回滚方案 / Go No-Go / 上线 / 发版 / 发测试 / 发生产 / 已 merge 或明确发布上下文中的部署下 | 发布阶段 |
 | 排查问题 / 看报错 / bugfix | Bugfix / 排障 |
 
 如果当前窗口有多个项目或目标不明确，先轻问一句目标项目；如果用户已说“目标项目是 lume-tuber”或当前工作目录就是业务项目，就不要反复要求用户写长提示。
@@ -40,6 +41,7 @@
 - 简单命令输出、纯事实问答、闲聊或非研发问题。
 - 用户只要求解释一个概念，且不涉及当前项目方案、实现、测试、Review、发布或排障。
 - 单纯翻译、润色、格式整理，除非内容本身是研发规则、方案或代码 Review。
+- 用户只是问“需要部署服务么 / 本地需不需要部署 / 部署哪个服务 / 只重启哪个 target / deploy 脚本参数是什么意思”时，不自动进入发布阶段；先按上下文回答本地运行、服务范围或命令解释，只有用户明确要发布到测试 / staging / 生产，或已处在 merge / release / hotfix 发布上下文时，才进入发布阶段。
 
 ## 阶段路由
 
@@ -47,15 +49,16 @@
 | --- | --- |
 | 需求分析 / 梳理需求 | `references/stages/requirement.md` |
 | 复杂需求进入方案前 / 需求确认 / 对齐口径 | `references/stages/requirement-confirmation.md` + `references/stages/requirement.md` |
-| 新需求开工 / kickoff / 建方案和任务目录 / 开始一个需求 | `references/stages/feature-kickoff.md` + `references/stages/plan.md` + `references/plan/*` |
+| 新需求开工 / kickoff / 建方案和任务目录 / 开始一个需求 | `references/stages/feature-kickoff.md` + `references/git-safety.md` + `references/stages/plan.md` + `references/plan/*` |
 | 技术方案 / 功能设计 / 模型设计 / 架构设计 | 先判断轻量或复杂：轻量读 `references/stages/plan-light.md` + `templates/plan-light.md`；复杂先读 `references/stages/requirement-confirmation.md`，再读 `references/stages/plan.md` + `references/plan/*` + 匹配 `references/scenarios/*`，落盘用 `templates/feature-design.md` |
 | 方案评审 / 设计 CR / 设计评审 | `skills/design-review/SKILL.md` + `references/stages/plan.md` + `references/plan/*` |
 | 生成 Goal 包 / Goal Handoff / 执行契约 / 复杂方案转连续执行 | `references/stages/goal-handoff.md` + `templates/goal/*` |
-| 开始实现 / 按方案落地 | `references/stages/implementation.md` + `references/plan/task-breakdown.md` |
-| 按 Goal 执行 / 续跑 goal / 从 status.yaml next_slice 继续 | `skills/goal-execute/SKILL.md` + `references/stages/implementation.md` |
+| 开始实现 / 按方案落地 | `references/stages/implementation.md` + `references/git-safety.md` + `references/plan/task-breakdown.md` |
+| 按 Goal 执行 / 续跑 goal / 从 status.yaml next_slice 继续 | `skills/goal-execute/SKILL.md` + `references/stages/implementation.md` + `references/git-safety.md` |
 | Review / 检查代码 / 看风险 | `references/stages/review.md` + `references/review-kit/*` + `skills/ts-code-review/SKILL.md` |
-| bug / 报错 / 排障 / 事故分析 | `references/stages/bugfix.md` + `workflows/incident-workflow.md` |
-| 发布前检查 / 回滚方案 / 部署 / 部署下 / 部署一下 / 上线 / 发版 | `references/stages/release.md` + `skills/release-safety-review/SKILL.md` |
+| bug / 报错 / 排障 / 事故分析 | `references/stages/bugfix.md` + `references/git-safety.md` + `workflows/incident-workflow.md` |
+| 发布前检查 / 回滚方案 / Go No-Go / 上线 / 发版 / 发测试 / 发生产 / 已 merge 或明确发布上下文中的部署下 | `references/stages/release.md` + `references/git-safety.md` + `skills/release-safety-review/SKILL.md` |
+| Git 分支 / pull / merge main / rebase main / 同步主干 / 更新 base / force push / 冲突处理 | `references/git-safety.md` |
 | 测试范围 / 测试策略 | `skills/test-scope-analysis/SKILL.md` + `references/scenarios/pnpm-monorepo.md` |
 | 规则不生效 / skill 没触发 / 知识库没约束 Agent | `references/stages/rule-diagnostics.md` + `skills/skill-maintenance/SKILL.md` |
 | 业务项目 AI-Ready / 接入 AI-SDLC 前检查 | `references/scenarios/ai-ready.md` + `docs/adoption-guide.md` |
@@ -108,6 +111,7 @@
 - 有状态字段，就必须有状态流转图。
 - 有异步 / LLM / 审核 / 同步链路，就必须有数据流或产物流图。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态的全栈方案，进入任务拆解前必须补 UI flow；页面流程不直观时补静态原型或说明不需要的理由。
+- 目标项目已安装 `.agents/skills/impeccable` 时，UI Flow / 静态原型完成后必须做 impeccable 视角的质量检查；按阶段选择 `shape / critique / audit / polish` 等命令并记录结果；实现、CR 后 fix 或 Goal 切片涉及前端页面时必须做 UI Drift Gate，防止实现偏离已确认原型。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，原型 / UI Flow 完成后必须停下；没有用户明确确认并授权进入详细方案设计，不写详细 `plan.md`、不拆 `tasks.md`、不生成 Goal。
 - 用户提出“最新要求 / 改方案并修逻辑 / 口径调整”时，必须先做 Latest Requirement Delta Gate：逐条对比用户原话、最新确认业务规则、旧方案和当前文档，执行跨文档一致性扫描；若 `requirements.md`、`plan.md`、`tasks.md`、`ui-flow.md`、`.goal/*` 仍有互相冲突的业务约束，不能进入实现。
 - 复杂方案进入任务拆解或实现前，必须经过 design CR（`skills/design-review/SKILL.md`）；用户授权且环境支持时优先唤起 scoped design CR 子 agent。

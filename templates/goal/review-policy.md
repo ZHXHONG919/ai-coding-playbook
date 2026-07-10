@@ -23,7 +23,7 @@ human_intervention_allowed: true
 | 环节 | 触发 | 推荐 Reviewer | 输入 | 输出 |
 | --- | --- | --- | --- | --- |
 | Contract CR | API / DTO / ViewModel / 状态 / mock policy 冻结 | Architecture / Backend / FE | `plan.md`、`slices.yaml`、契约草案 | `.goal/cr/<slice>-contract-round-<n>.md` |
-| UI / Flow CR | UI flow、mock 可见闭环、操作矩阵 | FE / Product Flow / Delivery | `ui-flow.md`、prototype、validation report | `.goal/cr/<slice>-ui-round-<n>.md` |
+| UI / Flow CR | UI flow、mock 可见闭环、操作矩阵、UI Drift Gate | FE / Product Flow / Delivery | `ui-flow.md`、prototype、UI Drift validation report、impeccable 命令记录 | `.goal/cr/<slice>-ui-round-<n>.md` |
 | Foundation CR | migration、Entity、共享抽象、状态机 | DB / Backend / Architecture | worker report、diff、tests | `.goal/cr/<slice>-foundation-round-<n>.md` |
 | Slice CR | 当前 slice 代码实现 | Backend / FE / AI Pipeline / Delivery | worker report、validation report、diff | `.goal/cr/<slice>-round-<n>.md` |
 | Integration CR | mock 清理、worktree 合并、真实链路 | Delivery / Release | validation report、mock ledger、worktree plan | `.goal/cr/<slice>-integration-round-<n>.md` |

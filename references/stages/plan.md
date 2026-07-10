@@ -104,6 +104,7 @@ design-review.md
 3. UI Flow / 审核对象 / 静态原型
    -> 明确有哪些页面、用户从哪里进入、审核对象是什么、通过/打回/编辑在哪里发生
    -> ui-flow.md 和必要的 prototype/：页面地图、ViewModel、操作矩阵、状态映射、错误态、浏览器 smoke
+   -> 如目标项目已安装 .agents/skills/impeccable，读取 impeccable 并做原型质量检查
 
 4. Product Flow Gate
    -> 原型 / UI Flow 完成后必须停下，等待用户明确确认
@@ -134,6 +135,7 @@ design-review.md
 - 没有需求确认，不进入技术方案。
 - 没有页面流 / 审核对象草图，不进入 UI Flow / 原型阶段。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，没有 UI Flow / 静态原型，不进入详细技术方案设计。
+- 目标项目已安装 impeccable 时，Product Flow Gate 前必须做一次 impeccable 视角的原型质量检查；未安装时说明跳过，不阻塞。
 - UI Flow / 静态原型完成后必须停下；没有用户明确确认原型并授权进入详细方案设计，不写详细 `plan.md`、不拆 `tasks.md`、不生成 Goal。
 - 没有 Change Sync，不进入任务拆解。
 - 没有 Design CR，不进入实现。

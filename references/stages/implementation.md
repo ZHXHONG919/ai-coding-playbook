@@ -24,11 +24,13 @@
 - 已确认方案版本或当前共识。
 - 已明确本轮任务边界和非目标。
 - 已知道涉及模块、文件、迁移、测试命令。
+- 已按 `references/git-safety.md` 检查当前分支和工作区；有未提交改动时不得自动 `pull`、`merge/rebase main` 或使用 `--autostash`。
 - 如果经过 feature kickoff，已定位 `plan.md` 和 `tasks.md`。
 - 如果是复杂长链路方案（多切片、连续执行、跨会话续跑、异步/LLM/外部系统、前后端联调、smoke 或强 CR 门禁），必须先有 `.goal/status.yaml` 和 `gate.md: Ready`；否则回到 Goal Handoff，不能直接实现。
 - 如果发现方案不成立，先回到方案阶段，不要静默改方向。
 - 如果用户刚给出最新口径，或实现中发现同一业务动作存在互斥约束，先执行 Cross-doc Consistency Scan；未解决前不能以“更安全 / 更严格”的工程直觉替用户裁决。
 - 若当前 feature 存在 `.goal/`，实现前必须确认最新口径已同步到 `.goal/acceptance.md`、`.goal/slices.yaml`、`.goal/cr/` 或说明无需同步的理由。
+- 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂状态时，定位已确认的 `ui-flow.md` / `prototype/`；如果目标项目已安装 `.agents/skills/impeccable`，实现后必须进入 UI Drift Gate。
 
 ## 实现方式
 
@@ -39,6 +41,24 @@
 5. 每完成一个可验证单元，运行最小有效检查；可提前验证的功能不要积压到最后。
 6. 如果实现需要偏离方案，先说明偏差、原因和风险。
 7. 如果偏离原因是方案内部冲突、最新需求覆盖旧口径、按钮可用/数量/额度边界不一致，停止实现并回到方案同步或需求确认；不能自行选择一个看似保守的实现。
+8. 不把“实现前同步主干”作为默认动作；需要更新 base 或处理主干冲突时，停下按 Git 安全边界和项目 PR 流程处理。
+
+## UI Drift Gate
+
+当前任务涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时，每个可验证页面完成后必须对照已确认的 `ui-flow.md` / `prototype/` 检查实现偏差。
+
+如果目标项目存在 `.agents/skills/impeccable/SKILL.md`：
+
+1. 读取 impeccable。
+2. 默认按 `impeccable audit` 检查可访问性、响应式、性能、溢出和状态覆盖；如果主要风险是页面偏离原型的信息架构、主次操作、视觉层级或清晰度，再按 `impeccable critique` 补设计审查。
+3. 如果是在 CR 后修复前端问题，默认按 `impeccable polish` 做视觉、布局、文案和状态细节修复；修完再按 `impeccable audit` 复验，必要时补 `impeccable critique`。
+4. 把结果记录到任务进度或 CR 输入：`UI Drift: Passed / Fixed / Blocking / Skipped`。
+
+处理规则：
+
+- 视觉、布局、间距、文案、loading / empty / error / permission / conflict / success 状态缺口：在当前实现任务内修复，并重跑 smoke 或最小验证。
+- 主用户路径、审核对象、操作矩阵、状态流、权限或 API/ViewModel 契约变化：停止实现，回到 UI Flow / 方案阶段执行 Change Sync，并等待用户重新确认。
+- 目标项目未安装 impeccable 时，不阻塞实现；按 `skills/fullstack-ui-prototype/SKILL.md` 的静态原型要求和浏览器 smoke 自审，并记录 `UI Drift: skipped, impeccable not installed`。
 
 普通轻量任务可以由主 agent 直接实现、验证和自审。复杂 Goal 或多切片任务默认采用主 agent 编排模型；未明确授权 self-run 时，主 agent 不直接编辑业务代码：
 
@@ -70,6 +90,7 @@
 → 运行最小有效验证或派发 validator
 → scoped CR 或派发 reviewer
 → 修复 CR 阻塞问题或派发 fixer
+→ 若修复改到前端页面 / UI 状态，重新执行 UI Drift Gate
 → 必要时重跑测试 / 复审
 → 更新 tasks.md
 ```

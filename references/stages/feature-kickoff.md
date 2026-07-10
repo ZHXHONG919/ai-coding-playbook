@@ -10,6 +10,8 @@
 
 ## 分支检查
 
+涉及 Git 写操作时必须同时遵守 `references/git-safety.md`。本阶段默认只做状态检查和必要的 `git fetch`，不自动合并或 rebase 主干。
+
 先检查目标业务项目的 git 状态：
 
 - 当前分支。
@@ -23,6 +25,8 @@
 - 如果在功能分支：询问是在当前分支继续，还是切回主干拉最新后新建分支。
 - 如果在 `release/*`、`hotfix/*` 或无法判断意图的分支：先询问，不自动切分支。
 - 如果有未提交改动：不要自动 pull、切分支或 rebase，先说明风险并询问处理方式。
+- 不要在功能分支上自动执行 `git merge origin/main`、`git rebase origin/main` 或 `git pull --rebase`；如果需要更新 base，先按项目规则说明是否走 PR 页面 / merge queue。
+- 不要使用 `--autostash` 绕过脏工作区门禁。
 - 不要因为用户只是“写方案”就自动切分支；只有进入 kickoff 或实现准备时才处理分支。
 
 功能分支命名建议：
