@@ -32,4 +32,5 @@
 - `AGENTS.md` 的不触发场景是否保留本地、服务 target、deploy 参数解释边界。
 - `references/stages/release.md` 是否区分裸“部署”和明确发布上下文。
 - `skills/release-safety-review/SKILL.md` 非适用场景是否覆盖本地部署和服务范围问题。
+- `evals/service-ops/restart-service-not-debug.md` 是否覆盖“重启本地服务不自动排障”的相邻边界。
 - 各平台 `platforms/*/overlays/ai-coding-playbook.md` 是否避免把“部署”作为无条件触发词。

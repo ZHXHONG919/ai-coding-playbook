@@ -18,6 +18,7 @@ description: Review release readiness, deployment order, migration safety, env c
 - 只是在写功能代码，尚未进入发布窗口。
 - 用户只要求解释项目发布文档，不涉及本次变更风险评估。
 - 用户只是问“需要部署服务么 / 本地需不需要部署 / 部署哪个服务 / 只重启哪个 target / deploy 脚本参数是什么意思”；先回答本地运行、服务范围或命令解释，不默认推到测试 / staging / 生产。
+- 用户只是要求启动、停止或重启本地服务，查看端口、URL 或 health；只做服务生命周期操作和最小健康检查，不自动升级成发布检查或排障。
 
 ## 必读材料
 

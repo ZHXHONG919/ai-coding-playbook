@@ -248,6 +248,16 @@ deploy/scripts/release.sh 的 --targets 是什么意思？
 
 AI 应该先回答本地运行方式、服务范围、target 选择或命令含义；只有你明确说要发测试 / staging / 生产，或上下文已经是 merge main、release / hotfix 发布窗口时，才进入发布检查。
 
+下面这类本地服务操作也不应自动扩展成排障：
+
+```text
+重启下服务。
+启动 admin-web，给我 URL。
+看下 server 的 health。
+```
+
+AI 应该只做停止 / 启动 / 端口和 health 检查，并回报 PID、URL 或失败点；只有启动失败、health 失败，或你明确说“排查 / 看报错 / 为什么失败”，才进入日志分析或 Bugfix。
+
 ## 什么时候才需要安装 skills
 
 只有当你希望 AI 工具自动发现这些技能时，才运行：

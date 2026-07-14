@@ -86,6 +86,7 @@ required=(
   "evals/plan/open-design-usage-gate.md"
   "evals/plan/open-design-existing-baseline.md"
   "evals/implementation/ui-drift-gate-impeccable.md"
+  "evals/service-ops/restart-service-not-debug.md"
   "evals/release-safety/local-deploy-question-not-release.md"
   "evals/release-safety/staging-before-production.md"
   "evals/git-safety/no-automerge-main-into-feature.md"
