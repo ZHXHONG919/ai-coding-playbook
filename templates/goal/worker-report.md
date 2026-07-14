@@ -43,7 +43,8 @@ Required when the worker or fixer touches frontend page, admin tool, workflow UI
 | Item | Value |
 | --- | --- |
 | UI touched | yes / no |
-| Compared docs | `ui-flow.md` / `prototype/` / n/a |
+| Compared docs | `ui-flow.md` / `prototype/` / Open Design artifact / n/a |
+| Open Design baseline | projectId + runId if any + studioUrl/previewUrl + entryFile + artifact bundle file list/path / skipped or blocked + reason |
 | Impeccable command used | shape / critique / audit / polish / bolder / quieter / colorize / layout / clarify / skipped |
 | UI Drift status | Passed / Fixed / Blocking / Skipped |
 | Notes | |

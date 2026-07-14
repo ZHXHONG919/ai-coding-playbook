@@ -163,7 +163,7 @@ Codex app goal 只作为 UI 可视化镜像，不能替代 `.goal/status.yaml`�
 
 当前 slice 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时，验证必须包含 UI Drift Gate：
 
-- 对照已确认的 `ui-flow.md` / `prototype/` 检查实现是否偏离主路径、操作矩阵、状态映射、权限和错误态。
+- 对照已确认的 `ui-flow.md` / `prototype/` 检查实现是否偏离主路径、操作矩阵、状态映射、权限和错误态；如果 UI 基线来自 Open Design，同时定位 projectId、studioUrl/previewUrl、entryFile 或 artifact bundle，必要时用 `get_artifact` 拉取 entry file 和依赖文件作为验证证据。
 - 如果目标项目存在 `.agents/skills/impeccable/SKILL.md`，默认按 `impeccable audit` 做技术质量检查；若主要风险是信息架构、主次操作、视觉层级或清晰度偏离原型，再按 `impeccable critique` 补设计审查。
 - 如果是在 CR 后修复前端问题，默认按 `impeccable polish` 做视觉、布局、文案和状态细节修复；修完再按 `impeccable audit` 复验，必要时补 `impeccable critique`。
 - 验证报告必须记录使用的 impeccable 命令或 skipped 原因，以及 `UI Drift: Passed / Fixed / Blocking / Skipped`。

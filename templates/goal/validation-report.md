@@ -31,7 +31,8 @@ Required when this validation touches a frontend page, admin tool, workflow UI, 
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Compared against `ui-flow.md` / `prototype/` | pending / passed / skipped | |
+| Compared against `ui-flow.md` / `prototype/` / Open Design artifact | pending / passed / skipped | |
+| Open Design baseline | projectId + runId if any + studioUrl/previewUrl + entryFile + artifact bundle file list/path / skipped or blocked + reason | |
 | Impeccable installed | yes / no | |
 | Impeccable command | shape / critique / audit / polish / bolder / quieter / colorize / layout / clarify / skipped | |
 | UI Drift result | Passed / Fixed / Blocking / Skipped | |

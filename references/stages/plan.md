@@ -88,7 +88,7 @@ design-review.md
 
 涉及 LLM、AI 媒体、Chrome 插件、Nest/React/Postgres 时，再读取 `references/scenarios/*` 对应文件。
 
-涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，再读取 `skills/fullstack-ui-prototype/SKILL.md` 和 `skills/react-vite-feature/SKILL.md`。
+涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，再读取 `skills/fullstack-ui-prototype/SKILL.md` 和 `skills/react-vite-feature/SKILL.md`。若命中 Open Design 使用门禁，再读取 `references/scenarios/open-design.md`。
 
 ## 复杂需求端到端流程
 
@@ -104,6 +104,7 @@ design-review.md
 3. UI Flow / 审核对象 / 静态原型
    -> 明确有哪些页面、用户从哪里进入、审核对象是什么、通过/打回/编辑在哪里发生
    -> ui-flow.md 和必要的 prototype/：页面地图、ViewModel、操作矩阵、状态映射、错误态、浏览器 smoke
+   -> 做 Open Design decision：skip / existing-baseline / run / blocked；若 run，记录 projectId、studioUrl/previewUrl、采用版本、拒绝版本；若 existing-baseline，记录确认稿；若 skip/blocked，记录原因
    -> 如目标项目已安装 .agents/skills/impeccable，读取 impeccable 并做原型质量检查
 
 4. Product Flow Gate
@@ -135,6 +136,7 @@ design-review.md
 - 没有需求确认，不进入技术方案。
 - 没有页面流 / 审核对象草图，不进入 UI Flow / 原型阶段。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，没有 UI Flow / 静态原型，不进入详细技术方案设计。
+- Open Design 只在新页面/大改版、多版视觉探索、复杂交互路径或用户明确要求时使用；局部字段、按钮、文案、间距和小样式修复不得默认要求 Open Design。
 - 目标项目已安装 impeccable 时，Product Flow Gate 前必须做一次 impeccable 视角的原型质量检查；未安装时说明跳过，不阻塞。
 - UI Flow / 静态原型完成后必须停下；没有用户明确确认原型并授权进入详细方案设计，不写详细 `plan.md`、不拆 `tasks.md`、不生成 Goal。
 - 没有 Change Sync，不进入任务拆解。

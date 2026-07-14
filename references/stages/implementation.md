@@ -30,7 +30,7 @@
 - 如果发现方案不成立，先回到方案阶段，不要静默改方向。
 - 如果用户刚给出最新口径，或实现中发现同一业务动作存在互斥约束，先执行 Cross-doc Consistency Scan；未解决前不能以“更安全 / 更严格”的工程直觉替用户裁决。
 - 若当前 feature 存在 `.goal/`，实现前必须确认最新口径已同步到 `.goal/acceptance.md`、`.goal/slices.yaml`、`.goal/cr/` 或说明无需同步的理由。
-- 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂状态时，定位已确认的 `ui-flow.md` / `prototype/`；如果目标项目已安装 `.agents/skills/impeccable`，实现后必须进入 UI Drift Gate。
+- 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂状态时，定位已确认的 `ui-flow.md` / `prototype/`；如果原型来自 Open Design，同时定位被用户确认的 projectId、studioUrl/previewUrl、entryFile 或 artifact bundle；如果目标项目已安装 `.agents/skills/impeccable`，实现后必须进入 UI Drift Gate。
 
 ## 实现方式
 
@@ -45,7 +45,14 @@
 
 ## UI Drift Gate
 
-当前任务涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时，每个可验证页面完成后必须对照已确认的 `ui-flow.md` / `prototype/` 检查实现偏差。
+当前任务涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时，每个可验证页面完成后必须对照已确认的 `ui-flow.md` / `prototype/` / Open Design artifact 检查实现偏差。
+
+如果 UI 基线来自 Open Design，UI Drift Gate 只检查实现是否忠实落地已确认版本；必要时用 `get_artifact` 拉取被确认项目的 entry file 和依赖文件作为对照。不要在实现阶段重新发散设计方向。需要新增设计方向、重排主路径或改变交互模型时，回到 UI Flow / 方案阶段。
+
+如果没有已确认 UI baseline：
+
+- 纯文案、样式、单字段或局部组件状态小改，可以记录 `UI Drift: Skipped(no confirmed baseline, scope=small)`，并用浏览器 smoke 或最小视觉自审替代。
+- 涉及主用户路径、审核对象、操作矩阵、权限、状态流或 API/ViewModel 契约的改动，不能跳过；回到 UI Flow / 方案阶段补 baseline。
 
 如果目标项目存在 `.agents/skills/impeccable/SKILL.md`：
 

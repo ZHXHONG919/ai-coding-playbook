@@ -53,5 +53,6 @@
 ## 前端 / UI 质量
 
 - 涉及后台页面、运营流程、审核流、表单、表格或复杂 UI 状态时，优先维护 `ui-flow.md` / `prototype/` 作为交互基线。
+- Open Design 只在新页面 / 大改版、多版视觉方向、复杂交互路径或需要用户看图确认时作为可选设计探索工作台；单按钮、字段、文案、间距和局部样式微调不要默认使用。使用后记录 projectId、studioUrl/previewUrl、entry file 或 artifact bundle、采用版本和跳过/阻塞原因。
 - 如果项目安装了 `.agents/skills/impeccable`，按阶段使用其 `shape / critique / audit / polish` 等命令；未安装时不阻塞实现，改用浏览器 smoke 和原型对照自审。
 - impeccable 只能改进视觉、布局、文案、状态覆盖和可访问性；不得擅自改变已确认的主用户路径、审核对象、权限、状态流或 API/ViewModel 契约。

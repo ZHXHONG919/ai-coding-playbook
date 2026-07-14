@@ -16,6 +16,7 @@
 ## Must Include
 
 - `.goal/validation/<slice>-ui-drift-<n>.md` 或等价 validation report。
+- 如果 UI 基线来自 Open Design，validation report 记录 projectId、studioUrl/previewUrl、entryFile 或 artifact bundle。
 - 使用的 impeccable 命令或 skipped 原因。
 - `UI Drift: Passed / Fixed / Blocking / Skipped`。
 - CR 输入包含 UI Drift validation report。
@@ -26,7 +27,7 @@
 - 只跑普通测试或 UI smoke，就把前端 slice 标记 done。
 - 用 worker report 或 CR report 代替 UI Drift validation report。
 - 用 impeccable 建议直接改变主用户路径、审核对象、权限、状态流或 API/ViewModel 契约。
-- 不得因目标项目未安装 impeccable 而阻塞 Goal；应记录 skipped 并按 `ui-flow.md` / `prototype/` 自审。
+- 不得因目标项目未安装 impeccable 而阻塞 Goal；应记录 skipped 并按 `ui-flow.md` / `prototype/` / Open Design artifact 自审。
 
 ## Regression Notes
 

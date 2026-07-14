@@ -65,7 +65,7 @@
 | NestJS API | `skills/nest-api-design/SKILL.md` + `references/scenarios/nest-react-postgres.md` + `references/scenarios/pnpm-monorepo.md` |
 | TypeORM / PostgreSQL migration | `skills/typeorm-postgres-migration/SKILL.md` + `references/review-kit/database.md` |
 | React / Vite 页面 | `skills/react-vite-feature/SKILL.md` + `references/scenarios/nest-react-postgres.md` + `references/scenarios/pnpm-monorepo.md` |
-| 全栈页面方案 / UI flow / 静态原型 | `skills/fullstack-ui-prototype/SKILL.md` + `skills/react-vite-feature/SKILL.md` + `references/scenarios/nest-react-postgres.md` |
+| 全栈页面方案 / UI flow / 静态原型 | `skills/fullstack-ui-prototype/SKILL.md` + `skills/react-vite-feature/SKILL.md` + `references/scenarios/nest-react-postgres.md`；命中 Open Design 使用门禁时追加 `references/scenarios/open-design.md` |
 | AI provider / AI 媒体链路 | `skills/ai-provider-integration/SKILL.md` + `references/scenarios/ai-media-pipeline.md` |
 | Chrome 插件 / 采集链路 | `skills/browser-extension-development/SKILL.md` + `references/scenarios/chrome-extension.md` |
 | Skill 创建 / 维护 / 规则沉淀 | `skills/skill-maintenance/SKILL.md` |
@@ -111,6 +111,7 @@
 - 有状态字段，就必须有状态流转图。
 - 有异步 / LLM / 审核 / 同步链路，就必须有数据流或产物流图。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态的全栈方案，进入任务拆解前必须补 UI flow；页面流程不直观时补静态原型或说明不需要的理由。
+- Open Design 是可选的设计探索工作台；进入 UI Flow / 静态原型阶段时先做 `skip / existing-baseline / run / blocked` 判定。只有新页面/大改版、多版视觉方向、复杂交互路径、跨角色后台流程或用户明确要求看图确认时才启动新 run；已有 Open Design 确认稿只作为 baseline 拉取，不重复生成；单字段、单按钮、文案、间距和局部样式微调不要默认使用。判定结果和 project/artifact 证据或跳过/阻塞原因必须记录到 `ui-flow.md`、原型说明或设计交接中。
 - 目标项目已安装 `.agents/skills/impeccable` 时，UI Flow / 静态原型完成后必须做 impeccable 视角的质量检查；按阶段选择 `shape / critique / audit / polish` 等命令并记录结果；实现、CR 后 fix 或 Goal 切片涉及前端页面时必须做 UI Drift Gate，防止实现偏离已确认原型。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，原型 / UI Flow 完成后必须停下；没有用户明确确认并授权进入详细方案设计，不写详细 `plan.md`、不拆 `tasks.md`、不生成 Goal。
 - 用户提出“最新要求 / 改方案并修逻辑 / 口径调整”时，必须先做 Latest Requirement Delta Gate：逐条对比用户原话、最新确认业务规则、旧方案和当前文档，执行跨文档一致性扫描；若 `requirements.md`、`plan.md`、`tasks.md`、`ui-flow.md`、`.goal/*` 仍有互相冲突的业务约束，不能进入实现。

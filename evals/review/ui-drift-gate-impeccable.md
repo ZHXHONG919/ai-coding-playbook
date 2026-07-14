@@ -15,7 +15,7 @@
 
 ## Must Include
 
-- 对照已确认的 `ui-flow.md` / `prototype/` 检查主用户路径、审核对象、操作矩阵、状态映射、权限和错误态。
+- 对照已确认的 `ui-flow.md` / `prototype/` / Open Design artifact 检查主用户路径、审核对象、操作矩阵、状态映射、权限和错误态。
 - 明确本次使用的 impeccable 命令或 skipped 原因。
 - 输出或记录 `UI Drift: Passed / Fixed / Blocking / Skipped`。
 - 如果发现主用户路径、审核对象、权限、状态流或 API/ViewModel 契约变化，标为 Blocking，并要求回到 UI Flow / 方案阶段做 Change Sync。
@@ -24,7 +24,7 @@
 
 - 只按普通 React checklist review，而不检查原型偏差。
 - 用 impeccable 的视觉建议覆盖已确认的业务路径、权限或状态流。
-- 因目标项目未安装 impeccable 而阻塞 Review；应记录 skipped 并按 `ui-flow.md` / `prototype/` 自审。
+- 因目标项目未安装 impeccable 而阻塞 Review；应记录 skipped 并按 `ui-flow.md` / `prototype/` / Open Design artifact 自审。
 
 ## Regression Notes
 

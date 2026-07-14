@@ -208,6 +208,16 @@ AI_CODING_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh --target cur
 | `codegen-diagram` | 基于项目事实生成 Mermaid 架构图、ER 图、状态图、数据流图 |
 | `codegen-doc` | 基于项目事实生成项目文档、模块说明和交接材料 |
 
+## Open Design 接入
+
+Open Design 是可选的设计探索工作台，不是所有前端任务的必经步骤。推荐在这些场景使用：新页面或大改版、多版视觉方向比较、复杂后台/运营/审核/批量操作交互路径、用户明确要求先看设计稿或使用 Open Design。
+
+不推荐在这些场景使用：单字段、单按钮、文案、间距、颜色、局部组件状态、已有确认设计稿后的代码实现。
+
+Open Design 产物进入工作流后，应记录到 `ui-flow.md`、`prototype/` 说明或 Goal design handoff：projectId、studioUrl/previewUrl、entry file 或 artifact bundle、采用版本、拒绝版本、待确认问题和跳过原因。它只提供设计输入；主用户路径、审核对象、权限、状态流和 API/ViewModel 契约仍以需求确认和方案文档为准。
+
+实际使用 Open Design 时，按 `references/scenarios/open-design.md` 执行：先定位或创建项目，再通过 `start_run` 委托 Open Design 生成/细化设计，轮询 `get_run` 到终态，最后用 `get_artifact` 拉取源文件作为实现和 UI Drift Gate 的证据。
+
 ## Impeccable 接入
 
 `impeccable` 是目标业务项目可选安装的前端/UI 质量增强 skill。playbook 不把它当作通用必装 skill；只有目标项目存在 `.agents/skills/impeccable/SKILL.md` 时才启用，未安装时不阻塞流程。

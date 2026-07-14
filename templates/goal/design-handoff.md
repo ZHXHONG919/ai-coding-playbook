@@ -33,6 +33,9 @@ Required when execution includes frontend page, admin tool, workflow UI, form, t
 | Item | Value |
 | --- | --- |
 | UI baseline docs | `ui-flow.md` / `prototype/` / n/a |
+| Open Design decision | skip / existing-baseline / run / blocked |
+| Open Design baseline | projectId + runId if any + studioUrl/previewUrl + entryFile + artifact bundle file list/path / skipped or blocked + reason |
+| Open Design summary | adopted version / rejected alternatives / inner agent summary / n/a |
 | Target project has `.agents/skills/impeccable` | yes / no |
 | Product Flow Gate status | confirmed / skipped / n/a |
 | Required UI Drift validation | yes / no |

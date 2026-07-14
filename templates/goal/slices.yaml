@@ -39,7 +39,7 @@ slices:
         output_pattern: ".goal/validation/R01-smoke-{n}.md"
       - kind: ui-drift
         required_when: "slice touches frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state"
-        command: "compare implementation with ui-flow.md / prototype; if .agents/skills/impeccable exists, run the mapped impeccable command"
+        command: "compare implementation with ui-flow.md / prototype / Open Design artifact; if .agents/skills/impeccable exists, run the mapped impeccable command"
         output_pattern: ".goal/validation/R01-ui-drift-{n}.md"
     mock_ledger:
       creates: []

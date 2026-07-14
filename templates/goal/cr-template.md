@@ -46,6 +46,8 @@ Required when the slice or CR fix touches frontend page, admin tool, workflow UI
 
 | Item | Result | Evidence |
 | --- | --- | --- |
+| UI baseline includes `ui-flow.md` / `prototype/` / Open Design artifact when applicable | pending / passed / skipped | |
+| Open Design baseline tuple recorded when applicable | pending / passed / skipped | projectId + runId if any + studioUrl/previewUrl + entryFile + artifact bundle file list/path |
 | Impeccable command or skipped reason recorded | pending / passed / skipped | |
 | `UI Drift: Passed / Fixed / Blocking / Skipped` recorded | pending / passed / blocking | |
 | No change to confirmed main path, review object, permissions, state flow, or API/ViewModel contract | pending / passed / blocking | |

@@ -133,6 +133,10 @@ AI 应该输出：
 
 原型不必早于所有技术方案，但必须早于方案定稿和任务拆解。
 
+Open Design 是可选的设计探索工作台。新页面、大改版、多版视觉方向、复杂后台/审核/批量操作路径，或用户明确说“用 Open Design / 先看设计稿”时，可以先用 Open Design 生成可确认的设计草案；单按钮、字段、文案、间距和局部样式微调不要默认使用。进入 UI Flow / 原型阶段时先做 `skip / existing-baseline / run / blocked` 判定，并记录 projectId、studioUrl/previewUrl、entry file 或 artifact bundle、采用稿、拒绝稿、待确认问题或跳过/阻塞原因。
+
+使用 Open Design 不是“写一段设计建议”。它应通过真实项目/run 工作流完成：定位或创建 Open Design 项目，`start_run` 后用 `get_run` 轮询到终态，再用 `get_artifact` 拉取源文件。Open Design run 通常需要 5-30 分钟；只有收益足够时才启用。
+
 如果目标项目安装了 `.agents/skills/impeccable`，AI 应在前端链路自动选择对应命令：
 
 - UI Flow / 原型需要新建或重构页面结构时，用 `impeccable shape`。
@@ -141,6 +145,8 @@ AI 应该输出：
 - CR 后修前端问题时，用 `impeccable polish` 修复，再用 `impeccable audit` 复验。
 
 用户不需要每次手写这些命令；显式指定某个 impeccable 命令时，以用户指定为准。impeccable 发现主路径、审核对象、权限、状态流或 API/ViewModel 契约变化时，不能直接改代码，必须回到 UI Flow / 方案阶段做 Change Sync。
+
+Open Design 和 impeccable 的分工是：Open Design 帮忙探索和呈现设计方向；impeccable 守住设计质量、实现质量和 UI Drift Gate。Open Design 通过不等于 impeccable 通过。
 
 复杂方案在任务拆解或定稿前应做设计 CR。用户可以明确授权：
 
@@ -179,7 +185,7 @@ AI 应该执行：
 
 - 按任务依赖顺序小步修改。
 - 每个任务完成后补必要测试并运行最小有效测试。
-- 涉及前端页面、后台工具、审核流、表单、表格或复杂 UI 状态时，对照已确认的 `ui-flow.md` / `prototype/` 执行 UI Drift Gate；如果安装了 impeccable，记录使用的命令和 `UI Drift: Passed / Fixed / Blocking / Skipped`。
+- 涉及前端页面、后台工具、审核流、表单、表格或复杂 UI 状态时，对照已确认的 `ui-flow.md` / `prototype/` / Open Design artifact 执行 UI Drift Gate；如果安装了 impeccable，记录使用的命令和 `UI Drift: Passed / Fixed / Blocking / Skipped`。
 - 唤起 scoped CR 子 agent；不可用时按 Review 姿态自审并记录。
 - 修复阻塞 CR 问题；如果 fix 改到前端页面或 UI 状态，重新执行 UI Drift Gate，必要时复审。
 - 更新 `tasks.md` 的状态、验证结果和 CR 记录。

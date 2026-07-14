@@ -38,7 +38,7 @@
 - 相关测试是否通过。
 - 文档、env example、migration 是否同步。
 - 是否留下了调试日志、临时代码、真实凭据。
-- 前端页面、后台工具、审核流、表单、表格或复杂 UI 状态改动是否对照 `ui-flow.md` / `prototype/` 做过 UI Drift 检查；若项目安装 `.agents/skills/impeccable`，记录使用的 `shape / critique / audit / polish` 命令或 skipped 原因。
+- 前端页面、后台工具、审核流、表单、表格或复杂 UI 状态改动是否对照 `ui-flow.md` / `prototype/` / Open Design artifact 做过 UI Drift 检查；若使用 Open Design，记录 projectId、studioUrl/previewUrl、entry file 或 artifact bundle；若项目安装 `.agents/skills/impeccable`，记录使用的 `shape / critique / audit / polish` 命令或 skipped 原因。
 
 ## 5. Stop Conditions
 

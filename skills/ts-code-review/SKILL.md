@@ -55,7 +55,7 @@ description: Review TypeScript, NestJS, and React changes for correctness, secur
 - useEffect 依赖是否正确。
 - 表单校验、权限入口、移动端布局是否考虑。
 - API 错误是否可见，不吞错。
-- 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时，必须按 `references/stages/review.md` 执行 UI Drift Review：对照已确认的 `ui-flow.md` / `prototype/`，记录 `UI Drift: Passed / Fixed / Blocking / Skipped`。
+- 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时，必须按 `references/stages/review.md` 执行 UI Drift Review：对照已确认的 `ui-flow.md` / `prototype/` / Open Design artifact，记录 `UI Drift: Passed / Fixed / Blocking / Skipped`。
 - 如果目标项目安装 `.agents/skills/impeccable`，默认使用 `impeccable audit`；偏离原型的信息架构、主次操作、视觉层级或清晰度风险高时补 `impeccable critique`。未安装时不阻塞 Review。
 - 不得用 impeccable 的视觉建议覆盖已确认的主用户路径、审核对象、权限、状态流或 API/ViewModel 契约；发现这类变化必须标为 Blocking 并回到 UI Flow / 方案阶段。
 

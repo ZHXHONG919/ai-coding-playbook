@@ -53,6 +53,7 @@ required=(
   "references/scenarios/chrome-extension.md"
   "references/scenarios/nest-react-postgres.md"
   "references/scenarios/pnpm-monorepo.md"
+  "references/scenarios/open-design.md"
   "workflows/feature-workflow.md"
   "workflows/formal-technical-plan-authoring.md"
   "workflows/design-discussion-rules.md"
@@ -82,6 +83,8 @@ required=(
   "evals/plan/boundary-cases-required.md"
   "evals/plan/latest-requirement-delta-gate.md"
   "evals/plan/prototype-confirmation-gate.md"
+  "evals/plan/open-design-usage-gate.md"
+  "evals/plan/open-design-existing-baseline.md"
   "evals/implementation/ui-drift-gate-impeccable.md"
   "evals/release-safety/local-deploy-question-not-release.md"
   "evals/release-safety/staging-before-production.md"
@@ -277,6 +280,61 @@ if ! grep -q 'impeccable audit' "$ROOT_DIR/skills/fullstack-ui-prototype/SKILL.m
   exit 1
 fi
 
+if ! grep -q 'Open Design 接入' "$ROOT_DIR/skills/fullstack-ui-prototype/SKILL.md"; then
+  echo "fullstack-ui-prototype missing Open Design usage gate" >&2
+  exit 1
+fi
+
+if ! grep -q 'skip / existing-baseline / run / blocked' "$ROOT_DIR/skills/fullstack-ui-prototype/SKILL.md"; then
+  echo "fullstack-ui-prototype missing Open Design decision states" >&2
+  exit 1
+fi
+
+if ! grep -q '不得为 `skip` / `blocked` 编造 projectId' "$ROOT_DIR/evals/plan/open-design-usage-gate.md"; then
+  echo "open-design usage eval missing anti-fabrication check for skip/blocked" >&2
+  exit 1
+fi
+
+if ! grep -q 'Open Design decision 必须是 `existing-baseline`' "$ROOT_DIR/evals/plan/open-design-existing-baseline.md"; then
+  echo "open-design existing-baseline eval missing decision assertion" >&2
+  exit 1
+fi
+
+if ! grep -q 'start_run' "$ROOT_DIR/references/scenarios/open-design.md"; then
+  echo "open-design scenario missing real run workflow" >&2
+  exit 1
+fi
+
+if ! grep -q 'get_artifact' "$ROOT_DIR/references/scenarios/open-design.md"; then
+  echo "open-design scenario missing artifact pull guidance" >&2
+  exit 1
+fi
+
+if ! grep -q '局部字段、按钮、文案、间距' "$ROOT_DIR/references/stages/plan.md"; then
+  echo "plan stage missing Open Design non-default boundary" >&2
+  exit 1
+fi
+
+if ! grep -q 'Open Design 使用门禁' "$ROOT_DIR/AGENTS.md"; then
+  echo "AGENTS.md missing Open Design route to scenario rules" >&2
+  exit 1
+fi
+
+if ! grep -q 'Open Design 只在新页面' "$ROOT_DIR/agents/AGENTS.template.md"; then
+  echo "AGENTS template missing Open Design usage boundary" >&2
+  exit 1
+fi
+
+if ! grep -q 'Open Design baseline' "$ROOT_DIR/templates/goal/worker-report.md"; then
+  echo "worker report template missing Open Design baseline evidence" >&2
+  exit 1
+fi
+
+if ! grep -q 'Open Design artifact' "$ROOT_DIR/templates/goal/slices.yaml"; then
+  echo "goal slices template missing Open Design artifact in ui-drift validator" >&2
+  exit 1
+fi
+
 if ! grep -q 'impeccable 视角的原型质量检查' "$ROOT_DIR/references/stages/plan.md"; then
   echo "plan stage missing impeccable prototype quality check" >&2
   exit 1
@@ -319,6 +377,21 @@ fi
 
 if ! grep -q 'UI Drift Review' "$ROOT_DIR/templates/goal/cr-template.md"; then
   echo "CR template missing UI Drift Review section" >&2
+  exit 1
+fi
+
+if ! grep -q 'Open Design baseline' "$ROOT_DIR/templates/goal/validation-report.md"; then
+  echo "validation report template missing Open Design baseline evidence" >&2
+  exit 1
+fi
+
+if ! grep -q 'Open Design baseline tuple' "$ROOT_DIR/templates/goal/cr-template.md"; then
+  echo "CR template missing Open Design baseline tuple evidence" >&2
+  exit 1
+fi
+
+if ! grep -q 'Open Design artifact' "$ROOT_DIR/templates/goal/review-policy.md"; then
+  echo "review policy missing Open Design artifact input" >&2
   exit 1
 fi
 
