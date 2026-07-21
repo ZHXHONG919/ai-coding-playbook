@@ -12,9 +12,10 @@ Date: <YYYY-MM-DD>
 - Slice: `.goal/slices.yaml#<slice-id>`
 - Acceptance: `.goal/acceptance.md`
 - Design handoff: `.goal/design-handoff.md`
-- Worker report: `.goal/runs/<slice>-<role>-<n>.md`
+- Implementation report: `.goal/runs/<slice>-<role-or-main-thread>-<n>.md`
 - Validation report: `.goal/validation/<slice>-<kind>-<n>.md`
 - Mock ledger: `.goal/mock-ledger.md`
+- TODO ledger: `.goal/todo-ledger.md`
 - Worktree plan: `.goal/worktree-plan.md`
 - Diff / commit:
 
@@ -22,9 +23,10 @@ Date: <YYYY-MM-DD>
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Worker stayed inside slice scope | pending | |
+| Implementation stayed inside slice scope | pending | |
 | No unauthorized shared contract changes | pending | |
 | Mock ledger updated | pending | |
+| Local pending questions / demand changes routed to TODO ledger when non-blocking | pending | |
 | Worktree merge policy followed | pending / n/a | |
 | UI Drift Gate reviewed when frontend changed | pending / passed / skipped / blocking | |
 
@@ -62,7 +64,15 @@ Required when the slice or CR fix touches frontend page, admin tool, workflow UI
 
 | ID | Severity | Finding | Required action | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| | Blocker / Should-fix / Nit | | describe required fix / rejection evidence / human action | open / fixed / rejected_false_positive / human_intervention | |
+| | P0 / P1 / P2 / Nit / Blocker / Should-fix | | describe required fix / rejection evidence / follow-up / later slice / release gate / human action | open / fixed / rejected_false_positive / non_blocking_follow_up / later_slice_gate / release_gate / human_intervention | |
+
+## TODO Ledger Routing
+
+Use this for local pending questions, demand improvements, UX suggestions, contract improvements, and tech debt that do not break current P0/P1 acceptance, data correctness, permissions, or state correctness.
+
+| TODO ID | Source finding | Current impact | Latest alignment point | Suggested handling | Ledger status |
+| --- | --- | --- | --- | --- | --- |
+| | | non-blocking / blocking reason | R99 / goal-end / next kickoff | follow-up slice / backlog / drop | open / closed |
 
 ## Human Intervention Candidates
 
@@ -74,6 +84,8 @@ Only list findings that agent cannot resolve independently.
 ## Summary
 
 - Blocker count: 0
-- Open findings: 0
+- Blocking findings: 0
+- Non-blocking follow-ups: 0
+- TODO ledger items opened: 0
 - Human intervention count: 0
 - Merge recommendation: yes / no

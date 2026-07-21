@@ -5,6 +5,8 @@
 ## 阶段门禁
 
 - 用户说“写方案 / 设计一下 / 先讨论 / 先别写代码”时，只能停在方案阶段。
+- 只在聊天里输出方案、分析或建议时，不需要切分支，也不写项目文件。
+- 一旦用户要求把方案落盘到业务项目，或需要创建/修改 `requirements.md`、`plan.md`、`ui-flow.md`、`tasks.md`、`prototype/`、`.goal/*`，必须先进入 `references/stages/feature-kickoff.md` 的 doc-write gate：检查分支和工作区，不得在 `main` / `master` 上直接写需求方案文件。
 - 只有用户明确说“同意方案 / 按这个落地 / 开始实现 / 执行”时，才能进入实现阶段。
 - 多轮讨论必须维护当前共识、已确认决策、待确认问题。
 - 复杂需求进入方案设计前，必须完成需求确认；没有需求确认稿或等价确认记录时，先读取 `references/stages/requirement-confirmation.md` 并回到需求确认阶段。

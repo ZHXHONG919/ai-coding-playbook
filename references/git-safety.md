@@ -6,7 +6,7 @@
 
 只要本轮可能执行 Git 写操作，就先读本文件：
 
-- feature kickoff、实现、Goal Execute、bugfix、发布检查。
+- feature kickoff、需求/方案文件落盘、实现、Goal Execute、bugfix、发布检查。
 - 用户提到 `pull`、`merge main`、`merge origin/main`、`rebase main`、`同步主干`、`更新 base`、`解决冲突`、`force push`。
 - 工作区有未提交改动、当前分支不明确、当前在 `main` / `master` / `release/*` / `hotfix/*`。
 
@@ -47,6 +47,8 @@
 - `git status --short` 为空；若不为空，停止并说明有未提交改动，不使用 `--autostash` 绕过。
 - 用户明确授权当前命令，而不是只说“看下 / 处理下 / 更新下”。
 - 当前不在受保护主干上；如果在 `main` / `master`，只允许创建新分支或按项目 SOP 操作。
+
+需求 / 方案文件写入也算需要分支保护的工作。只在聊天里讨论方案时不需要 Git 写操作；但一旦要写入业务项目的 `requirements.md`、`plan.md`、`ui-flow.md`、`tasks.md`、`prototype/`、`.goal/*`，不得直接写在 `main` / `master` 上。若当前在主干且工作区干净，先创建需求功能分支；若工作区不干净，先停止并说明风险。
 
 不满足任一条件时，输出阻塞原因和可选路径，不继续执行。
 

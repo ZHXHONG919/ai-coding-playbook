@@ -27,6 +27,8 @@
 - 已按 `references/git-safety.md` 检查当前分支和工作区；有未提交改动时不得自动 `pull`、`merge/rebase main` 或使用 `--autostash`。
 - 如果经过 feature kickoff，已定位 `plan.md` 和 `tasks.md`。
 - 如果是复杂长链路方案（多切片、连续执行、跨会话续跑、异步/LLM/外部系统、前后端联调、smoke 或强 CR 门禁），必须先有 `.goal/status.yaml` 和 `gate.md: Ready`；否则回到 Goal Handoff，不能直接实现。
+- 如果用户只是问“能不能开发 / 当前分支是否可开工 / 达到可开发状态了吗”，只做 `prepare_only` 检查，不进入实现。
+- 如果用户说“用 goal 开工 / 按 goal 执行 / 继续 goal”，默认进入 continuous，从 `.goal/status.yaml` 的 current/next slice 连续推进；只有用户明确说“只跑一片 / 先停在当前 slice / 只做状态检查”时，才使用 `single_slice` 或 `prepare_only`。
 - 如果发现方案不成立，先回到方案阶段，不要静默改方向。
 - 如果用户刚给出最新口径，或实现中发现同一业务动作存在互斥约束，先执行 Cross-doc Consistency Scan；未解决前不能以“更安全 / 更严格”的工程直觉替用户裁决。
 - 若当前 feature 存在 `.goal/`，实现前必须确认最新口径已同步到 `.goal/acceptance.md`、`.goal/slices.yaml`、`.goal/cr/` 或说明无需同步的理由。
@@ -67,11 +69,12 @@
 - 主用户路径、审核对象、操作矩阵、状态流、权限或 API/ViewModel 契约变化：停止实现，回到 UI Flow / 方案阶段执行 Change Sync，并等待用户重新确认。
 - 目标项目未安装 impeccable 时，不阻塞实现；按 `skills/fullstack-ui-prototype/SKILL.md` 的静态原型要求和浏览器 smoke 自审，并记录 `UI Drift: skipped, impeccable not installed`。
 
-普通轻量任务可以由主 agent 直接实现、验证和自审。复杂 Goal 或多切片任务默认采用主 agent 编排模型；未明确授权 self-run 时，主 agent 不直接编辑业务代码：
+普通轻量任务可以由主 agent 直接实现、验证和自审。复杂 Goal 或多切片任务必须先判定实现所有者，避免主线程只当调度员、把质量问题全部后置给 CR：
 
 ```text
 主 agent 读取任务 / slice 契约
-→ 派发 implementer 子 agent / worker 完成局部实现
+→ 判定 implementation_owner: main_thread / worker / hybrid
+→ 主线程或 implementer 子 agent / worker 完成局部实现
 → 派发 validator 子 agent 运行可验功能、contract test、smoke 或专项检查
 → 派发 reviewer 子 agent 做 scoped CR
 → 主 agent 审计报告和 diff，分派修复或亲自收口
@@ -81,11 +84,27 @@
 
 职责边界：
 
-- 主 agent 是 orchestrator 和 final integrator，负责读取契约、拆执行包、审计证据、控制 scope、更新 `tasks.md` / `.goal/status.yaml`、合并和提交；复杂 Goal 下默认不得直接实现当前 slice 的业务代码。
+- 主 agent 是技术负责人和 final integrator，负责读取契约、确定实现所有者、审计证据、控制 scope、更新 `tasks.md` / `.goal/status.yaml`、合并和提交；当前 slice 若判定为 `main_thread` 或 `hybrid`，主 agent 可以直接实现已声明范围。
 - implementer / fixer 子 agent 负责局部实现和局部修复；不得扩大 scope，不得修改权威状态源。
 - validator 子 agent 负责验证可验功能，例如 UI mock smoke、API contract test、service unit test、mock 清理检查；验证报告必须进入 CR 输入。
 - reviewer 子 agent 负责 scoped CR；不能用“worker 已验证”替代 CR。
-- 如果复杂 Goal 没有可用子 agent / worker 工具，主 agent 必须停止直接实现，写明 worker handoff、阻塞原因和可恢复状态；只有用户明确授权 self-run，或 `.goal/GOAL.md` / `.goal/gate.md` 明确允许 `self_run_allowed: true` 时，才能本地完成对应角色，并必须在 `.goal/runs/` 和任务记录中标明 `self-run` 原因、范围和风险。
+- 如果复杂 Goal 没有可用子 agent / worker 工具，主 agent 可以按 `main_thread` 完成实现，但不能跳过独立验证和 CR；若独立验证 / CR 也不可用，必须停止并登记阻塞。
+
+实现所有者默认判断：
+
+| 场景 | 默认 owner | 原因 |
+| --- | --- | --- |
+| 核心领域模型、状态机、DTO / Entity / migration、预算 / provider、锁 / 并发 / 幂等 | `main_thread` 或 `hybrid` | 需要完整上下文和资深工程判断 |
+| 用户刚修正口径、旧文档与当前代码冲突、Latest Requirement Delta 未完全同步 | `main_thread` | 先由主线程收口语义，避免 worker 猜实现 |
+| 大量机械改文件、低语义风险测试补齐、重复 UI 状态矩阵 | `worker` | 可隔离执行，主线程审计即可 |
+| 同一 slice 首轮 worker 被 CR 打回超过 2 次 | `main_thread` | 说明实现质量问题应前移到主线程处理 |
+
+吞吐约束（复杂 Goal 同样适用）：
+
+- 开发任务 / slice 只关阻塞项；P2/Nit 不影响正确性、数据、安全、发布或主用户路径时，登记 follow-up，不无限阻塞。
+- 同一 finding 最多 2 轮 worker fixer，然后升级主线程收口或分流。
+- 前端 UI Drift 默认在进入 CR 前一次；CR 后仅当修了 UI 再跑一次，不要每个中间 fixer 全量重跑。
+- 用户中途改口径或 CR 提出需求优化时，先分类为局部 TODO 还是 Blocking Delta。默认写入 TODO ledger / follow-up 并继续当前任务；只有当前 P0/P1 验收无法判断、会产生错误数据/权限/状态，或后续任务无法通过 mock / adapter 隔离时，才冻结正交修复并做 Cross-doc Consistency Scan。
 
 ## 单任务完成闸口
 
@@ -109,7 +128,7 @@
 - CR 子 agent 不直接继续后续开发；主 agent 必须吸收 CR 结论后再进入下一任务。
 - 如果没有可用子 agent，则主 agent 按 Review 姿态自审，并在任务记录里标明 `CR: self-reviewed`。
 
-复杂 Goal 下，以上职责改为主 agent 调度和审计，具体实现 / 验证 / CR / 修复必须由不同子 agent / worker 承担，除非存在明确 self-run 授权；但只有主 agent 能更新 `.goal/status.yaml`、合并 worktree、提交 commit 或推进下一片。
+复杂 Goal 下，以上职责改为主 agent 技术负责和审计；实现可由 `main_thread` / `worker` / `hybrid` 承担，但验证和 CR 必须独立，且只有主 agent 能更新 `.goal/status.yaml`、合并 worktree、提交 commit 或推进下一片。
 
 CR 输入应包含：
 
@@ -127,8 +146,8 @@ CR 输入应包含：
 CR 结果处理：
 
 - P0/P1 或阻塞问题：必须修复并重新验证；核心逻辑变化后复审。
-- P2/P3：按风险决定本轮修复或记录到 `tasks.md` / `notes.md`。
-- 非本任务范围：记录 backlog，不阻塞后续任务，除非会导致当前任务不可用。
+- P2/P3/Nit：普通开发任务默认按风险决定本轮修复或记录到 `tasks.md` / `notes.md`；不影响正确性、数据、安全、发布或主用户路径时，不应无限阻塞当前任务。
+- 非本任务范围：记录 TODO ledger / backlog，不阻塞后续任务，除非会导致当前任务不可用、数据/权限/状态错误，或后续任务无法隔离。
 - 接受风险必须写清原因、影响和后续处理。
 
 可以跳过 CR 的情况：

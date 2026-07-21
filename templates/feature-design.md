@@ -51,7 +51,7 @@ docs/features/YYYYMMDD-short-topic/
 
 ## 4. 关键决策
 
-> 只写业务 / 领域 / 架构层决策，不直接把字段名、表字段、DTO 写成已确认结论。字段需先过字段归属（§7）。
+> 只写业务 / 领域 / 架构层决策，不直接把字段名、表字段、DTO 写成已确认结论。字段需先过字段归属（§8）。
 
 | 决策点 | 当前选择 | 理由 | 不确定性 | 状态 |
 | --- | --- | --- | --- | --- |
@@ -112,13 +112,51 @@ flowchart LR
   Input --> Process --> Output
 ```
 
-## 7. 字段归属（有 DB / 新字段时必填）
+## 7. 交互契约与 Mock 策略（涉及前端 + API 时必填）
+
+> 先冻结用户路径、ViewModel、API 契约和 mock policy，再进入服务端真实化。目标是先用前端 + mock 数据跑通用户可见闭环。
+
+### 7.1 用户路径 / UI Flow 摘要
+
+- 页面 / 路由：
+- 入口 / 返回路径：
+- 主操作矩阵：
+- loading / empty / error / permission / conflict / success 状态：
+
+### 7.2 ViewModel 与 API 契约
+
+| 页面 / 状态 | ViewModel 字段 | 来源 API / DTO | mock 数据来源 | 真实化任务 |
+| --- | --- | --- | --- | --- |
+| | | | | |
+
+### 7.3 Mock Policy
+
+| Mock ID | 用途 | 契约 | 允许存在到 | 清理任务 | 用户可见影响 |
+| --- | --- | --- | --- | --- | --- |
+| M-001 | | | | | |
+
+### 7.4 Frontend-first Task Lane
+
+```text
+CONTRACT
+→ FE_MOCK_LOOP
+→ SERVER_CAPABILITY
+→ MOCK_REPLACEMENT
+→ INTEGRATION / QA
+```
+
+如本需求不适用前端先行，说明原因：
+
+- 不适用原因：
+- 替代验证方式：
+
+## 8. 字段归属（有 DB / 新字段时必填）
 
 | 字段 | 类型 | 归属层级 | 生产者 | 消费者 | 来源状态 | 含义 |
 | --- | --- | --- | --- | --- | --- | --- |
 | | | 资产/关系/任务/结果 | | | Confirmed/Assumed/Pending | |
 
-## 8. 数据模型 / Migration
+## 9. 数据模型 / Migration
 
 - 新增表：
 - 修改表：
@@ -131,13 +169,13 @@ erDiagram
   ENTITY_A ||--o{ ENTITY_B : owns
 ```
 
-## 9. API / DTO
+## 10. API / DTO
 
 | Method | Path | Auth | Request | Response | Error / Timeout / Retry | Idempotency / Conflict | 备注 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | | | | | | | | |
 
-### 9.1 API 错误矩阵
+### 10.1 API 错误矩阵
 
 | 场景 | HTTP / 业务错误 | 触发条件 | 用户可见结果 | 服务端处理 | 是否可重试 | 验证方式 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -147,7 +185,7 @@ erDiagram
 | 依赖超时 | 504 / domain timeout | | | | yes | |
 | 外部服务失败 | 502 / provider_failed | | | | yes/no | |
 
-## 10. 前端 / ViewModel
+## 11. 前端 / ViewModel
 
 > 复杂页面详见同目录 `ui-flow.md`；此处摘要 ViewModel 与 API 映射。
 
@@ -155,7 +193,7 @@ erDiagram
 - ViewModel / 展示字段：
 - loading / empty / error / 权限入口：
 
-## 11. 异步任务 / Job / AI Provider（如有）
+## 12. 异步任务 / Job / AI Provider（如有）
 
 - timeout / retry / fallback：
 - 幂等键 / 去重策略：
@@ -164,7 +202,7 @@ erDiagram
 - mock 开关：
 - 产物存储与失败补偿：
 
-### 11.1 异步异常矩阵
+### 12.1 异步异常矩阵
 
 | 场景 | 触发条件 | 状态变化 | 补偿 / 回滚 | 用户可见结果 | 告警 / 观测 | 验证方式 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -174,7 +212,7 @@ erDiagram
 | 部分成功 | | | | | | |
 | 取消 / 失效 | | | | | | |
 
-## 12. 测试与验收
+## 13. 测试与验收
 
 | 层级 | 主路径范围 | 异常 / 边界覆盖 | 命令 / smoke |
 | --- | --- | --- | --- |
@@ -182,7 +220,7 @@ erDiagram
 | Integration / E2E | | | |
 | Manual smoke | | | |
 
-### 12.1 边界测试清单
+### 13.1 边界测试清单
 
 | 场景 | 覆盖层级 | 必测原因 | 验证命令 / 手测步骤 | 不测原因（如适用） |
 | --- | --- | --- | --- | --- |
@@ -193,7 +231,7 @@ erDiagram
 | 部分成功 / 补偿 | Integration / Smoke | | | |
 | 前端 loading / empty / error | FE / Smoke | | | |
 
-## 13. 发布与回滚
+## 14. 发布与回滚
 
 - targets：
 - migrations：
@@ -201,13 +239,13 @@ erDiagram
 - 健康检查 / 观测：
 - 回滚方式：
 
-## 14. 风险与待确认
+## 15. 风险与待确认
 
 | 项 | 类型 | 影响 | 处理 |
 | --- | --- | --- | --- |
 | | Pending Blocking / Non-blocking / Assumed | | |
 
-## 15. Design Review Notes
+## 16. Design Review Notes
 
 > 复杂方案进入 `tasks.md` 或实现前必填。轻量自审写 `Design CR: self-reviewed`。
 
@@ -215,7 +253,7 @@ erDiagram
 | --- | --- | --- | --- | --- |
 | Domain / Architecture / Delivery | | P0/P1/P2 | Accepted / Rejected / Deferred / Blocking | |
 
-## 16. Change Sync（多轮讨论时维护）
+## 17. Change Sync（多轮讨论时维护）
 
 | 来源 | 变更类型 | requirements | plan | tasks | ui-flow / prototype | 状态 |
 | --- | --- | --- | --- | --- | --- | --- |

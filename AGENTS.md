@@ -53,7 +53,7 @@
 | 新需求开工 / kickoff / 建方案和任务目录 / 开始一个需求 | `references/stages/feature-kickoff.md` + `references/git-safety.md` + `references/stages/plan.md` + `references/plan/*` |
 | 技术方案 / 功能设计 / 模型设计 / 架构设计 | 先判断轻量或复杂：轻量读 `references/stages/plan-light.md` + `templates/plan-light.md`；复杂先读 `references/stages/requirement-confirmation.md`，再读 `references/stages/plan.md` + `references/plan/*` + 匹配 `references/scenarios/*`，落盘用 `templates/feature-design.md` |
 | 方案评审 / 设计 CR / 设计评审 | `skills/design-review/SKILL.md` + `references/stages/plan.md` + `references/plan/*` |
-| 生成 Goal 包 / Goal Handoff / 执行契约 / 复杂方案转连续执行 | `references/stages/goal-handoff.md` + `templates/goal/*` |
+| 生成 Goal 包 / Goal Handoff / 执行契约 / 复杂方案转连续执行 | `references/stages/goal-handoff.md` + `references/plan/task-breakdown.md` + `templates/goal/*` |
 | 开始实现 / 按方案落地 | `references/stages/implementation.md` + `references/git-safety.md` + `references/plan/task-breakdown.md` |
 | 按 Goal 执行 / 续跑 goal / 从 status.yaml next_slice 继续 | `skills/goal-execute/SKILL.md` + `references/stages/implementation.md` + `references/git-safety.md` |
 | Review / 检查代码 / 看风险 | `references/stages/review.md` + `references/review-kit/*` + `skills/ts-code-review/SKILL.md` |
@@ -112,13 +112,19 @@
 - 有状态字段，就必须有状态流转图。
 - 有异步 / LLM / 审核 / 同步链路，就必须有数据流或产物流图。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态的全栈方案，进入任务拆解前必须补 UI flow；页面流程不直观时补静态原型或说明不需要的理由。
+- 只在聊天里讨论方案时不强制切分支；一旦要在业务项目落盘或修改 `requirements.md`、`plan.md`、`ui-flow.md`、`tasks.md`、`prototype/`、`.goal/*` 等需求/方案文件，必须先进入 kickoff / doc-write gate 并完成分支检查。不得在 `main` / `master` 上直接写需求方案文件；工作区干净时先按需求创建功能分支，工作区不干净时先停下说明风险。
+- 涉及前端项目和 API 交互时，任务拆解必须采用 Frontend-first Mock Lane：`CONTRACT → FE_MOCK_LOOP → SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRATION / QA`。Goal Handoff 只能继承 `tasks.md` 的 lane 和依赖图，不重新按独立功能点拆 slice。
 - Open Design 是可选的设计探索工作台；进入 UI Flow / 静态原型阶段时先做 `skip / existing-baseline / run / blocked` 判定。只有新页面/大改版、多版视觉方向、复杂交互路径、跨角色后台流程或用户明确要求看图确认时才启动新 run；已有 Open Design 确认稿只作为 baseline 拉取，不重复生成；单字段、单按钮、文案、间距和局部样式微调不要默认使用。判定结果和 project/artifact 证据或跳过/阻塞原因必须记录到 `ui-flow.md`、原型说明或设计交接中。
 - 目标项目已安装 `.agents/skills/impeccable` 时，UI Flow / 静态原型完成后必须做 impeccable 视角的质量检查；按阶段选择 `shape / critique / audit / polish` 等命令并记录结果；实现、CR 后 fix 或 Goal 切片涉及前端页面时必须做 UI Drift Gate，防止实现偏离已确认原型。
 - 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，原型 / UI Flow 完成后必须停下；没有用户明确确认并授权进入详细方案设计，不写详细 `plan.md`、不拆 `tasks.md`、不生成 Goal。
 - 用户提出“最新要求 / 改方案并修逻辑 / 口径调整”时，必须先做 Latest Requirement Delta Gate：逐条对比用户原话、最新确认业务规则、旧方案和当前文档，执行跨文档一致性扫描；若 `requirements.md`、`plan.md`、`tasks.md`、`ui-flow.md`、`.goal/*` 仍有互相冲突的业务约束，不能进入实现。
 - 复杂方案进入任务拆解或实现前，必须经过 design CR（`skills/design-review/SKILL.md`）；用户授权且环境支持时优先唤起 scoped design CR 子 agent。
 - 复杂长链路方案在 Design CR Ready 后、实现前，必须进入 Goal Handoff：生成 `.goal/` 执行契约并通过 Goal Gate；没有 `.goal/status.yaml` 和 `gate.md: Ready`，不进入代码实现。
-- 复杂 Goal 执行默认采用主 agent 编排模型：主 agent 只负责读取契约、派发 worker / validator / reviewer、审计证据、更新 `.goal/status.yaml`、合并和提交；实现、验证、CR 和局部修复必须委派给子 agent / worker，主 agent 不直接编辑业务代码。只有用户明确授权 self-run，或 `.goal/GOAL.md` / `.goal/gate.md` 明确允许 `self_run_allowed: true` 时，主 agent 才能临时承担实现角色，并必须文件化说明原因、范围和风险。
+- 复杂 Goal 执行默认采用 continuous 主线程负责制：用户说“用 goal 开工 / 按 goal 执行 / 继续 Goal”时，主 agent 从 `.goal/status.yaml` 的 current/next slice 连续推进，完成一个 slice 后自动进入下一 slice，直到 Goal 完成、真正阻塞、或需要人工介入。只有用户明确说“只跑一片 / 先停在当前 slice / 只做状态检查”时，才使用 `single_slice` 或 `prepare_only`。
+- 主 agent 是当前 slice 的技术负责人，必须先判定 `implementation_owner`。实现可以由 `main_thread`、`worker` 或 `hybrid` 完成；核心领域、状态机、DTO / Entity / migration、provider、并发和用户最新口径同步优先由主线程或混合模式承担。无论谁实现，独立 validation 和 CR 不能省略，且必须文件化说明原因、范围和风险。
+- CR 当前 slice 阻塞问题必须清零：影响正确性 / 数据安全 / 发布安全 / 状态一致性 / 接口契约 / 当前验收的问题必须在当前 slice 修复，CR 阻塞 findings 为 0 才能提交。局部待确认、需求优化、交互优化、后续讨论项、外部依赖或真实环境验证，默认沉淀到 TODO ledger / discussion / deferred risks / 后续 slice gate，标清影响、owner、触发条件和最晚对齐点；只要不破坏当前 P0/P1 验收、数据/权限/状态正确性，且后续 slice 可用 mock / adapter 隔离，就不得阻塞下一 slice。普通开发 slice 不要为了清零 Nit/P2 无限返修；release gate 或用户明确要求“零 Nit”时才全部关闭。
+- Goal 吞吐优先于仪式完整：保留实现→验证→CR→修复→Exit→commit，但必须执行 Slice Size Gate、验证/CR 对齐、fixer 轮次上限、UI Drift 时机控制和 mid-slice Requirement Delta 冻结；禁止验证空转、正交 fixer 打断 CR 闭环、以及把 Job/生命周期/预算/identity 塞进同一过大 slice。
+- 开发 slice 与发布 gate 必须分离：生产 SSH、线上系统包、真实 provider smoke、日志/ACL/SELinux、回滚和发布后验证只属于 release slice / R10 / `release_gate`，不得默认拖入早期开发 slice。
 - Goal 执行允许使用受控子 agent、worker session 或 worktree worker 来降低主线程上下文负担；这不等于为上下文压缩主动新开替代线程，恢复权威仍然只有 `.goal/status.yaml` 和 `.goal/resume.md`。
 - Codex app 的 Goal 进度条只是 UI 可视化镜像；执行权威仍是 `.goal/status.yaml`。在 Codex 环境中，只要进入 Goal Execute 且当前工具提供 `get_goal` / `create_goal`，主 agent 应先读取项目 `.goal`，再默认创建或复用 app-level goal，并按工具契约同步完成 / 阻塞终态；仅当 `codex_app_goal.enabled: false` 或已有不匹配 active app goal 时跳过或说明冲突。不要用 app goal 替代 `status.yaml`。
 - 已存在 `.goal/status.yaml` 且用户要求续跑 Goal 时，进入 `skills/goal-execute/SKILL.md`；不要用聊天历史或平行 Markdown 进度表覆盖 `status.yaml`。

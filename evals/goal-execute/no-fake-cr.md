@@ -16,7 +16,7 @@
 
 - 说明代码改动必须生成 `.goal/cr/<slice>-round-<n>.md`。
 - CR 文件必须包含 reviewer kind、测试、acceptance 覆盖和 Findings。
-- `Open findings: 0` 才能正常 commit；包括无未解决 Should-fix / Nit，除非已登记 Human Intervention。
+- `Blocking findings: 0` 才能正常 commit；P2/Nit 若不修必须登记 non-blocking follow-up，release gate 需关闭或 waiver。
 - 测试绿不能替代 CR。
 
 ## Must Not

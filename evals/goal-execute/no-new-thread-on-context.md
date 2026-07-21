@@ -18,7 +18,7 @@
 - 允许当前 Goal 内受控 worker / validator / reviewer 子 agent，但它们不是恢复权威。
 - 如上下文或工具硬上限临近，更新 `.goal/status.yaml` 和 `.goal/resume.md`。
 - 不做半成品 checkpoint commit。
-- commit 只允许在安全边界：实现完成、验证绿、CR findings 关闭、状态更新。
+- commit 只允许在安全边界：实现完成、验证绿、CR 阻塞 findings 关闭、状态更新。
 
 ## Must Not
 

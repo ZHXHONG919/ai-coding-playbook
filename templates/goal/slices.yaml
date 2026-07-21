@@ -5,6 +5,7 @@ slices:
   - id: R01
     task_ids:
       - T01
+    lane: CONTRACT # CONTRACT | FE_MOCK_LOOP | SERVER_CAPABILITY | MOCK_REPLACEMENT | INTEGRATION | QA
     user_path: "<this slice's user-visible path>"
     scope:
       - "<minimal implementation scope>"
@@ -12,6 +13,18 @@ slices:
       - "<explicitly out of this slice>"
     dependencies: []
     parallel_group: null
+    implementation_owner:
+      mode: main_thread # main_thread | worker | hybrid
+      reason: "<why this owner improves first-pass quality>"
+      main_thread_may_edit:
+        - "<files/modules the main thread may edit>"
+      worker_scope:
+        - "<files/modules worker may edit, or none>"
+      independent_validation_required: true
+      independent_cr_required: true
+      max_fix_rounds_per_finding: 2
+      max_pre_cr_validation_rounds: 1
+    gate_level: development # development | release_gate
     worktree:
       allowed: false
       ownership:
@@ -39,33 +52,42 @@ slices:
         output_pattern: ".goal/validation/R01-smoke-{n}.md"
       - kind: ui-drift
         required_when: "slice touches frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state"
+        timing: "once before first CR; again only if CR fix changes UI"
         command: "compare implementation with ui-flow.md / prototype / Open Design artifact; if .agents/skills/impeccable exists, run the mapped impeccable command"
         output_pattern: ".goal/validation/R01-ui-drift-{n}.md"
+      - kind: concurrency-checklist
+        required_when: "slice touches job/lease/lock/approval race/identity transition"
+        command: "cover lock-time recheck, lease token, awaited persistence, identity migration, approved-only reread before declaring pass"
+        output_pattern: ".goal/validation/R01-concurrency-{n}.md"
     mock_ledger:
       creates: []
       closes: []
       ledger_path: ".goal/mock-ledger.md"
+    todo_ledger:
+      creates: []
+      closes: []
+      ledger_path: ".goal/todo-ledger.md"
+      non_blocking_policy: "local pending questions, demand improvements, and UX suggestions do not block the next slice unless they break current P0/P1 acceptance, data/permission/state correctness, or cannot be isolated by mock/adapter"
     required_docs:
-      - ".goal/GOAL.md"
       - ".goal/acceptance.md"
-      - ".goal/mock-ledger.md"
-      - ".goal/worktree-plan.md"
       - "tasks.md"
+      # only add more docs that this slice actually needs as delta evidence
     tests:
       - command: "<test command>"
         required: true
         purpose: "<what this proves>"
     exit:
-      - worker_reports_present
+      - implementation_report_present
       - validation_reports_present_or_waived
       - ui_drift_passed_or_skipped_when_frontend
       - spec_green
-      - cr_files_open_findings_zero
+      - cr_blocking_findings_zero
+      - non_blocking_findings_routed
       - no_new_unregistered_mock
       - mock_ledger_updated
       - worktree_merged_or_not_used
-      - no_unresolved_nit_or_should_fix
       - status_updated
+      - resume_snapshot_synced
     cr:
       required: true
       reviewer_kind: subagent
@@ -74,12 +96,14 @@ slices:
         - Delivery
       output_pattern: ".goal/cr/R01-round-{n}.md"
       pass_condition:
-        open_findings: 0
+        blocking_findings: 0
+        non_blocking_routing_allowed: true
         human_intervention_allowed: true
 
   - id: R99
     task_ids:
       - QA
+    lane: QA
     user_path: "global exit"
     scope:
       - "run final acceptance and smoke"
@@ -89,6 +113,18 @@ slices:
     dependencies:
       - R01
     parallel_group: null
+    implementation_owner:
+      mode: main_thread
+      reason: "global exit and release readiness require main-thread integration ownership"
+      main_thread_may_edit:
+        - ".goal/**"
+        - "<release/smoke docs or scripts>"
+      worker_scope: []
+      independent_validation_required: true
+      independent_cr_required: true
+      max_fix_rounds_per_finding: 2
+      max_pre_cr_validation_rounds: 1
+    gate_level: release_gate
     worktree:
       allowed: false
       ownership: []
@@ -115,6 +151,12 @@ slices:
       closes:
         - "*"
       ledger_path: ".goal/mock-ledger.md"
+    todo_ledger:
+      creates: []
+      closes:
+        - "review-with-human"
+      ledger_path: ".goal/todo-ledger.md"
+      final_action: "summarize open TODO items for human alignment; do not mark them as blockers unless they invalidate acceptance or require human intervention"
     required_docs:
       - ".goal/GOAL.md"
       - ".goal/acceptance.md"
@@ -126,12 +168,13 @@ slices:
         required: true
         purpose: "global exit"
     exit:
-      - worker_reports_present_if_any
+      - implementation_report_present_if_any
       - validation_reports_present_or_waived
       - p0_acceptance_green_or_waived
       - open_deferred_zero
       - open_blocker_zero
-      - open_cr_findings_zero
+      - open_cr_blocking_findings_zero
+      - p2_nit_closed_or_waived_for_release
       - human_intervention_zero_or_state_needs_human_intervention
       - http_mock_zero_or_waived
       - mock_ledger_zero_or_waived
@@ -146,5 +189,6 @@ slices:
         - Release
       output_pattern: ".goal/cr/R99-round-{n}.md"
       pass_condition:
-        open_findings: 0
+        blocking_findings: 0
+        all_findings_closed_or_waived: true
         human_intervention_allowed: true

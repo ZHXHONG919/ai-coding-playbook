@@ -1,6 +1,6 @@
 # Review Policy
 
-> 目标：每个 slice 的关键环节和代码改动必须经过文件化 CR，并修到没有未关闭 findings。Nit/P2 也必须处理。
+> 目标：每个 slice 的关键环节和代码改动必须经过文件化 CR。当前 slice 的阻塞项必须关闭；不影响当前 slice 主链路的问题必须分类沉淀，避免 CR 无限循环吞掉连续执行节奏。
 
 ## Default Policy
 
@@ -11,11 +11,18 @@ self_review_allowed: false
 validation_report_required: true
 worker_report_required_for_code_changes: true
 pass_condition:
-  open_findings: 0
+  blocking_findings: 0
+  p0: 0
+  p1: 0
   blocker: 0
   should_fix: 0
-  nit: 0
+  non_blocking_follow_up_allowed: true
+  all_findings_closed_required_in_release_gate: true
 human_intervention_allowed: true
+max_fix_rounds_per_finding: 2
+max_pre_cr_validation_rounds: 1
+ui_drift_timing: before_first_cr_and_after_ui_fix
+legacy_nit_zero_on_dev_slice: false
 ```
 
 ## Review Matrix
@@ -34,16 +41,42 @@ human_intervention_allowed: true
 ## Review Loop
 
 ```text
-run validation
+run validation (max 1 full pre-CR pass after implement; 1 more after pre-CR fix)
 → write .goal/validation/<slice>-<kind>-<n>.md
+→ for job/concurrency slices: concurrency checklist must be covered before Pass
 → run CR subagent with worker + validation reports
 → write .goal/cr/<slice>-round-<n>.md
-→ fix all Blocker / Should-fix / Nit
+→ fix all findings that affect current slice correctness / data safety / release safety / state consistency / API contract / acceptance
+→ classify non-current-slice findings into TODO ledger / follow-up / later slice gate / release gate / human intervention
 → reject false positives with evidence
-→ rerun affected validation
+→ rerun affected validation only
+→ if UI changed, rerun UI Drift once before re-CR
 → rerun CR
-→ repeat until open_findings = 0
+→ repeat until current-slice blocking_findings = 0
 ```
+
+Throughput rules:
+
+- Do not start orthogonal fixers while current-slice blocking findings remain open.
+- Do not rerun full migration + full suite by default after every fix; prefer affected tests.
+- UI Drift runs once before first CR, and again only if a CR fix changes UI.
+- Development slices must not require `nit: 0` unless the user explicitly asks for zero Nit.
+
+If the same finding is still open after 2 worker fixer rounds, the main agent must escalate instead of silently looping:
+
+- switch `implementation_owner` to `main_thread` or `hybrid` and close it in one main-thread pass; or
+- `design_sync_required`: return to requirements / plan sync.
+- `human_intervention`: register in `.goal/human-intervention.md`.
+- `release_gate`: move to release slice / R10 when it is a production-environment concern.
+- `later_slice_gate`: move to the affected future slice when it does not affect the current slice.
+- `non_blocking_follow_up`: only for P2/Nit or discussion items with no current-slice correctness, data, security, release, contract, acceptance, or primary user-path impact.
+- `todo_ledger`: use for local pending questions, demand improvements, UX suggestions, contract improvements, and tech debt that should be aligned with humans at Goal end or checkpoint but should not stop the next slice.
+
+Only `design_sync_required`, `human_intervention`, stale state, unrecoverable worktree/status mismatch, or unresolved current-slice blocking findings may stop the continuous Goal. Follow-up, later-slice, and release-gate items should be recorded and the main chain should continue.
+
+Local TODO items should not stop the continuous Goal unless they make current P0/P1 acceptance unjudgeable, create wrong data / permission / state, or block a later slice that cannot be isolated by mock / adapter / feature flag.
+
+If an existing project Goal package still says `nit: 0` for development slices, apply this playbook throughput policy unless the user or `release_gate` requires zero Nit; record the override in the CR file and regenerate the Goal package at the next handoff.
 
 ## Evidence Rules
 
@@ -60,6 +93,9 @@ run validation
 | `fixed` | Code/docs/tests updated and verified | yes |
 | `rejected_false_positive` | Finding is wrong; CR file explains evidence | yes |
 | `human_intervention` | Agent cannot resolve without human action | only if registered |
+| `non_blocking_follow_up` | P2/Nit or discussion item that does not block current slice | yes for normal dev slices; no for release gate unless waived |
+| `later_slice_gate` | Issue only affects a future slice and is recorded there | yes until that slice starts |
+| `release_gate` | Real environment / production / provider smoke concern moved to release gate | yes until release gate |
 | `open` | Not resolved | no |
 
 ## Human Intervention Boundary

@@ -3,16 +3,31 @@ feature: "<feature-id>"
 branch: "<branch-name>"
 
 execution:
-  state: ready
+  state: ready # ready | in_progress | requirement_delta_pending | test_failed | cr_pending | cr_changes_requested | blocked | needs_human_intervention | complete
   next_slice: R01
   current_slice: null
   last_commit: null
   safe_to_commit: false
   updated_at: "<YYYY-MM-DD>"
+  requirement_delta:
+    pending: false
+    summary: null
+    freeze_orthogonal_fixers: true
+  todo_policy:
+    local_todo_blocks_next_slice_by_default: false
+    blocking_only_when_acceptance_or_data_permission_state_breaks: true
+
+run_control:
+  mode: continuous
+  default_mode: continuous
+  single_slice_requires_explicit_user_request: true
+  release_gate_requires_explicit_release_context: true
+  continue_after_each_slice: true
 
 orchestration:
-  mode: main_agent_orchestrates_workers
+  mode: main_agent_owns_slice_quality
   main_agent_responsibilities:
+    - choose_implementation_owner
     - dispatch_workers
     - audit_reports
     - update_status
@@ -21,9 +36,16 @@ orchestration:
   workers_may_update_status: false
   workers_may_commit: false
   workers_may_merge_worktrees: false
-  main_agent_may_edit_business_code: false
-  self_run_allowed: false
-  self_run_requires_explicit_user_or_goal_gate: true
+  main_agent_may_edit_business_code_when_owner: true
+
+implementation_owner:
+  current_slice: null
+  mode: null
+  reason: null
+  main_thread_may_edit: []
+  worker_scope: []
+  independent_validation_required: true
+  independent_cr_required: true
 
 codex_app_goal:
   enabled: true
@@ -52,11 +74,16 @@ last_validation:
 counters:
   open_blocker: 0
   open_cr_findings: 0
+  open_blocking_findings: 0
+  open_non_blocking_followups: 0
+  open_todo_items: 0
   open_deferred: 0
   open_human_intervention: 0
   http_mock_count: 0
   open_mock_ledger_items: 0
   active_worktrees: 0
+  worker_fixer_rounds_current_slice: 0
+  pre_cr_validation_rounds_current_slice: 0
 
 slices:
   R01: todo
@@ -67,7 +94,8 @@ last_cr:
   path: null
   round: null
   blocker: null
-  open_findings: null
+  open_blocking_findings: null
+  open_non_blocking_followups: null
   reviewer_kind: null
   reviewer_role: null
 
@@ -79,6 +107,7 @@ global_exit:
   human_intervention_zero_or_state_needs_human_intervention: pending
   http_mock_zero: pending
   mock_ledger_zero: pending
+  todo_ledger_summarized: pending
   worktrees_merged_or_blocked: pending
   smoke_a: pending
   smoke_b: pending

@@ -6,19 +6,19 @@ Priority: HIGH
 
 任务拆解必须能独立开发、独立验证。不能只写一句“实现分析任务”。
 
-任务顺序优先按用户路径和依赖图生成，而不是按前端、后端、数据库等技术层横切堆列表。复杂全栈任务默认采用：
+任务顺序优先按用户路径和依赖图生成，而不是按前端、后端、数据库等技术层横切堆列表。涉及前端项目和 API 交互时，必须采用 **Frontend-first Mock Lane**：
 
 ```text
 契约冻结
-→ mock 可见闭环
-→ 基础依赖
-→ 被依赖业务逻辑
-→ 主链路真实化
-→ 无共享依赖任务并行
-→ 集成收敛
+→ 前端 mock 可见闭环
+→ 服务端能力实现
+→ 逐步替换 mock
+→ 集成收敛 / QA
 ```
 
-核心目标是先让用户路径可见、可验证，再按依赖关系逐步清理 mock 和真实化实现。
+核心目标是先让用户路径可见、可验证、可确认，再按依赖关系逐步清理 mock 和真实化实现。Goal Handoff 只能继承 `tasks.md` 的 lane 和依赖图，不重新按功能点发明切片顺序。
+
+若没有前端用户路径，仍按普通依赖图拆解：契约 / 基础依赖 / 被依赖业务逻辑 / 集成收敛。
 
 ## 任务格式
 
@@ -28,25 +28,44 @@ Priority: HIGH
 类型：
 
 - `CONTRACT`：契约冻结，例如 API / DTO / ViewModel / 状态码 / mock policy。
-- `MOCK`：可见闭环，例如前端页面 + 服务端接口壳 + mock 数据。
+- `FE_MOCK_LOOP`：前端 mock 可见闭环，例如前端页面 + 交互状态 + 接口壳或 mock handler + mock 数据 + 浏览器 smoke。
 - `INF`：基建能力，例如 provider client、调用日志、JSON schema 校验、runner。
 - `BIZ`：业务能力，例如主题、内容池、审核、同步。
 - `FE`：前端页面和交互。
+- `SERVER_CAPABILITY`：服务端真实能力，例如 DB / Entity / Repository / service / permission / job。
+- `MOCK_REPLACEMENT`：逐步替换 mock，接真实读写路径并关闭对应 mock ledger。
 - `INTEGRATION`：真实化与集成，例如清理 mock、接真实 DB / service / job、跨端联调。
 - `QA`：测试、smoke、验收脚本。
 
 ## 拆分原则
 
 - 先冻结契约：API、DTO、ViewModel、状态枚举、错误码和 mock policy 没有明确前，不进入并行实现。
-- 先做 mock 可见闭环：复杂前后端链路应先完成“页面 + 接口壳 + mock 返回 + 浏览器 smoke”，用它验证 UI flow 和主用户路径。
-- 再做基础依赖：migration、Entity、Repository、共享 service、权限 guard、状态机等被依赖能力应在并行分支前完成。
-- 再按依赖真实化：逐步把 mock 替换成真实 DB、service、job 或 provider；每清理一类 mock，就跑对应 contract / smoke。
+- 涉及前端项目 + API 交互时，`CONTRACT` 后必须先有 `FE_MOCK_LOOP`；它必须覆盖页面入口、交互、ViewModel、接口 mock、loading / empty / error / permission 状态、浏览器 smoke 和必要 UI Drift / impeccable 记录。
+- `SERVER_CAPABILITY` 只能依赖已冻结契约，不能抢在 `FE_MOCK_LOOP` 前改变产品路径、ViewModel 形态或主操作矩阵；如果后端约束反推要改用户路径，登记 TODO / Change Sync，而不是静默重拆任务。
+- `MOCK_REPLACEMENT` 必须逐步关闭 mock ledger，每替换一类 mock 就跑对应 contract / browser smoke；不能把全部真实化和 mock 清零默认堆到最后。
 - 无共享写依赖的任务才允许 worktree 并行；共享契约、migration、Entity、状态枚举、核心 DTO 和公共 service 默认不并行改。
 - 基建任务不能依赖具体业务 UI。
 - 业务任务可以依赖基建接口，但要能 mock。
 - 前端任务要明确页面、ViewModel、接口依赖。
 - 每个任务的验收标准必须可执行。
 - 任务顺序要能表达依赖关系，不要把所有任务并列堆起来。
+
+## TODO Ledger
+
+任务拆好并进入实现或 Goal 后，局部待确认默认不阻塞下一任务 / slice。CR、实现或验证中发现的新需求、交互优化、字段命名建议、契约优化或未来扩展，若不影响当前 P0/P1 验收，不改变数据安全、权限、状态正确性，且后续任务可通过 mock / adapter 隔离，应登记 TODO 后继续推进。
+
+| TODO ID | 来源 | 类型 | 当前影响 | 最晚对齐点 | 建议处理 | 状态 |
+| --- | --- | --- | --- | --- | --- | --- |
+| TD-001 | CR / 实现 / 用户反馈 | 需求待确认 / 交互优化 / 契约优化 / 技术债 | 不阻塞当前任务 / 阻塞原因 | Goal 完成前 / R99 / 下个 kickoff | follow-up slice / backlog / 放弃 | open / closed |
+
+只有以下情况才允许阻塞当前任务或下一 slice：
+
+- 当前 P0/P1 验收无法判断或无法成立。
+- 继续推进会制造错误数据、错误权限或错误状态。
+- 后续 slice 直接依赖未确认契约，且无法通过 mock、adapter 或 feature flag 隔离。
+- 用户明确要求先停下确认。
+
+Goal 或阶段性开发结束时必须汇总 TODO Ledger，与人集中对齐；不要在局部 CR 中无限扩大当前任务 scope。
 
 ## Mock Ledger
 
@@ -92,6 +111,7 @@ Priority: HIGH
 - 最小有效验证已运行并记录结果；可验功能不要积压到最后。
 - scoped CR 已完成；阻塞问题已修复，非阻塞问题已记录。
 - 若任务创建或依赖 mock，mock ledger 已更新；若任务负责清理 mock，必须证明对应 mock 已关闭。
+- 若 CR 或实现产生局部待确认，TODO ledger 已登记；只要不命中阻塞条件，不影响当前任务进入 `Done` 或后续任务推进。
 
 任务状态建议：
 

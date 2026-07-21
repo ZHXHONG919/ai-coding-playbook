@@ -69,6 +69,7 @@ required=(
   "templates/goal/worker-report.md"
   "templates/goal/validation-report.md"
   "templates/goal/mock-ledger.md"
+  "templates/goal/todo-ledger.md"
   "templates/goal/worktree-plan.md"
   "templates/goal/human-intervention.md"
   "templates/goal/resume.md"
@@ -90,14 +91,19 @@ required=(
   "evals/release-safety/local-deploy-question-not-release.md"
   "evals/release-safety/staging-before-production.md"
   "evals/git-safety/no-automerge-main-into-feature.md"
+  "evals/git-safety/plan-doc-write-requires-feature-branch.md"
   "evals/goal-handoff/goal-package-required.md"
   "evals/goal-handoff/design-cr-ready-requires-goal.md"
+  "evals/goal-handoff/frontend-first-mock-lane.md"
   "evals/goal-execute/no-fake-cr.md"
   "evals/goal-execute/no-deferred-final-done.md"
   "evals/goal-execute/resume-from-status.md"
   "evals/goal-execute/codex-app-goal-mirror.md"
   "evals/goal-execute/no-new-thread-on-context.md"
   "evals/goal-execute/all-cr-findings-closed.md"
+  "evals/goal-execute/continuous-default.md"
+  "evals/goal-execute/release-gate-not-in-dev-slice.md"
+  "evals/goal-execute/prepare-only-branch-ready.md"
   "evals/goal-execute/orchestrator-delegates-workers.md"
   "evals/goal-execute/no-main-thread-implementation.md"
   "evals/goal-execute/worker-cannot-update-status.md"
@@ -105,6 +111,12 @@ required=(
   "evals/goal-execute/mock-ledger-required.md"
   "evals/goal-execute/worktree-parallel-boundary.md"
   "evals/goal-execute/ui-drift-gate-impeccable.md"
+  "evals/goal-execute/fixer-round-cap-escalates.md"
+  "evals/goal-execute/requirement-delta-mid-slice.md"
+  "evals/goal-execute/legacy-nit-zero-override.md"
+  "evals/goal-execute/pre-cr-validation-cap.md"
+  "evals/goal-execute/ui-drift-once-per-slice.md"
+  "evals/goal-execute/local-todo-does-not-block-next-slice.md"
   "evals/review/ui-drift-gate-impeccable.md"
   "profiles/nest-react-postgres.md"
   "skills/ai-coding-playbook/SKILL.md"
@@ -457,13 +469,33 @@ if ! grep -q 'gate.md: Ready' "$ROOT_DIR/references/stages/implementation.md"; t
 fi
 
 # Goal Execute invariants should be mechanically checked, not only file existence.
-if ! grep -q 'Nit/P2' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing Nit/P2 closure rule" >&2
+if ! grep -q 'run_mode' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing run_mode gate" >&2
   exit 1
 fi
 
-if ! grep -q 'Should-fix' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing Should-fix closure rule" >&2
+if ! grep -q 'continuous' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing continuous default" >&2
+  exit 1
+fi
+
+if ! grep -q 'implementation_owner' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing implementation owner gate" >&2
+  exit 1
+fi
+
+if ! grep -q 'P0/P1/Blocker/Should-fix' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing blocking finding closure rule" >&2
+  exit 1
+fi
+
+if ! grep -q 'non-blocking follow-up' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing P2/Nit follow-up rule" >&2
+  exit 1
+fi
+
+if ! grep -q '开发 Gate 与发布 Gate' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing dev/release gate split" >&2
   exit 1
 fi
 
@@ -472,23 +504,8 @@ if ! grep -q 'needs_human_intervention' "$ROOT_DIR/skills/goal-execute/SKILL.md"
   exit 1
 fi
 
-if ! grep -q 'orchestrator-worker' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing orchestrator-worker model" >&2
-  exit 1
-fi
-
-if ! grep -q '默认不得直接编辑当前 slice 的业务代码' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing main-agent no-business-code rule" >&2
-  exit 1
-fi
-
-if ! grep -q 'self_run_allowed: true' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing explicit self-run gate" >&2
-  exit 1
-fi
-
-if ! grep -q 'worker report' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing worker report evidence rule" >&2
+if ! grep -q 'main-thread' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing main-thread implementation report rule" >&2
   exit 1
 fi
 
@@ -512,6 +529,86 @@ if ! grep -q 'Codex App Goal 镜像' "$ROOT_DIR/skills/goal-execute/SKILL.md"; t
   exit 1
 fi
 
+if ! grep -q '吞吐与防空转' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing throughput anti-thrash section" >&2
+  exit 1
+fi
+
+if ! grep -q 'max_pre_cr_validation_rounds' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing pre-CR validation round cap" >&2
+  exit 1
+fi
+
+if ! grep -q 'requirement_delta_pending' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing mid-slice requirement delta state" >&2
+  exit 1
+fi
+
+if ! grep -q 'Legacy Goal 包兼容' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing legacy Goal package override rule" >&2
+  exit 1
+fi
+
+if ! grep -q '禁止 silent fixer-3+' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing fixer round escalation rule" >&2
+  exit 1
+fi
+
+if ! grep -q 'Slice Size Gate' "$ROOT_DIR/references/stages/goal-handoff.md"; then
+  echo "goal-handoff missing Slice Size Gate" >&2
+  exit 1
+fi
+
+if ! grep -q 'Throughput Gate' "$ROOT_DIR/references/stages/goal-handoff.md"; then
+  echo "goal-handoff missing Throughput Gate" >&2
+  exit 1
+fi
+
+if ! grep -q 'max_pre_cr_validation_rounds' "$ROOT_DIR/templates/goal/slices.yaml"; then
+  echo "goal slices template missing max_pre_cr_validation_rounds" >&2
+  exit 1
+fi
+
+if ! grep -q 'non_blocking_findings_routed' "$ROOT_DIR/templates/goal/slices.yaml"; then
+  echo "goal slices template missing non_blocking_findings_routed exit" >&2
+  exit 1
+fi
+
+if grep -q 'no_unresolved_nit_or_should_fix' "$ROOT_DIR/templates/goal/slices.yaml"; then
+  echo "goal slices template still forces unresolved nit/should_fix exit on all slices" >&2
+  exit 1
+fi
+
+if ! grep -q 'timing: "once before first CR' "$ROOT_DIR/templates/goal/slices.yaml"; then
+  echo "goal slices template missing ui-drift timing" >&2
+  exit 1
+fi
+
+if ! grep -q 'concurrency-checklist' "$ROOT_DIR/templates/goal/slices.yaml"; then
+  echo "goal slices template missing concurrency-checklist validator" >&2
+  exit 1
+fi
+
+if ! grep -q 'legacy_nit_zero_on_dev_slice: false' "$ROOT_DIR/templates/goal/review-policy.md"; then
+  echo "review policy missing legacy nit-zero default false" >&2
+  exit 1
+fi
+
+if ! grep -q 'requirement_delta' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status missing requirement_delta block" >&2
+  exit 1
+fi
+
+if ! grep -q 'Slice Size Gate' "$ROOT_DIR/templates/goal/gate.md"; then
+  echo "goal gate missing Slice Size Gate checklist" >&2
+  exit 1
+fi
+
+if ! grep -q 'Goal 吞吐优先于仪式完整' "$ROOT_DIR/AGENTS.md"; then
+  echo "AGENTS.md missing Goal throughput principle" >&2
+  exit 1
+fi
+
 if grep -Eq 'open_deferred > 0.*(除非|允许|可).*waiver' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
   echo "goal-execute allows final open deferred waiver" >&2
   exit 1
@@ -527,13 +624,18 @@ if ! grep -q 'workers_may_update_status: false' "$ROOT_DIR/templates/goal/status
   exit 1
 fi
 
-if ! grep -q 'main_agent_may_edit_business_code: false' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing main-agent business-code boundary" >&2
+if ! grep -q 'continue_after_each_slice: true' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status missing continue_after_each_slice default" >&2
   exit 1
 fi
 
-if ! grep -q 'self_run_allowed: false' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing self_run_allowed=false" >&2
+if ! grep -q 'main_agent_may_edit_business_code_when_owner: true' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status missing owner-scoped main-agent edit boundary" >&2
+  exit 1
+fi
+
+if ! grep -q '^implementation_owner:' "$ROOT_DIR/templates/goal/status.yaml"; then
+  echo "goal status missing implementation_owner block" >&2
   exit 1
 fi
 
@@ -627,7 +729,7 @@ if ! grep -q 'Mock Ledger' "$ROOT_DIR/templates/goal/mock-ledger.md"; then
   exit 1
 fi
 
-if ! grep -q 'open / fixed / rejected_false_positive / human_intervention' "$ROOT_DIR/templates/goal/cr-template.md"; then
+if ! grep -q 'open / fixed / rejected_false_positive / non_blocking_follow_up / later_slice_gate / release_gate / human_intervention' "$ROOT_DIR/templates/goal/cr-template.md"; then
   echo "goal CR template missing normalized finding statuses" >&2
   exit 1
 fi

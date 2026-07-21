@@ -6,11 +6,14 @@
 
 - 用户说“开始一个需求 / 新需求开工 / 按规范建方案和任务 / kickoff / 建个需求目录 / 开始实现这个需求”。
 - 用户明确希望本轮需求落盘管理，而不是只在对话里讨论。
+- 用户要求创建或修改业务项目中的 `requirements.md`、`plan.md`、`ui-flow.md`、`tasks.md`、`prototype/`、`.goal/*` 等需求/方案文件。
 - 普通方案咨询、代码解释、临时 Review 不进入本阶段。
 
 ## 分支检查
 
 涉及 Git 写操作时必须同时遵守 `references/git-safety.md`。本阶段默认只做状态检查和必要的 `git fetch`，不自动合并或 rebase 主干。
+
+Doc-write gate：只在聊天里输出方案、分析或建议时，不需要切分支；一旦要在业务项目落盘或修改需求/方案文件，就必须先完成本节分支检查。不得在 `main` / `master` 上直接写 `requirements.md`、`plan.md`、`ui-flow.md`、`tasks.md`、`prototype/`、`.goal/*`。
 
 先检查目标业务项目的 git 状态：
 
@@ -21,13 +24,13 @@
 
 分支处理原则：
 
-- 如果在 `main` / `master` 且工作区干净：询问或按项目规则拉取最新代码，再按需求创建功能分支。
+- 如果在 `main` / `master` 且工作区干净：不要直接写需求/方案文件；询问或按项目规则创建需求功能分支后再落盘。若项目规则要求先更新主干，只允许按 `references/git-safety.md` 做 `git fetch` 和只读检查，不自动 pull / merge / rebase。
 - 如果在功能分支：询问是在当前分支继续，还是切回主干拉最新后新建分支。
 - 如果在 `release/*`、`hotfix/*` 或无法判断意图的分支：先询问，不自动切分支。
 - 如果有未提交改动：不要自动 pull、切分支或 rebase，先说明风险并询问处理方式。
 - 不要在功能分支上自动执行 `git merge origin/main`、`git rebase origin/main` 或 `git pull --rebase`；如果需要更新 base，先按项目规则说明是否走 PR 页面 / merge queue。
 - 不要使用 `--autostash` 绕过脏工作区门禁。
-- 不要因为用户只是“写方案”就自动切分支；只有进入 kickoff 或实现准备时才处理分支。
+- 不要因为用户只是“写方案 / 先讨论”就自动切分支；但如果用户要求把方案写入业务项目文件，等同进入 doc-write gate，必须先处理分支。
 
 功能分支命名建议：
 
@@ -120,7 +123,7 @@ notes.md
 
 | ID | Type | Status | Task | Dependencies | Parallel Group | Mock Policy | Files / Modules | Validation | CR | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| T01 | CONTRACT / MOCK / INF / BIZ / FE / INTEGRATION / QA | Todo |  |  |  | none / create / close |  | Pending | Pending |  |
+| T01 | CONTRACT / FE_MOCK_LOOP / SERVER_CAPABILITY / MOCK_REPLACEMENT / INF / BIZ / FE / INTEGRATION / QA | Todo |  |  |  | none / create / close |  | Pending | Pending |  |
 
 ## Progress
 

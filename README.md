@@ -258,6 +258,6 @@ references/
 
 需求到方案的核心原则：复杂需求进入方案前必须先做需求确认，把多轮讨论里的已确认口径、非目标、待确认阻塞项和文档冲突收口；需求阶段提出的问题必须在需求阶段处理，方案阶段只基于已确认需求做论证、建模和工程设计。涉及复杂后台、运营、审核或批量操作时，按“需求分析 -> 需求确认 -> 页面流/审核对象草图 -> 技术方案草案 -> 静态原型/UI Flow -> 方案回写 -> 设计 CR -> 方案定稿 -> 任务拆解 -> 实现”的顺序推进。
 
-方案阶段的核心原则：先用业务、领域、架构、交付和 Review 视角补齐盲区，再做轻量领域抽象，不套完整 DDD；复杂方案在任务拆解或实现前做 scoped design CR；涉及复杂后台页面、运营流程、审核流或批量操作时先补 UI flow，必要时用静态原型验证页面风格和业务流程；最后用图表和细节把方案落到可编码、可测试、可评审。复杂长链路方案通过 Design CR 后，必须进入 Goal Handoff，把方案和 `tasks.md` 转成 `.goal/` 执行契约，并通过 Goal Gate 后才能实现。
+方案阶段的核心原则：先用业务、领域、架构、交付和 Review 视角补齐盲区，再做轻量领域抽象，不套完整 DDD；复杂方案在任务拆解或实现前做 scoped design CR；涉及复杂后台页面、运营流程、审核流或批量操作时先补 UI flow，必要时用静态原型验证页面风格和业务流程；最后用图表和细节把方案落到可编码、可测试、可评审。涉及前端项目和 API 交互时，`tasks.md` 默认采用 Frontend-first Mock Lane：先冻结交互契约，再以前端功能和 mock 数据跑通用户路径，随后实现服务端能力并逐步替换 mock。复杂长链路方案通过 Design CR 后，必须进入 Goal Handoff，把方案和 `tasks.md` 转成 `.goal/` 执行契约，并通过 Goal Gate 后才能实现。
 
-实现阶段的核心原则：按 `tasks.md` 小步推进；每个任务完成前先补必要测试并运行最小有效验证，再做 scoped CR，主 agent 吸收 CR 结论后才能继续后续任务。若 feature 已有 `.goal/status.yaml`，执行阶段以 `goal-execute` 续跑，状态只认 `.goal/status.yaml`。复杂 Goal 默认采用主 agent 编排模型：主 agent 派发 worker / validator / reviewer，子 agent 输出文件化报告，主 agent 审计证据、更新状态、合并和提交。在 Codex app 中，app goal 进度条只作为 UI 镜像；详细切片进度仍以项目 `.goal/status.yaml` 为准。
+实现阶段的核心原则：按 `tasks.md` 小步推进；每个任务完成前先补必要测试并运行最小有效验证，再做 scoped CR，主 agent 吸收 CR 结论后才能继续后续任务。局部待确认、需求优化、交互建议默认进入 TODO ledger，不阻塞下一 slice；只有破坏当前验收、数据/权限/状态正确性，或无法通过 mock / adapter 隔离时才升级阻塞。若 feature 已有 `.goal/status.yaml`，执行阶段以 `goal-execute` 续跑，状态只认 `.goal/status.yaml`。复杂 Goal 默认采用主 agent 编排模型：主 agent 派发 worker / validator / reviewer，子 agent 输出文件化报告，主 agent 审计证据、更新状态、合并和提交。在 Codex app 中，app goal 进度条只作为 UI 镜像；详细切片进度仍以项目 `.goal/status.yaml` 为准。

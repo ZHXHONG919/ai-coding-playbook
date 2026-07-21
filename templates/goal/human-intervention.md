@@ -21,7 +21,7 @@ status: open
 
 ## Rules
 
-- All agent-solvable findings must be fixed, including Nit/P2.
+- All agent-solvable blocking findings must be fixed. P2/Nit can be non-blocking follow-up only when they do not affect correctness, data, security, release, or primary user paths.
 - Code TODO must use `TODO(human-intervention:<slice>)` and explain the reason.
 - `status.yaml.counters.open_human_intervention` must match this file.
 - A Goal with open Human Intervention items cannot be `complete`; final state is `needs_human_intervention`.

@@ -8,7 +8,7 @@ Date: <YYYY-MM-DD>
 ## Inputs
 
 - Slice: `.goal/slices.yaml#<slice-id>`
-- Worker report:
+- Implementation report:
 - Acceptance: `.goal/acceptance.md`
 - Mock ledger: `.goal/mock-ledger.md`
 - Worktree plan: `.goal/worktree-plan.md`

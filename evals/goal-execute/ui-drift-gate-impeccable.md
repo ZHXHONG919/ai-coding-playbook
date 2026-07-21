@@ -21,6 +21,7 @@
 - `UI Drift: Passed / Fixed / Blocking / Skipped`。
 - CR 输入包含 UI Drift validation report。
 - CR 后 fix 若改到前端页面或 UI 状态，重新执行 UI Drift Gate。
+- UI Drift 默认只在首轮 CR 前一次，以及 UI fix 后复审前一次；不要每个中间 fixer 全量重跑。
 
 ## Must Not
 
@@ -28,6 +29,7 @@
 - 用 worker report 或 CR report 代替 UI Drift validation report。
 - 用 impeccable 建议直接改变主用户路径、审核对象、权限、状态流或 API/ViewModel 契约。
 - 不得因目标项目未安装 impeccable 而阻塞 Goal；应记录 skipped 并按 `ui-flow.md` / `prototype/` / Open Design artifact 自审。
+- 不得把“每个 fixer 都全量 ui-drift”当成默认质量手段。
 
 ## Regression Notes
 
