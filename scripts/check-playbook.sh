@@ -81,6 +81,7 @@ required=(
   "evals/ai-coding-playbook-routing.md"
   "evals/usage/simple-stage-commands.md"
   "evals/usage/claude-ui-flow-trigger.md"
+  "evals/usage/plain-language-output.md"
   "evals/plan/boundary-cases-required.md"
   "evals/plan/latest-requirement-delta-gate.md"
   "evals/plan/prototype-confirmation-gate.md"
