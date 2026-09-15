@@ -1,6 +1,6 @@
 ---
 name: release-safety-review
-description: Review release readiness, deployment order, migration safety, env changes, deploy targets, backup, rollback, and smoke plans. Use for explicit release requests: release check, 发布前检查, Go/No-Go, rollback plan, 上线, 发版, 发测试, 发生产, deploy safety review before apply, or 部署/部署下 when the context already mentions merge main, release/hotfix branches, staging, production, or a concrete release command.
+description: 审查发布准备度、部署顺序、迁移安全、环境变量变更、部署目标、备份、回滚和冒烟方案。适用于发布检查、上线、发版、发测试、发生产、可否发布、回滚方案，以及 release check、Go/No-Go、rollback plan、deploy safety review 等明确发布请求。
 ---
 
 # Release Safety Review

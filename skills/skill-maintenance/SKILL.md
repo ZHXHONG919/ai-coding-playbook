@@ -1,6 +1,6 @@
 ---
 name: skill-maintenance
-description: Create, update, review, or organize Agent skills and playbook rules for Codex, Cursor, and Claude Code. Use when adding a skill, modifying SKILL.md, improving descriptions, splitting references, auditing trigger boundaries, or managing shared skill conventions.
+description: 创建、更新、审查或整理 Codex、Cursor 和 Claude Code 的 Agent Skill 与 playbook 规则。适用于新增 Skill、修改 SKILL.md、优化触发描述、拆分参考规则、审查触发边界和维护共享约定。
 ---
 
 # Skill Maintenance
@@ -21,6 +21,8 @@ description: Create, update, review, or organize Agent skills and playbook rules
 - 不为凑数创建 skill；只有触发场景稳定、可重复使用、与现有 skill 边界清晰时才新增。
 - 阶段路由以 `AGENTS.md` 为唯一完整路由表；入口 skill 不维护一份过时副本。
 - 修改 skill description、阶段路由或输出门禁时，补充 `evals/` 回归样例。
+- 面向人阅读的标题、流程、判断条件、示例和 `description` 默认使用中文；非必要不混用英文。Skill 名称、目录名、代码标识、命令、文件路径、协议和稳定的 YAML/JSON 字段保留原值。
+- 必须使用英文术语时，首次出现先用中文说明，再在括号中给出英文名或代码值；后文优先使用中文。不要为了翻译破坏脚本读取的枚举、字段和兼容契约。
 
 ## 资产分层
 

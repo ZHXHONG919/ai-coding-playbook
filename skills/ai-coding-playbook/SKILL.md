@@ -1,19 +1,7 @@
 ---
 name: ai-coding-playbook
 description: >
-  Shared AI coding playbook for natural-language engineering commands such as 梳理需求,
-  确认需求, 做方案, 写方案, 做 UI Flow, 做原型, 拆任务, 执行任务, 开始实现,
-  继续 Goal, 续跑, 做 CR, review, 测试范围, Git 分支, 同步主干,
-  merge main, rebase main, 发布检查, 上线, 发版, 发测试, 发生产,
-  已 merge 后部署下, and 排查问题.
-  Covers requirement analysis, feature planning, technical design, implementation breakdown,
-  code review, test scope, Git safety, release safety, bug investigation,
-  and NestJS/React/PostgreSQL/Chrome Extension/AI provider guidance.
-  Use when the user is doing engineering planning, implementation, tests, review, explicit release, or troubleshooting.
-  Do not treat local/service-target deployment questions as release requests unless staging,
-  production, merge main, release/hotfix, or concrete apply context is present.
-  Do not use for simple command output, pure factual Q&A, casual chat, or ordinary translation unless
-  the content itself is about engineering rules, plans, or review.
+  共享的 AI 研发工作流入口。用户说“梳理需求、确认需求、做方案、写方案、做 UI Flow、做原型、拆任务、执行任务、开始实现、继续 Goal、续跑、做 CR、review、测试范围、Git 分支、同步主干、merge main、rebase main、发布检查、上线、发版、发测试、发生产、已 merge 后部署下、排查问题”时使用。覆盖需求分析、功能方案、技术设计、任务拆解、代码审查、测试范围、Git 安全、发布安全、问题排查，以及 NestJS、React、PostgreSQL、Chrome 扩展和 AI 提供方场景。简单命令输出、纯事实问答、闲聊和普通翻译默认不触发；只询问本地服务或部署目标时，不自动升级为测试或生产发布。
 ---
 
 # AI Coding Playbook

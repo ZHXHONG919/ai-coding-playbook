@@ -1,6 +1,6 @@
 ---
 name: goal-execute
-description: Execute a prepared .goal package for complex features. Use when the user asks to run, resume, or continue a Goal, execute from .goal/status.yaml next_slice, orchestrate worker / validator / reviewer subagents, or enforce slice-by-slice implementation with validation, CR files, deferred controls, mock cleanup, and global exit checks.
+description: 执行已准备好的复杂功能 Goal 包。适用于启动、恢复或继续 Goal，从 `.goal/status.yaml` 的 `next_slice` 继续，协调 worker、validator、reviewer 子 Agent，或按切片执行实现、验证、问题分流、模拟清理与全局收尾检查。
 ---
 
 # Goal Execute
@@ -141,6 +141,34 @@ implementation_owner:
 
 完整工作流必须保留：实现 → 验证 → CR → 修复 → Exit → commit。优化的是**空转**，不是砍门禁。
 
+### 证据驱动执行
+
+当前切片涉及用户可见结果、界面或批量问题时，读取 `references/delivery/evidence-driven-delivery.md`：
+
+- 从 `tasks.md` 继承界面基线、证据等级、证据门禁和关键状态，不在执行阶段重新猜是否需要截图。
+- 每个任务都要有最小充分证据，但不是每个任务都要截图；后端、并发、事务和数据问题优先使用测试、接口和数据证据。
+- 多个任务共用同一页面、角色和状态时，由一个集成或验收切片集中制作证据，并逐条映射结论。
+- 批量问题先展开父子问题并按用户路径或共享根因聚类；一个开发切片只处理一个主要用户路径或一个共享根因簇。
+- 最终视觉证据在首轮代码审查的阻塞修复完成、准备复审前制作，由复审同时确认修复和证据；全量回归只由 Goal、批量问题、共享核心/契约/基础设施、高风险改动或项目门禁触发。
+- 首轮代码审查零阻塞时立即制作最终证据，优先由原审查者限定范围确认；原审查者不可恢复时，由同职责且独立于实现者的审查者接替并记录原因。确认结果写入 `.goal/cr/<slice>-evidence-confirmation-<n>.md`。
+- 证据确认前必须比较当前代码与关联代码审查输入：运行时代码未变化可直接确认；发生变化必须存在新的限定范围代码审查，并更新最终证据。
+- 界面自动化最多使用两种定位方式，每种最多两次完整尝试；连续两次同类失败立即更换采集手段，但不得降低证据等级。E2/E3 缺少等价运行态或视觉证据时登记人工介入或阻塞。
+
+旧 Goal 包缺少 `evidence` 块时，不得把所有切片默认成 E1。先从 `tasks.md`、`.goal/acceptance.md`、`ui-flow.md` 和已确认原型显式迁移并记录依据；无法可靠推导时标记 `legacy_not_declared`，按是否影响当前验收决定继续、设计同步或人工介入。
+
+### 第三方工具前置
+
+当前 Goal 需要第三方应用、网站或桌面工具时，读取 `references/delivery/tooling-prerequisites.md`：
+
+- Goal Execute 开始时读取 `.goal/tooling-prerequisites.yaml`，确认 Goal Gate 前准备结果；只做必要的轻量有效性探测。首次安装、首次授权和能力选择应在 Goal Handoff 的工具准备阶段完成。
+- 每个切片通过 `tooling_prerequisite_ids` 引用清单；已满足的前置不重复安装或登录。
+- 必要 CLI 缺失时按可信来源安装到项目或用户范围；需要管理员权限、付费、许可、扫码、验证码或组织授权时请求用户配合。
+- CLI、专用连接器或 API 能完成的步骤不使用浏览器；浏览器/桌面控制只处理无法结构化完成的授权和视觉验证。
+- 切片不得在用户未被告知时控制其正在使用的浏览器或桌面应用。
+- 跨会话恢复时复用工具台账；只做必要的轻量有效性探测，认证失效时才重新请求登录。
+- 旧 Goal 缺少工具字段时，从任务、命令、必读文档和验收项显式迁移；无法推导且当前切片需要第三方访问时进入工具前置同步，不能默认空数组或直接使用界面。
+- 工具台账只记录脱敏状态、动作类型和 `Passed / Failed`；禁止写入密码、验证码、令牌、Cookie、私钥、二维码内容、完整账号标识和敏感响应正文。
+
 ### Slice 粒度
 
 - 一个开发 slice 只服务一条主用户路径的最小闭环。
@@ -157,10 +185,10 @@ implementation_owner:
 - 并发 / Job / lease / 审批竞态类 slice：validator 在宣称 Passed 前必须覆盖 CR 会审的竞态清单（锁内再校验、lease token、await 持久化、identity 迁移、approved-only 重读）。验证绿但未覆盖这些点，不算可进入 CR 的有效绿。
 - 禁止在 CR 阻塞 findings 仍 open 时启动正交 fixer（例如无关口径小改、下一切片预研、发布 hardening）。
 
-### UI Drift 时机
+### 界面偏差检查时机
 
-- 前端 slice：UI Drift Gate 默认在**进入首轮 CR 前跑一次**，以及 **CR 修复改到页面/UI 状态后、复审前再跑一次**。
-- 禁止在每个中间 fixer 轮次重复跑完整 ui-drift / impeccable 审计，除非本轮 fix 明确改了 UI。
+- 前端切片：首次代码审查前做一次轻量界面检查；完成阻塞修复、准备复审前制作最终截图和原型证据。后续界面修复既要复验受影响状态，也要因运行时代码变化重开限定范围代码审查。
+- 禁止在每个中间修复轮次重复跑完整界面偏差检查或 impeccable 审计，除非本轮修复明确改了界面。
 
 ### Fixer 预算与 owner 升级
 

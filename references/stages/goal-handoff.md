@@ -9,7 +9,20 @@
 - 任务包含多切片、多模块、异步任务、LLM/外部系统、前后端联调、smoke、CR 门禁或发布验收。
 - 既有 `tasks.md` 无法稳定支撑上下文恢复、CR 审计或最终验收闭环。
 
-Goal Handoff 必须同时读取 `references/plan/task-breakdown.md`。Goal 是 `tasks.md` 的执行契约化，不重新发明交付顺序。
+Goal Handoff 必须同时读取 `references/plan/task-breakdown.md`。涉及用户可见结果、界面或批量问题时，还必须读取 `references/delivery/evidence-driven-delivery.md`；涉及第三方应用、网站或桌面工具时，必须读取 `references/delivery/tooling-prerequisites.md`。Goal 是 `tasks.md` 的执行契约化，不重新发明交付顺序、证据要求或工具准备方式。
+
+旧 Goal 包兼容：
+
+- `schema_version` 较旧或切片缺少 `evidence` 时，续跑前从已确认的 `tasks.md`、`acceptance.md`、`ui-flow.md` 和原型做一次显式迁移，并把推导结果和依据记录到 `gate.md` / 当前代码审查报告。
+- 能明确推导时补齐证据等级、基线、门禁和关键状态；不能明确推导时记录 `legacy_not_declared` 和风险，不得静默统一填 E1，也不得重新发明产品基线。
+- 无法推导且影响当前验收判断时进入需求/设计同步；不影响当前验收的纯后端旧切片可使用接口、测试或数据证据并说明理由。
+- 新 Goal Handoff 必须使用最新模板；兼容规则只用于续跑旧包。
+
+旧 Goal 缺少工具前置字段时：
+
+- 从旧 `tasks.md`、切片命令、`required_docs` 和验收项推导第三方工具依赖，生成 `.goal/tooling-prerequisites.yaml` 和任务映射，并记录依据。
+- 无第三方工具依赖时显式写 `tooling_prerequisite_ids: []` 和 `not_applicable`，不能因字段缺失默认需要安装。
+- 无法推导且当前切片确实需要第三方访问时，停在工具前置同步；不得绕过门禁直接控制浏览器。
 
 ## 强制场景
 
@@ -94,6 +107,11 @@ docs/features/<feature>/.goal/
 - Codex app goal 进度条可以作为 UI 可视化镜像，但不是第二状态源；生成 Goal 包时应在 `status.yaml.codex_app_goal` 写明是否启用，非 Codex 环境可忽略该字段。
 - `tasks.md` 是设计阶段的任务来源，Goal Handoff 后执行进度只回写 `status.yaml`。
 - Goal slice 必须继承 `tasks.md` 的 lane、依赖和 mock ledger；不得在 Handoff 阶段重新按独立功能点拆成“每片前后端混做”的顺序。
+- Goal slice 必须继承 `tasks.md` 的界面基线、证据等级、证据门禁和关键状态；多个任务共享页面证据时，必须保留集中验收任务和逐任务映射。
+- Goal slice 必须通过 `tooling_prerequisite_ids` 继承 `tasks.md` 工具前置清单，并在 `.goal/tooling-prerequisites.yaml` 持久化所选方式、安装来源/版本、认证状态、验证时间、最小探测和用户动作。工具准备与认证优先在 Goal 开始前集中完成，不得每片重复。
+- 工具准备属于 Goal Gate 前置阶段：主线程在 Gate 前完成自动安装、版本/能力边界和最小认证检查，提前请求必要的用户动作；首个业务切片引用的条目达到 `ready` 后才标记 Gate Ready。Goal Execute 不负责首次安装。
+- 无第三方工具依赖时，工具台账必须是空映射，切片使用 `tooling_prerequisite_ids: []`，不得保留幽灵 pending 条目。
+- 工具台账只记录脱敏状态，不得写入密码、验证码、令牌、Cookie、私钥、二维码内容、完整账号标识或敏感响应正文。
 - 切片按用户路径和 task lane 拆，不按纯技术层拆；涉及前端 + API 的 P0 路径必须先有 `CONTRACT` 和 `FE_MOCK_LOOP` 可见闭环，再逐步进入服务端真实化和 mock replacement。
 - Goal 包只写执行契约，不把业务事实从业务项目搬到 playbook。
 - Goal Handoff 不能绕过 Design CR；如果生成 Goal 包时发现方案缺口，回到方案阶段。
@@ -147,6 +165,7 @@ Ready 条件：
 - CR 应对照哪些方案、任务、决策和验收文档，以及每轮 findings 如何关闭。
 - 若 CR 问题无法由 agent 独立解决，如何登记 Human Intervention TODO。
 - 本切片的吞吐预算：`max_pre_cr_validation_rounds`、`max_fix_rounds_per_finding`、UI Drift 时机、是否 `gate_level: release_gate`。
+- 本切片的证据预算：证据等级、界面基线、证据门禁、关键角色/状态/端、是否与其他任务共享证据、最终证据制作时机。
 
 ### Slice Size Gate
 
@@ -176,7 +195,8 @@ Goal Handoff 必须主动控制切片大小；过大的 slice 是后续无限 CR
 - 开发 slice：阻塞 findings = 0 才能过；P2/Nit 允许 non-blocking follow-up。
 - `max_fix_rounds_per_finding: 2`；超过后升级主线程或分流，禁止 silent fixer 空转。
 - `max_pre_cr_validation_rounds: 1`（实现后完整验证一轮；失败修复后再一轮即可进 CR）。
-- UI Drift 默认在首轮 CR 前一次、CR 后改 UI 再一次；不在每个中间 fixer 全量重跑。
+- 首次代码审查前只做轻量界面检查；完成阻塞修复、准备复审前做最终界面偏差与证据留存，由复审同时确认。后续运行时代码变化必须重开限定范围代码审查。
+- 首轮代码审查零阻塞时，立即制作最终证据，优先由原审查者限定范围确认；不可恢复时由同职责且独立于实现者的审查者接替并记录原因。输出 `.goal/cr/<slice>-evidence-confirmation-<n>.md`。
 - 开发 slice 与 `release_gate` 分离。
 
 禁止：

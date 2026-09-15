@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: Review technical plans, requirements, UI flows, and architecture documents before implementation. Use for design CR, design review, 方案评审, 设计评审, scoped design review, or checking whether a plan is ready for task breakdown and coding.
+description: 在实现前审查技术方案、需求、界面流程和架构文档。适用于方案评审、设计评审、design CR、design review、scoped design review，以及判断方案是否可以进入任务拆解和编码。
 ---
 
 # Design Review

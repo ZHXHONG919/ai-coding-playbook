@@ -1,6 +1,6 @@
 ---
 name: ts-code-review
-description: Review TypeScript, NestJS, and React changes for correctness, security, compatibility, and release risk. Use for code review, CR, 代码审查, PR review, diff review, or bug risk analysis.
+description: 审查 TypeScript、NestJS 和 React 变更的正确性、安全性、兼容性与发布风险。适用于代码审查、code review、CR、PR review、diff review 和问题风险分析。
 ---
 
 # TypeScript Code Review

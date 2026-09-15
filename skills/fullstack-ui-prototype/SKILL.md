@@ -1,6 +1,6 @@
 ---
 name: fullstack-ui-prototype
-description: Design or review full-stack feature UI flows and static prototypes before implementation, especially for admin pages, workflow tools, review/approval flows, task dashboards, batch operations, or features where frontend ViewModel, API contracts, backend status, and user operations must be validated together.
+description: 在实现前设计或审查全栈功能的界面流程和静态原型。适用于后台页面、流程工具、审核流、任务看板、批量操作，以及需要同时验证前端展示模型、接口契约、后端状态和用户操作的功能。
 ---
 
 # Fullstack UI Prototype

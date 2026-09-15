@@ -1,6 +1,6 @@
 ---
 name: ai-provider-integration
-description: Design or review AI provider integrations, fallback chains, cost guards, retries, and smoke tests.
+description: 设计或审查 AI 提供方集成、降级链、成本保护、重试和冒烟验证。
 ---
 
 # AI Provider Integration

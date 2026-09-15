@@ -1,0 +1,29 @@
+schema_version: 1
+
+# 无第三方工具依赖时保持空映射。
+tooling_prerequisites: {}
+
+# 有依赖时按以下结构增加条目；不要把示例本身保留为 pending 条目。
+# TP-001:
+#   capability: "读取 / 写入 / 上传 / 构建 / 预览 / 状态查询"
+#   selected_method:
+#     kind: connector # cli | connector | api | project_script | ui
+#     name: "工具或连接器名称"
+#     reason: "为什么这是当前最稳定且最小变更的方式"
+#   cli:
+#     required: false
+#     command: "not_applicable"
+#     install_state: not_required # not_required | missing | installed | failed
+#     version: null
+#     source: null
+#   authentication:
+#     state: pending # not_required | pending | ready | expired | blocked
+#     verified_at: null
+#     minimal_probe: null # 只记录命令/动作名和 Passed/Failed，不记录响应正文
+#     user_action: null # 只记录 login / scan / code / permission 等动作类型
+#   capability_boundary:
+#     structured_actions: []
+#     ui_only_actions: []
+#   readiness: pending # pending | ready | blocked | not_applicable
+#   notes: null # 不记录任何凭据、账号标识或敏感输出
+

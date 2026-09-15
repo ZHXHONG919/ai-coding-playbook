@@ -1,6 +1,6 @@
 ---
 name: react-vite-feature
-description: Implement or review React + Vite frontend features, including API integration, routing, state, forms, and UX states.
+description: 实现或审查 React + Vite 前端功能，包括接口集成、路由、状态、表单和用户体验状态。
 ---
 
 # React + Vite Feature

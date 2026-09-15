@@ -187,24 +187,30 @@ AI_CODING_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh --target cur
 5. 修改工作流或模板后，优先用一个真实小需求回放验证。
 6. 修改 skill description、阶段路由或门禁后，补充 `evals/` 样例，确保能复查“规则是否真生效”。
 
+## 证据驱动交付
+
+`references/delivery/evidence-driven-delivery.md` 统一正常开发和问题修复的验证口径：问题可以来自对话、工单、截图、日志、监控、测试或代码审查；任务按风险选择证据等级，界面任务在 `tasks.md` 声明界面基线和证据门禁。截图用于证明用户可见结果，不作为所有任务的固定动作；批量问题按用户路径和共享根因聚类。最终视觉证据在阻塞修复完成、准备复审前制作，全量回归按风险决定。
+
+`references/delivery/tooling-prerequisites.md` 统一第三方工具准备：任务开始前列出所需 CLI、连接器/API、安装和认证状态；优先使用已有 CLI 和结构化接口，缺失的必要 CLI 从可信来源安装到项目或用户范围。浏览器和桌面控制只用于无法结构化完成的授权与视觉验证，避免与用户正在进行的操作冲突。
+
 ## 当前通用 Skills
 
 | Skill | 用途 |
 | --- | --- |
-| `ai-coding-playbook` | 入口路由 skill，触发后读取本仓库 `AGENTS.md` 与活规则 |
-| `design-review` | 方案 / 需求 / UI flow 设计 CR，进入实现前门禁 |
-| `goal-execute` | 按 `.goal/status.yaml` 编排复杂 feature 的 worker / validator / reviewer 切片执行 |
-| `ts-code-review` | TypeScript / NestJS / React 代码 Review |
-| `test-scope-analysis` | 从 diff 或方案推导测试范围 |
-| `release-safety-review` | 发布前安全检查、回滚和 smoke 计划 |
+| `ai-coding-playbook` | 入口路由 Skill，触发后读取本仓库 `AGENTS.md` 与活规则 |
+| `design-review` | 方案、需求和界面流程设计审查，作为进入实现前的门禁 |
+| `goal-execute` | 按 `.goal/status.yaml` 协调复杂功能的实现者、验证者和审查者分片执行 |
+| `ts-code-review` | TypeScript、NestJS 和 React 代码审查 |
+| `test-scope-analysis` | 从代码差异或方案推导测试范围 |
+| `release-safety-review` | 发布前安全检查、回滚和冒烟计划 |
 | `nest-api-design` | NestJS API、DTO、Guard、Swagger 设计与评审 |
 | `react-vite-feature` | React + Vite 页面、状态、表单和 API 集成 |
-| `fullstack-ui-prototype` | 全栈功能的 UI flow、页面原型和静态流程验证 |
-| `typeorm-postgres-migration` | TypeORM Entity 与 PostgreSQL migration 设计/评审 |
-| `ai-provider-integration` | AI provider、fallback、成本保护和 smoke |
-| `browser-extension-development` | Chrome 插件、content script、background 和采集链路 |
-| `skill-maintenance` | 创建、维护、评审和沉淀多工具 Agent skill |
-| `skill-prompt-convert` | Prompt / AGENTS / SKILL.md 互转 |
+| `fullstack-ui-prototype` | 全栈功能的界面流程、页面原型和静态流程验证 |
+| `typeorm-postgres-migration` | TypeORM 实体与 PostgreSQL 迁移设计/评审 |
+| `ai-provider-integration` | AI 提供方、降级、成本保护和冒烟验证 |
+| `browser-extension-development` | Chrome 插件、内容脚本、后台脚本和采集流程 |
+| `skill-maintenance` | 创建、维护、评审和沉淀多工具 Agent Skill |
+| `skill-prompt-convert` | 提示词、AGENTS/CLAUDE 规则与 SKILL.md 互转 |
 | `codegen-diagram` | 基于项目事实生成 Mermaid 架构图、ER 图、状态图、数据流图 |
 | `codegen-doc` | 基于项目事实生成项目文档、模块说明和交接材料 |
 

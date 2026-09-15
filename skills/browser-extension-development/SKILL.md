@@ -1,6 +1,6 @@
 ---
 name: browser-extension-development
-description: Build or review Chrome Extension features, permissions, content scripts, background workers, and API reporting.
+description: 实现或审查 Chrome 扩展功能、权限、内容脚本、后台任务和接口上报。
 ---
 
 # Browser Extension Development

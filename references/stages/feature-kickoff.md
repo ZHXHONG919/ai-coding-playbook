@@ -121,13 +121,19 @@ notes.md
 ```markdown
 # Tasks
 
-| ID | Type | Status | Task | Dependencies | Parallel Group | Mock Policy | Files / Modules | Validation | CR | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| T01 | CONTRACT / FE_MOCK_LOOP / SERVER_CAPABILITY / MOCK_REPLACEMENT / INF / BIZ / FE / INTEGRATION / QA | Todo |  |  |  | none / create / close |  | Pending | Pending |  |
+| ID | 类型 | 状态 | 任务 | 依赖 | 并行组 | 模拟策略 | 文件/模块 | 工具前置 ID | 证据等级 | 界面基线 | 证据门禁 | 验证 | 代码审查 | 备注 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T01 | CONTRACT / FE_MOCK_LOOP / SERVER_CAPABILITY / MOCK_REPLACEMENT / INF / BIZ / FE / INTEGRATION / QA | Todo |  |  |  | none / create / close |  | [] / TP-001 | E0 / E1 / E2 / E3 | 无 / 原型 / 现有页面 | 接口数据 / 冒烟 / 实现截图 / 原型对比 / 多端一致性 | Pending | Pending |  |
 
 ## Progress
 
 ## Review Log
+
+## 工具前置清单
+
+| ID | 能力 | 首选 CLI | 等价结构化方式 | 安装状态 | 认证状态 | 需要用户配合 | 界面控制是否必要 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| TP-001 |  |  |  | ready / missing | ready / pending | none / login / scan / code / permission | no / visual-only / blocked |
 
 ## Mock Ledger
 

@@ -7,6 +7,21 @@ slices:
       - T01
     lane: CONTRACT # CONTRACT | FE_MOCK_LOOP | SERVER_CAPABILITY | MOCK_REPLACEMENT | INTEGRATION | QA
     user_path: "<this slice's user-visible path>"
+    tooling_prerequisite_ids: [] # 例如 TP-001；无第三方工具依赖时为空
+    evidence:
+      level: "<E0 | E1 | E2 | E3>"
+      expected_baseline: "<requirement / ui-flow / prototype / existing page / API contract / none>"
+      gate: "<none | api_data | smoke | implementation_screenshot | before_after | prototype_compare | role_compare | multi_client>"
+      required_states: []
+      required_roles: []
+      required_clients: []
+      shared_with_task_ids: []
+      pre_cr_ui_check: "轻量检查：主路径可达、基线可读取、无明显契约偏差"
+      final_capture_timing: "有阻塞：修复完成、准备复审前；零阻塞：首轮审查后立即采集"
+      zero_blocker_confirmation: ".goal/cr/<slice>-evidence-confirmation-<n>.md；优先原审查者，不可用时同职责独立审查者接替"
+      max_ui_capture_methods: 2
+      max_attempts_per_method: 2
+      fallback: "只更换采集手段、不降低证据等级；E2/E3 无等价视觉证据时人工介入或阻塞"
     scope:
       - "<minimal implementation scope>"
     non_goals:
@@ -52,8 +67,8 @@ slices:
         output_pattern: ".goal/validation/R01-smoke-{n}.md"
       - kind: ui-drift
         required_when: "slice touches frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state"
-        timing: "once before first CR; again only if CR fix changes UI"
-        command: "compare implementation with ui-flow.md / prototype / Open Design artifact; if .agents/skills/impeccable exists, run the mapped impeccable command"
+        timing: "首次代码审查前轻量检查；完成阻塞修复、准备复审前最终对比；后续仅复验被界面修复影响的状态"
+        command: "先做轻量路径检查；最终阶段再对照 ui-flow.md / prototype / Open Design 产物（Open Design artifact）并留证；存在 .agents/skills/impeccable 时执行映射命令"
         output_pattern: ".goal/validation/R01-ui-drift-{n}.md"
       - kind: concurrency-checklist
         required_when: "slice touches job/lease/lock/approval race/identity transition"
@@ -71,6 +86,7 @@ slices:
     required_docs:
       - ".goal/acceptance.md"
       - "tasks.md"
+      - ".goal/tooling-prerequisites.yaml" # tooling_prerequisite_ids 非空时必读
       # only add more docs that this slice actually needs as delta evidence
     tests:
       - command: "<test command>"
@@ -80,6 +96,9 @@ slices:
       - implementation_report_present
       - validation_reports_present_or_waived
       - ui_drift_passed_or_skipped_when_frontend
+      - evidence_gate_satisfied_or_waived
+      - final_evidence_confirmation_present_or_not_applicable
+      - final_evidence_confirmation_code_unchanged_or_new_cr_present
       - spec_green
       - cr_blocking_findings_zero
       - non_blocking_findings_routed
@@ -105,6 +124,21 @@ slices:
       - QA
     lane: QA
     user_path: "global exit"
+    tooling_prerequisite_ids: []
+    evidence:
+      level: "<汇总验收项要求的最高证据等级>"
+      expected_baseline: ".goal/acceptance.md + 各任务已确认基线"
+      gate: "<汇总各验收项所需门禁，不得固定降级为 api_data>"
+      required_states: []
+      required_roles: []
+      required_clients: []
+      shared_with_task_ids: []
+      pre_cr_ui_check: "not_applicable"
+      final_capture_timing: "汇总各切片已确认的最终证据；缺失时在最终复审前补齐"
+      zero_blocker_confirmation: "复用各开发切片 evidence-confirmation；全局新增证据由发布审查者确认"
+      max_ui_capture_methods: 2
+      max_attempts_per_method: 2
+      fallback: "复用开发切片证据；缺失时按风险补验或登记人工介入"
     scope:
       - "run final acceptance and smoke"
       - "clear deferred items"
@@ -160,6 +194,7 @@ slices:
     required_docs:
       - ".goal/GOAL.md"
       - ".goal/acceptance.md"
+      - ".goal/tooling-prerequisites.yaml"
       - ".goal/risks-deferred.md"
       - ".goal/mock-ledger.md"
       - ".goal/worktree-plan.md"
@@ -180,6 +215,9 @@ slices:
       - mock_ledger_zero_or_waived
       - all_worktrees_merged_or_blocked
       - smoke_status_recorded
+      - final_evidence_mapped_to_acceptance
+      - final_evidence_confirmation_present_or_not_applicable
+      - final_evidence_confirmation_code_unchanged_or_new_cr_present
       - status_complete_or_needs_human_intervention
     cr:
       required: true

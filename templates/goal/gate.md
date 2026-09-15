@@ -11,6 +11,12 @@
 | 涉及前端 + API 时，tasks/slices 继承 Frontend-first Mock Lane | pending | `tasks.md` / `.goal/slices.yaml` |
 | 每个 slice 有 scope、non-goals、implementation_owner、validators、tests、exit、CR | pending | `.goal/slices.yaml` |
 | 每个 slice 有 lane / task type，可追溯到 tasks.md | pending | `.goal/slices.yaml` |
+| 用户可见任务继承界面基线、证据等级、证据门禁和关键状态 | pending | `tasks.md` / `.goal/slices.yaml` |
+| 共享页面证据已合并验收任务并保留逐任务映射 | pending / not-applicable | `tasks.md` / `.goal/slices.yaml` |
+| 第三方工具前置清单已覆盖 CLI、安装、认证、用户配合和界面控制边界 | pending / not-applicable | `tasks.md` / `.goal/slices.yaml` |
+| 每个 tooling_prerequisite_id 都能解析到唯一条目，所选方式、能力边界和用户动作明确 | pending / not-applicable | `.goal/tooling-prerequisites.yaml` |
+| 首个业务切片必要工具已 ready；未来切片待认证项、用户动作和最晚准备点已登记 | pending / not-applicable | `.goal/tooling-prerequisites.yaml` / `.goal/slices.yaml` |
+| 工具台账仅含脱敏状态，不含密码、验证码、令牌、Cookie、私钥、二维码或敏感响应正文 | pending / not-applicable | `.goal/tooling-prerequisites.yaml` |
 | Main-thread / worker / validator / reviewer 输出路径明确 | pending | `.goal/slices.yaml` |
 | CR policy 要求验证报告进入 CR，阻塞 findings 关闭，P2/Nit follow-up 有边界 | pending | `.goal/review-policy.md` |
 | Mock ledger 已初始化，所有 mock 有清理 slice 或 waiver | pending | `.goal/mock-ledger.md` |

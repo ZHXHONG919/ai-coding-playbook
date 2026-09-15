@@ -1,6 +1,6 @@
 ---
 name: typeorm-postgres-migration
-description: Guide and review TypeORM Entity plus PostgreSQL SQL migrations.
+description: 指导和审查 TypeORM 实体与 PostgreSQL SQL 迁移。
 ---
 
 # TypeORM + PostgreSQL Migration

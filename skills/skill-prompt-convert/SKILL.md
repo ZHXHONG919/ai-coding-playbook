@@ -1,6 +1,6 @@
 ---
 name: skill-prompt-convert
-description: Convert between prompts, AGENTS or CLAUDE rules, and SKILL.md files. Use when users ask to turn a prompt into a skill, convert a skill into a reusable chat prompt, extract skill rules from agent instructions, or normalize skill format.
+description: 在提示词、AGENTS/CLAUDE 规则和 SKILL.md 之间转换。适用于把提示词转成 Skill、把 Skill 转成可复用对话提示、从 Agent 规则中提取 Skill，或统一 Skill 格式。
 ---
 
 # Skill Prompt Convert

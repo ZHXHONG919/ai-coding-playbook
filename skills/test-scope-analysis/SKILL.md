@@ -1,6 +1,6 @@
 ---
 name: test-scope-analysis
-description: Infer test scope and validation strategy from git diff, feature plans, task docs, or changed files for TypeScript pnpm monorepo projects. Use for test scope, 测试范围, 测试策略, what to test, or validation plan before merge.
+description: 根据代码差异、功能方案、任务文档或变更文件推导 TypeScript pnpm 单仓项目的测试范围和验证策略。适用于测试范围、测试策略、test scope、what to test、validation plan 和合并前验证方案。
 ---
 
 # Test Scope Analysis

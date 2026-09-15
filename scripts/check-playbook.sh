@@ -42,6 +42,8 @@ required=(
   "references/plan/decision-table.md"
   "references/plan/field-ownership.md"
   "references/plan/task-breakdown.md"
+  "references/delivery/evidence-driven-delivery.md"
+  "references/delivery/tooling-prerequisites.md"
   "references/review-kit/review-flow.md"
   "references/review-kit/architecture.md"
   "references/review-kit/typescript-react.md"
@@ -68,6 +70,8 @@ required=(
   "templates/goal/review-policy.md"
   "templates/goal/worker-report.md"
   "templates/goal/validation-report.md"
+  "templates/goal/evidence-confirmation.md"
+  "templates/goal/tooling-prerequisites.yaml"
   "templates/goal/mock-ledger.md"
   "templates/goal/todo-ledger.md"
   "templates/goal/worktree-plan.md"
@@ -82,6 +86,14 @@ required=(
   "evals/usage/simple-stage-commands.md"
   "evals/usage/claude-ui-flow-trigger.md"
   "evals/usage/plain-language-output.md"
+  "evals/usage/chinese-first-skill-language.md"
+  "evals/bugfix/source-agnostic-evidence-budget.md"
+  "evals/plan/task-evidence-gate.md"
+  "evals/goal-execute/legacy-evidence-migration.md"
+  "evals/goal-execute/final-evidence-confirmation-code-gate.md"
+  "evals/delivery/cli-first-third-party-tools.md"
+  "evals/goal-execute/tooling-prerequisite-resume.md"
+  "evals/goal-handoff/no-third-party-tooling.md"
   "evals/plan/boundary-cases-required.md"
   "evals/plan/latest-requirement-delta-gate.md"
   "evals/plan/prototype-confirmation-gate.md"
@@ -379,6 +391,161 @@ if ! grep -q 'UI Drift Gate' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
   exit 1
 fi
 
+if ! grep -q 'evidence-driven-delivery.md' "$ROOT_DIR/references/stages/bugfix.md"; then
+  echo "bugfix stage missing evidence-driven delivery routing" >&2
+  exit 1
+fi
+
+if ! grep -q '界面基线' "$ROOT_DIR/references/plan/task-breakdown.md" || ! grep -q '证据门禁' "$ROOT_DIR/references/plan/task-breakdown.md"; then
+  echo "task breakdown missing UI baseline or evidence gate" >&2
+  exit 1
+fi
+
+if ! head -n 12 "$ROOT_DIR/skills/ai-coding-playbook/SKILL.md" | grep -q '共享的 AI 研发工作流入口'; then
+  echo "ai-coding-playbook description is not Chinese-first" >&2
+  exit 1
+fi
+
+for overlay in cursor claude codex; do
+  if ! head -n 12 "$ROOT_DIR/platforms/$overlay/overlays/ai-coding-playbook.md" | grep -Eq '将自然语言研发指令|当用户需要 AI coding'; then
+    echo "$overlay ai-coding-playbook overlay description is not Chinese-first" >&2
+    exit 1
+  fi
+done
+
+for evidence_field in 'level:' 'expected_baseline:' 'gate:' 'required_states:' 'required_roles:' 'required_clients:' 'pre_cr_ui_check:' 'final_capture_timing:' 'zero_blocker_confirmation:' 'max_ui_capture_methods:' 'max_attempts_per_method:'; do
+  if ! grep -q "$evidence_field" "$ROOT_DIR/templates/goal/slices.yaml"; then
+    echo "goal slices template missing evidence field: $evidence_field" >&2
+    exit 1
+  fi
+done
+
+if command -v ruby >/dev/null 2>&1; then
+  ruby -e '
+    require "yaml"
+    doc = YAML.safe_load(File.read(ARGV[0]), aliases: true)
+    required = %w[level expected_baseline gate required_states required_roles required_clients shared_with_task_ids pre_cr_ui_check final_capture_timing zero_blocker_confirmation max_ui_capture_methods max_attempts_per_method fallback]
+    slices = doc.fetch("slices")
+    slices.each do |slice|
+      tooling_ids = slice.fetch("tooling_prerequisite_ids")
+      abort("slice #{slice["id"]} tooling_prerequisite_ids must be an array") unless tooling_ids.is_a?(Array)
+      evidence = slice.fetch("evidence")
+      missing = required.reject { |key| evidence.key?(key) }
+      abort("slice #{slice["id"]} evidence missing: #{missing.join(", ")}") unless missing.empty?
+    end
+  ' "$ROOT_DIR/templates/goal/slices.yaml" || {
+    echo "goal slices template is not valid YAML" >&2
+    exit 1
+  }
+
+  ruby -e '
+    require "yaml"
+    slices = YAML.safe_load(File.read(ARGV[0]), aliases: true).fetch("slices")
+    catalog = YAML.safe_load(File.read(ARGV[1]), aliases: true).fetch("tooling_prerequisites")
+    slices.each do |slice|
+      ids = slice.fetch("tooling_prerequisite_ids")
+      abort("slice #{slice["id"]} has duplicate tooling IDs") unless ids.uniq.length == ids.length
+      missing = ids.reject { |id| catalog.key?(id) }
+      abort("slice #{slice["id"]} references missing tooling IDs: #{missing.join(", ")}") unless missing.empty?
+    end
+  ' "$ROOT_DIR/templates/goal/slices.yaml" "$ROOT_DIR/templates/goal/tooling-prerequisites.yaml" || {
+    echo "goal tooling references are inconsistent" >&2
+    exit 1
+  }
+fi
+
+if ! grep -Eq '^\| ID .*证据等级.*界面基线.*证据门禁.*\|$' "$ROOT_DIR/references/plan/task-breakdown.md" || ! grep -Eq '^\| ID .*证据等级.*界面基线.*证据门禁.*\|$' "$ROOT_DIR/references/stages/feature-kickoff.md"; then
+  echo "task templates missing evidence level" >&2
+  exit 1
+fi
+
+if [ "$(grep -c '^    evidence:' "$ROOT_DIR/templates/goal/slices.yaml")" -ne 2 ]; then
+  echo "goal slices template must contain complete evidence blocks for development and global exit" >&2
+  exit 1
+fi
+
+for evidence_field in 'level:' 'expected_baseline:' 'gate:' 'required_states:' 'required_roles:' 'required_clients:' 'pre_cr_ui_check:' 'final_capture_timing:' 'zero_blocker_confirmation:' 'max_ui_capture_methods:' 'max_attempts_per_method:' 'fallback:'; do
+  if [ "$(grep -c "^      $evidence_field" "$ROOT_DIR/templates/goal/slices.yaml")" -ne 2 ]; then
+    echo "each goal evidence block must contain: $evidence_field" >&2
+    exit 1
+  fi
+done
+
+if ! grep -q 'legacy_not_declared' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing legacy evidence migration strategy" >&2
+  exit 1
+fi
+
+if ! grep -q 'tooling-prerequisite' "$ROOT_DIR/AGENTS.md" || [ "$(grep -c '^    tooling_prerequisite_ids:' "$ROOT_DIR/templates/goal/slices.yaml")" -ne 2 ]; then
+  echo "third-party tooling prerequisite routing is incomplete" >&2
+  exit 1
+fi
+
+if ! grep -Eq '^\| ID .*工具前置 ID.*证据等级.*界面基线.*证据门禁.*\|$' "$ROOT_DIR/references/plan/task-breakdown.md" || ! grep -Eq '^\| ID .*工具前置 ID.*证据等级.*界面基线.*证据门禁.*\|$' "$ROOT_DIR/references/stages/feature-kickoff.md"; then
+  echo "task templates missing tooling prerequisite ID mapping" >&2
+  exit 1
+fi
+
+if ! grep -q 'tooling-prerequisites.yaml' "$ROOT_DIR/skills/goal-execute/SKILL.md" || ! grep -q '旧 Goal 缺少工具字段' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing tooling persistence or legacy migration" >&2
+  exit 1
+fi
+
+if command -v ruby >/dev/null 2>&1; then
+  ruby -e '
+    require "yaml"
+    doc = YAML.safe_load(File.read(ARGV[0]), aliases: true)
+    items = doc.fetch("tooling_prerequisites")
+    abort("tooling_prerequisites must be a mapping") unless items.is_a?(Hash)
+    required = %w[capability selected_method cli authentication capability_boundary readiness]
+    items.each do |id, item|
+      missing = required.reject { |key| item.key?(key) }
+      abort("#{id} missing: #{missing.join(", ")}") unless missing.empty?
+      kind = item.fetch("selected_method").fetch("kind")
+      cli = item.fetch("cli")
+      if kind == "cli"
+        abort("#{id} selects cli but cli.required is not true") unless cli["required"] == true
+        abort("#{id} selects cli but command is missing") if [nil, "", "not_applicable"].include?(cli["command"])
+      else
+        abort("#{id} does not select cli but cli.required is true") if cli["required"] == true
+      end
+    end
+  ' "$ROOT_DIR/templates/goal/tooling-prerequisites.yaml" || {
+    echo "tooling prerequisites template is invalid" >&2
+    exit 1
+  }
+fi
+
+if ! grep -q '不得写入密码、验证码' "$ROOT_DIR/references/delivery/tooling-prerequisites.md"; then
+  echo "tooling prerequisites missing credential redaction boundary" >&2
+  exit 1
+fi
+
+if ! grep -q 'Goal Gate 前置阶段' "$ROOT_DIR/references/stages/goal-handoff.md" || ! grep -q 'Goal Execute 不负责首次安装' "$ROOT_DIR/references/stages/goal-handoff.md"; then
+  echo "tooling preparation timing is ambiguous" >&2
+  exit 1
+fi
+
+if ! grep -q '每种方式最多两次完整尝试' "$ROOT_DIR/references/delivery/tooling-prerequisites.md" && ! grep -q '连续失败遵守证据驱动交付的尝试预算' "$ROOT_DIR/references/delivery/tooling-prerequisites.md"; then
+  echo "third-party tooling rules missing UI control attempt budget" >&2
+  exit 1
+fi
+
+if ! grep -q '运行时代码是否变化' "$ROOT_DIR/templates/goal/evidence-confirmation.md" || ! grep -q 'new_cr_present' "$ROOT_DIR/templates/goal/evidence-confirmation.md"; then
+  echo "evidence confirmation template missing code-change gate" >&2
+  exit 1
+fi
+
+if ! grep -q '替换原因' "$ROOT_DIR/templates/goal/evidence-confirmation.md"; then
+  echo "evidence confirmation template missing reviewer fallback" >&2
+  exit 1
+fi
+
+if ! grep -q '证据驱动执行' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
+  echo "goal-execute missing evidence-driven execution rules" >&2
+  exit 1
+fi
+
 if ! grep -q 'ui-drift' "$ROOT_DIR/templates/goal/slices.yaml"; then
   echo "goal slices template missing ui-drift validator" >&2
   exit 1
@@ -580,8 +747,13 @@ if grep -q 'no_unresolved_nit_or_should_fix' "$ROOT_DIR/templates/goal/slices.ya
   exit 1
 fi
 
-if ! grep -q 'timing: "once before first CR' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices template missing ui-drift timing" >&2
+if ! grep -q 'pre_cr_ui_check' "$ROOT_DIR/templates/goal/slices.yaml" || ! grep -q 'final_capture_timing' "$ROOT_DIR/templates/goal/slices.yaml"; then
+  echo "goal slices template missing split UI evidence timing" >&2
+  exit 1
+fi
+
+if grep -q 'once before first CR' "$ROOT_DIR/templates/goal/slices.yaml" || grep -q 'before_first_cr_and_after_ui_fix' "$ROOT_DIR/templates/goal/review-policy.md"; then
+  echo "goal templates still force full UI drift before first CR" >&2
   exit 1
 fi
 
