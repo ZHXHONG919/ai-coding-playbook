@@ -69,7 +69,7 @@ description: 创建、更新、审查或整理 Codex、Cursor 和 Claude Code �
 7. 若改动影响触发或输出门禁，新增或更新 `evals/` 样例。
 8. 更新 `scripts/check-playbook.sh` 的必需文件列表。
 9. 运行 `bash scripts/check-playbook.sh`。
-10. 运行 `bash scripts/install-skills.sh --target codex --force` 和 `--target cursor --force`（按需）。
+10. 安装与规则编辑分开。先检查全局 skills 是否实时软链接到当前仓库；用户要求暂不应用时，在独立工作树修改，保持已安装源和链接不变，运行 `bash scripts/check-playbook.sh --repo-only`。只有用户明确要求应用时才运行相应安装命令。
 
 ## Review Checklist
 
@@ -79,7 +79,7 @@ description: 创建、更新、审查或整理 Codex、Cursor 和 Claude Code �
 - 是否有清晰输出格式。
 - 是否要求默认落盘；除非用户明确要求，否则不要强制写文件。
 - 是否需要 reference 分层；超过一屏的细节优先拆分。
-- 是否有 eval 覆盖关键触发、输出门禁和禁止行为。
+- 是否有 eval 覆盖关键决策、输出与禁止行为；复杂规则用独立 Agent 执行不含标准答案的真实场景。结构/关键词检查不能证明行为有效。
 - `AGENTS.md` 路由是否已同步。
 - 各平台 overlay 是否仍然必要。
 

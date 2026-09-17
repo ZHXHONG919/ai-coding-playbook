@@ -1,511 +1,151 @@
 ---
 name: goal-execute
-description: 执行已准备好的复杂功能 Goal 包。适用于启动、恢复或继续 Goal，从 `.goal/status.yaml` 的 `next_slice` 继续，协调 worker、validator、reviewer 子 Agent，或按切片执行实现、验证、问题分流、模拟清理与全局收尾检查。
+description: 执行或恢复已准备好的复杂功能 Goal 包。按任务自测、基础依赖前审查、功能批次验证与 CR 连续推进，从 status.yaml 恢复并核对最终验收；不用于尚未确认的方案或轻量单步修改。
 ---
 
-# Goal Execute
+# Goal 连续执行
 
-Goal Execute 默认采用 **continuous 主线程负责制**：主 agent 是当前 slice 的技术负责人，必须掌握领域口径、实现策略、验证证据和 CR 结论。用户说“用 goal 开工 / 按 goal 执行 / 继续 Goal”时，默认从 `.goal/status.yaml` 的 current/next slice 连续推进；完成一个 slice 后自动进入下一 slice，直到 Goal 完成、真正阻塞、或需要人工介入。
+主线程负责技术判断和交付结果。默认连续推进普通任务，在功能批次可验收时正式验证和审查；不要求每个任务都启动完整 CR 循环。调度规则在本文件，节点交接见 `references/delivery/agent-delivery-flow.md`，审查细则见 `references/stages/review.md`。
 
-## 使用时机
+## 开始与恢复
 
-- 用户说“按 Goal 执行 / 用 goal 开工 / 续跑 goal / 从 status.yaml 的 next 继续”时，默认进入连续执行。
-- 用户明确说“只跑一片 / 先做当前 slice / 先停在 Rxx / 不要继续下一片”时，才进入单切片执行。
-- 目标 feature 已有 `.goal/GOAL.md`、`.goal/slices.yaml`、`.goal/status.yaml`。
-- 复杂实现需要跨上下文恢复，并要求每个切片经过实现、验证、CR、修复、状态更新和 commit。
+1. 首次读取目标项目的 README、AGENTS、CLAUDE 及当前需求约束；执行 Git 写操作前读 `references/git-safety.md`。
+2. 读取 `.goal/status.yaml`、`resume.md`、`slices.yaml` 中当前/下一任务及所有活动 worker 对应任务与所属批次、`gate.md`；只补读相关验收、契约和最近证据。resume 提供恢复动作与约束来源，不覆盖 status 或最新用户决定；旧包缺少 resume 时从现有决定、实际差异和报告核实后补恢复指针，不为此停工或重问。
+3. 用实际分支、差异、文件及报告核对状态。`status.yaml` 是执行索引，不能覆盖用户最新要求，也不能把不存在的实现变成事实。状态与代码冲突时先核实，再回写状态和恢复提示。
+4. 首次开工的 Gate 未 Ready 时按 `references/stages/goal-handoff.md` 补齐必要输入。续跑发现局部缺口时按中央节点规则定向修正、隔离与重排依赖，保留仍有效的实现/验收；不要对整个 Goal 重跑开工确认，已经授权的实施不重复询问。
+5. 旧包缺少 `schema_version: 2` 或 `review_strategy`，先读本文件的“旧包迁移”；不能默默把逐片 CR 改成批次 CR。
 
-## 非适用场景
+仅问能否开工、检查状态时使用 `prepare_only`，不执行代码改动。轻量任务无需 Goal 包，使用 `references/stages/implementation.md`。
 
-- 还没有通过 Goal Gate 的 feature；先读取 `references/stages/goal-handoff.md` 生成并检查 Goal 包。
-- 轻量改动、单文件 bugfix 或不需要结构化恢复的短任务；使用 `references/stages/implementation.md`。
-- 方案、需求或 Design CR 仍有 Blocking Pending；回到对应阶段。
+## 两个独立的选择
 
-## 必读输入
+| 选择 | 默认 | 其他情况 |
+| --- | --- | --- |
+| 执行模式 `run_control.mode` | `continuous`：完成一个安全边界后继续 | 用户要求只跑一片用 `single_slice`；只检查用 `prepare_only`；明确发布用 `release_gate` |
+| 审查策略 `review_strategy` | 新包用 `functional_batch` | 用户或项目契约明确逐片审查时用 `per_slice`；不因使用子 Agent 自动加重流程 |
 
-在执行任何代码改动前，按**最小恢复集**读取，避免每轮把整个 Goal 包重读一遍：
+发布模式不意味着已获所有外部写入授权，仍遵守项目发布 SOP。没有明确暂停要求时，普通任务和批次边界均不需要交还控制权。
 
-1. `.goal/status.yaml`（唯一状态源）。
-2. `.goal/slices.yaml` 中 `current_slice` 或 `next_slice` 对应切片。
-3. `.goal/resume.md` 的 Current Snapshot；若与 `status.yaml` 冲突，以 `status.yaml` 为准并立刻回写 `resume.md`。
-4. 当前 slice 最近一份 `.goal/runs/`、`.goal/validation/`、`.goal/cr/` 报告（只读当前 slice，不回溯全部历史）。
-5. 当前切片 `required_docs` 中与本轮改动直接相关的条目；`GOAL.md` / `acceptance.md` / `review-policy.md` 只在 slice 开工、口径变更、或 Exit 审计时全量核对。
-6. `git status`、当前分支、最近 commit；按 `references/git-safety.md` 确认是否禁止本地 merge / rebase 主干。
-7. 目标业务项目的 `README.md`、`AGENTS.md`、`CLAUDE.md`：仅在 Goal 首次开工、跨模块边界不清、或本地规则可能覆盖 playbook 时读取。
-8. 当前 slice 涉及前端 + API 交互时，核对 `tasks.md` / `slices.yaml` 是否继承 Frontend-first Mock Lane；若本轮只发现局部待确认或 CR 建议，读取 TODO ledger 位置并按问题分流继续推进。
+开工后的自主决策、交接信息、局部缺口与契约隔离统一按 `references/delivery/agent-delivery-flow.md`。本文件只规定如何调度和记录状态，不再另设产品确认环节。
 
-聊天历史不是权威来源。若聊天与 `.goal/status.yaml` 冲突，以 `status.yaml` 为准；若 `status.yaml` 与 git 明显冲突，先核对并回写状态。
+## 状态与审查单位
 
-## 执行模式
+任务状态：`todo → in_progress → implemented → accepted`。
 
-Goal Execute 必须先判定 `run_mode`，并写入本轮执行说明或 `.goal/status.yaml.run_control`：
+- `implemented`：本任务范围已实现，最小有效自测通过，缺口已记录；所属批次仍可能未审。
+- `accepted`：所属审查批次已独立验证、CR 和验收通过，证据对应代码与契约版本。
+- 已有全部或部分改动，因输入变化或执行中断需要暂停恢复时用 `awaiting_revalidation`（待恢复/复验）：保留原报告，并在同一任务记录中写明已改/未改、已测/未测、产物是否查实及恢复条件；所属批次回到 pending，不能满足消费者依赖。半成品不必伪造完成自测；查实没有任何改动才可回 todo。前置条件恢复后进入 in_progress，补完实现并只复验受影响范围，达到本任务完成和自测标准才回 implemented，再按批次验收。
+- 批次状态：`pending → in_review → accepted`；修复或新差异影响已有结论时回到 `pending`，不能沿用旧的零问题结论。
+- `review_boundary: before_dependents` 仅用于会影响后续任务的共享规则变更；其有限范围单列 `kind: foundation` 批次。批次通过后依赖方才可开始。普通 API 调用、字段展示、使用既有权限服务不自动属于基础变更。
+- 同一基础批次内若任务互相依赖，应合并成一个可自测任务或拆成先后验收的基础批次，避免等待自身验收。跨批次等待关系必须无环。
+- 普通任务可以依赖同一功能批次中已 `implemented` 的任务；不能依赖未验收的基础批次。跨批次依赖在前一批次验收后继续。
+- `per_slice` 下每个任务单列批次，不把同一批次部分任务标成已验收。
+- 所有普通任务都必须属于明确的审查批次。最后的 `kind: final` 批次核对从 Goal 基线到最终版本的整体覆盖、集成及验收；不重复审查无变化且证据仍适用的代码。
 
-| 模式 | 触发 | 允许动作 | 停止点 |
-| --- | --- | --- | --- |
-| `prepare_only` | 用户问“能否开工 / 当前状态 / 可以开发么” | 只读检查、状态判断、列下一步 | 不改代码、不推进 slice |
-| `continuous` | 默认；“用 goal 开工 / 按 goal 执行 / 继续 goal” | 在每个安全边界后继续下一 slice | Goal 完成、真正阻塞、needs_human_intervention、用户打断、工具上限 |
-| `single_slice` | 用户明确说“只跑一片 / 先停在当前 slice / 不要继续下一片” | 只执行 `current_slice` 或 `next_slice` | 当前 slice commit / blocked / needs_human_intervention / 可恢复状态后停下 |
-| `release_gate` | 用户明确发布、上线、发测试/生产、真实 provider smoke、生产 SSH | 允许发布级检查和上线前置验证 | 发布门禁完成或阻塞 |
-
-没有明确 `single_slice` 或 `prepare_only` 限制时，不得在普通安全边界停住等待用户确认；应继续下一 slice。Codex app goal 仍只是 UI 镜像，不能替代 `.goal/status.yaml`。
-
-## Codex App Goal 镜像
-
-Codex app goal 只作为 UI 可视化镜像，不能替代 `.goal/status.yaml`、`.goal/resume.md` 或文件化报告。详细切片进度仍写入项目 `.goal/status.yaml`。
-
-当运行环境提供 Codex app goal 工具时：
-
-1. 先读取项目 `.goal/status.yaml` 和 `.goal/GOAL.md`，再用 `get_goal` 检查 app 级 goal 状态。
-2. Goal Execute 在 Codex app 中默认启用 UI 镜像；如果 `.goal/status.yaml` 没有 `codex_app_goal` 字段，按 `enabled: true` 处理。只有明确写 `codex_app_goal.enabled: false` 时才跳过 app goal 镜像。
-3. 如果当前没有匹配的 active app goal，则调用 `create_goal` 创建 app-level goal，objective 应来自项目 `.goal/GOAL.md`、feature id 和当前 `next_slice`；不需要用户额外点名“创建 app goal 进度条”。
-4. 如果已经存在匹配 app goal，复用它；如果存在不匹配的 active app goal，不要覆盖，继续以 `.goal/status.yaml` 执行，并在同步中说明冲突。
-5. 每个 slice 的真实进度只更新 `.goal/status.yaml`；app goal 只同步线程级目标存在感和终态。
-6. Goal 完成时按 app 工具契约调用 `update_goal` 标记 complete；若 `.goal/status.yaml` 进入 `blocked` 或 `needs_human_intervention`，只有在 app 工具规则允许时才标记 blocked，否则在最终回复和 `status.yaml` 中说明人工接手入口。
-
-如果没有 app goal 工具，Goal Execute 仍正常运行；不要为了 UI 进度条阻塞 `.goal` 执行。
-
-## 主 Agent 职责
-
-主 agent 是技术负责人 / final integrator，必须做这些事：
-
-- 读取 `.goal/status.yaml`、当前 slice 和执行契约。
-- 为 implementer / fixer / validator / reviewer 生成最小执行包。
-- 审计子 agent 输出：scope、diff、测试、验证证据、CR findings、mock ledger、worktree 状态。
-- 判断问题归属：局部实现问题交给 implementer / fixer，验证脚本问题交给 validator，设计偏差回到方案阶段。
-- 只有主 agent 可以更新 `.goal/status.yaml`、合并 worktree、提交 commit、推进下一片。
-- 在当前 slice 开始前决定实现所有者：`main_thread`、`worker` 或 `hybrid`，并说明原因。
-
-主 agent 不再默认降级为纯调度员。以下场景优先使用 `main_thread` 或 `hybrid`，因为实现质量依赖主线程的完整上下文：
-
-- 核心领域模型、状态机、DTO / Entity / migration、预算 / 计费 / provider、锁 / 并发 / 幂等。
-- 用户刚修正口径，或存在旧文档、当前代码、最新要求需要同步。
-- 上一轮 worker 首版质量低、CR 多轮返修，或当前 slice 的主要风险是业务语义而非机械改动。
-- 小而聚焦的 slice，主线程直接实现比派发 worker 更可控。
-
-仍优先使用 `worker` 的场景：
-
-- 大量机械改文件、重复测试补齐、UI 状态矩阵填充、低语义风险的局部实现。
-- 明确需要隔离上下文或并行 worktree，且 ownership 不碰共享契约。
-
-无论谁实现，validator 和 reviewer 必须保持独立；主线程实现不能替代验证或 CR。
-
-主 agent 直接编辑当前 slice 的业务代码时，必须满足：
-
-- 本轮 `implementation_owner.mode` 为 `main_thread` 或 `hybrid`，或用户明确授权主线程实现。
-- 在 `.goal/runs/<slice>-main-thread-<n>.md` 或最终 slice 报告中写明原因、范围、改动、测试和风险。
-- 后续仍有独立 `.goal/validation/` 和 `.goal/cr/` 报告。
-
-允许的直接编辑范围包括：
-
-- `.goal/status.yaml`、`.goal/resume.md`、`.goal/runs/`、`.goal/validation/`、`.goal/cr/`、`.goal/mock-ledger.md` 等执行状态和报告。
-- 当前 slice 在 `implementation_owner` 中声明给主线程的业务代码、测试代码和文档。
-- worker 输出后的合并冲突收口、报告索引、最终集成记录。
-- 用户明确要求主线程修正的元数据、文档或状态文件。
-
-如果没有可用子 agent / worker 工具，主 agent 可以按 `main_thread` 实现当前 slice，但必须保留独立验证和 CR；如果连独立验证 / CR 都不可用，则停止并写明缺口，不能用自测冒充完整门禁。
-
-主 agent 不应把所有实现细节长期只留在聊天上下文里；它应依赖文件化报告恢复上下文。若已经在未判定 `implementation_owner` 的情况下编辑业务代码，必须立即停止继续扩展，把已产生 diff 收敛为 main-thread 报告或 worker 输入，并在报告中说明偏差和补救。只有能明确隔离为主 agent 本轮产生的 diff 且用户授权时，才允许回滚；不得回滚用户或其他 worker 的未提交改动。
-
-## 子 Agent 职责
-
-- implementer / fixer：只改当前 slice scope 内文件，输出 `.goal/runs/<slice>-<role>-<n>.md`。
-- validator：运行可验功能、contract test、smoke、mock 清理检查，输出 `.goal/validation/<slice>-<kind>-<n>.md`。
-- reviewer：做 scoped CR，输出 `.goal/cr/<slice>-round-<n>.md`。
-- worktree worker：仅在 `worktree-plan.md` 允许时使用，必须遵守 ownership 和 merge order。
-
-子 agent 禁止：
-
-- 直接修改 `.goal/status.yaml` 推进状态。
-- 合并 worktree、提交 commit 或决定下一片。
-- 扩大 slice scope，或修改未授权的共享契约。
-- 用聊天回复代替文件化报告。
-
-## 实现所有者 Gate
-
-每个 slice 执行前必须判定：
-
-```yaml
-implementation_owner:
-  mode: main_thread | worker | hybrid
-  reason: "<为什么这样更能保证质量>"
-  main_thread_may_edit:
-    - "<files/modules>"
-  worker_scope:
-    - "<files/modules or none>"
-  independent_validation_required: true
-  independent_cr_required: true
-```
-
-如果现有 Goal 包仍写 `self_run_allowed: false` 或 `main_agent_may_edit_business_code: false`，按新规则解释为“禁止无记录、无独立验证/CR 的主线程裸跑”，不等于禁止 `implementation_owner=main_thread|hybrid`。若项目 `.goal/gate.md` 明确硬性禁止主线程编辑，则遵循项目契约并标为需要 Goal 包更新。
-
-## 吞吐与防空转
-
-完整工作流必须保留：实现 → 验证 → CR → 修复 → Exit → commit。优化的是**空转**，不是砍门禁。
-
-### 证据驱动执行
-
-当前切片涉及用户可见结果、界面或批量问题时，读取 `references/delivery/evidence-driven-delivery.md`：
-
-- 从 `tasks.md` 继承界面基线、证据等级、证据门禁和关键状态，不在执行阶段重新猜是否需要截图。
-- 每个任务都要有最小充分证据，但不是每个任务都要截图；后端、并发、事务和数据问题优先使用测试、接口和数据证据。
-- 多个任务共用同一页面、角色和状态时，由一个集成或验收切片集中制作证据，并逐条映射结论。
-- 批量问题先展开父子问题并按用户路径或共享根因聚类；一个开发切片只处理一个主要用户路径或一个共享根因簇。
-- 最终视觉证据在首轮代码审查的阻塞修复完成、准备复审前制作，由复审同时确认修复和证据；全量回归只由 Goal、批量问题、共享核心/契约/基础设施、高风险改动或项目门禁触发。
-- 首轮代码审查零阻塞时立即制作最终证据，优先由原审查者限定范围确认；原审查者不可恢复时，由同职责且独立于实现者的审查者接替并记录原因。确认结果写入 `.goal/cr/<slice>-evidence-confirmation-<n>.md`。
-- 证据确认前必须比较当前代码与关联代码审查输入：运行时代码未变化可直接确认；发生变化必须存在新的限定范围代码审查，并更新最终证据。
-- 界面自动化最多使用两种定位方式，每种最多两次完整尝试；连续两次同类失败立即更换采集手段，但不得降低证据等级。E2/E3 缺少等价运行态或视觉证据时登记人工介入或阻塞。
-
-旧 Goal 包缺少 `evidence` 块时，不得把所有切片默认成 E1。先从 `tasks.md`、`.goal/acceptance.md`、`ui-flow.md` 和已确认原型显式迁移并记录依据；无法可靠推导时标记 `legacy_not_declared`，按是否影响当前验收决定继续、设计同步或人工介入。
-
-### 第三方工具前置
-
-当前 Goal 需要第三方应用、网站或桌面工具时，读取 `references/delivery/tooling-prerequisites.md`：
-
-- Goal Execute 开始时读取 `.goal/tooling-prerequisites.yaml`，确认 Goal Gate 前准备结果；只做必要的轻量有效性探测。首次安装、首次授权和能力选择应在 Goal Handoff 的工具准备阶段完成。
-- 每个切片通过 `tooling_prerequisite_ids` 引用清单；已满足的前置不重复安装或登录。
-- 必要 CLI 缺失时按可信来源安装到项目或用户范围；需要管理员权限、付费、许可、扫码、验证码或组织授权时请求用户配合。
-- CLI、专用连接器或 API 能完成的步骤不使用浏览器；浏览器/桌面控制只处理无法结构化完成的授权和视觉验证。
-- 切片不得在用户未被告知时控制其正在使用的浏览器或桌面应用。
-- 跨会话恢复时复用工具台账；只做必要的轻量有效性探测，认证失效时才重新请求登录。
-- 旧 Goal 缺少工具字段时，从任务、命令、必读文档和验收项显式迁移；无法推导且当前切片需要第三方访问时进入工具前置同步，不能默认空数组或直接使用界面。
-- 工具台账只记录脱敏状态、动作类型和 `Passed / Failed`；禁止写入密码、验证码、令牌、Cookie、私钥、二维码内容、完整账号标识和敏感响应正文。
-
-### Slice 粒度
-
-- 一个开发 slice 只服务一条主用户路径的最小闭环。
-- 涉及前端项目 + API 交互时，Goal 必须继承 `tasks.md` 的 Frontend-first Mock Lane：`CONTRACT → FE_MOCK_LOOP → SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRATION / QA`。执行阶段不得重新按独立功能点重排 slice。
-- `FE_MOCK_LOOP` slice 只要求前端功能、接口 mock / 接口壳、mock 数据、浏览器 smoke 和 UI Drift 跑通；后端 DB / service / job 真实化放到后续 `SERVER_CAPABILITY` / `MOCK_REPLACEMENT` slice 逐步替换。
-- 命中任意两项以上时必须拆片，不得塞进同一开发 slice：异步 Job/lease、多维度 embedding/生命周期、预算/provider 结算、identity 失效/级联写、未冻结契约下的前后端同改。
-- 默认建议：`task_ids ≤ 2`，并发关键子系统 ≤ 1。
-- 若首轮 CR 已出现 ≥ 3 个 P1 竞态/一致性 finding，停止继续堆 fixer；先评估拆 follow-on slice 或切 `main_thread/hybrid` 收口骨架。
-
-### 验证与 CR 对齐
-
-- `max_pre_cr_validation_rounds: 1`：实现后最多完整验证一轮；验证失败修复后再完整验证一轮即可进入 CR，禁止验证空转 3+ 轮才首次 CR。
-- CR 后只重跑**受影响**的 tests / probes，不默认重跑整库 migration + 全量 suite。
-- 并发 / Job / lease / 审批竞态类 slice：validator 在宣称 Passed 前必须覆盖 CR 会审的竞态清单（锁内再校验、lease token、await 持久化、identity 迁移、approved-only 重读）。验证绿但未覆盖这些点，不算可进入 CR 的有效绿。
-- 禁止在 CR 阻塞 findings 仍 open 时启动正交 fixer（例如无关口径小改、下一切片预研、发布 hardening）。
-
-### 界面偏差检查时机
-
-- 前端切片：首次代码审查前做一次轻量界面检查；完成阻塞修复、准备复审前制作最终截图和原型证据。后续界面修复既要复验受影响状态，也要因运行时代码变化重开限定范围代码审查。
-- 禁止在每个中间修复轮次重复跑完整界面偏差检查或 impeccable 审计，除非本轮修复明确改了界面。
-
-### Fixer 预算与 owner 升级
-
-```text
-同一 finding / finding class：
-  fixer round 1 → fixer round 2
-  → 仍未关闭：切换 implementation_owner=main_thread|hybrid，由主线程收口
-  → 主线程一轮后仍未关闭：design_sync / human_intervention / blocked
-  禁止 silent fixer-3+
-```
-
-- `max_fix_rounds_per_finding: 2`（worker fixer）。第 3 次同类修复必须由主线程承担或升级分流，不得继续派同质 fixer。
-- 同一 slice 累计 worker fixer ≥ 3 且仍有阻塞项：强制切 `main_thread|hybrid`。
-
-### Mid-slice TODO / Requirement Delta
-
-Goal 是连续交付机器。任务拆好以后，局部待确认、CR 中的需求优化、交互建议、未来扩展或契约优化，默认写入 TODO ledger，不阻塞当前 slice 完成或下一 slice 推进。
-
-只有以下情况才升级为 Blocking Delta：
-
-- 当前 slice 的 P0/P1 验收无法判断或无法成立。
-- 继续推进会制造错误数据、错误权限或错误状态。
-- 后续 slice 直接依赖未确认契约，且无法通过 mock、adapter 或 feature flag 隔离。
-- 用户明确要求先停下确认。
-
-用户在 slice `in_progress` 期间给出最新口径时：
-
-1. 先分类为 `todo_candidate` 或 `blocking_delta`。
-2. `todo_candidate`：写入 TODO ledger / `.goal/risks-deferred.md` / 后续 slice gate，标清影响、owner、最晚对齐点；当前 slice 按原验收继续收口。
-3. `blocking_delta`：把 `execution.state` 记为可恢复的 `requirement_delta_pending`（或在 `blocked.reason` / `resume.md` 写明），冻结新的正交 fixer。
-4. 对 Blocking Delta 做 Cross-doc Consistency Scan，同步 `requirements.md` / `plan.md` / `acceptance.md` / 当前 slice acceptance。
-5. 再二选一：修订当前 slice scope 并从头补验证/CR；或把未完成部分拆到 follow-on slice。
-6. 不得在旧 CR findings 仍 open 时，用“顺手修 delta”打断 CR 闭环；也不得把非阻塞 TODO 当成停止 Goal 的理由。
-
-### Legacy Goal 包兼容
-
-旧 Goal 包若仍要求开发 slice `nit: 0` / 全部 findings 清零，或把主 agent 锁死为纯调度员：
-
-- 普通开发 slice 默认采用本 playbook 吞吐规则：阻塞项清零，P2/Nit 可登记 non-blocking follow-up；主线程可按 `implementation_owner` 实现。
-- 在本轮 CR / `status.yaml` / `resume.md` 记录 policy override 与原因。
-- 仅当用户明确要求“零 Nit”或当前是 `release_gate` 时，才强制全部 findings 关闭。
-- 建议在下一轮 Goal Handoff / Gate 刷新时用最新模板重生 `.goal/review-policy.md` 与 owner 字段。
-
-### SSOT 同步
-
-每个 implementer / fixer / validator / reviewer 步骤结束后，主 agent 必须在同轮更新：
-
-- `status.yaml`：`last_*`、`counters`、`active_workers`、`implementation_owner`、`safe_to_commit`
-- `resume.md` Current Snapshot
-
-禁止留下“报告说已修完、status 仍 open_cr_findings>0、resume 仍停在上一片”的三本账。
+验收编号代表完整且固定的断言，不能在不同批次里各指其中一部分。返修后，待复验任务不再提供有效通过证据；其验收项若仍为 passed，必须有另一个当前快照有效、已验收的非 final 批次证明同一完整断言并在记录中引用，否则改为 pending。passed 不代表所有关联任务均已验收；Goal 完成仍要求全部任务/批次 accepted。final 负责汇总，不能成为保留陈旧通过标记的唯一依据。
 
 ## 执行循环
 
 ```text
-读取 status.yaml + slices.yaml[next]
-→ 若 Codex app goal 可用且未显式关闭，创建或复用 app-level goal
-→ 若有未提交改动，收敛 current_slice；不得用 `--autostash` 自动 merge / rebase 主干
-→ 判定 run_mode；默认 continuous
-→ 判定 implementation_owner；主线程保留技术负责人职责
-→ 主 agent 生成当前 slice 执行包
-→ 主线程或 implementer / fixer 完成当前 slice.scope
-→ 派发 validator 运行 slice.tests、contract、smoke 或 mock 清理检查
-→ 派发 reviewer 生成 .goal/cr/<slice>-round-1.md
-→ 主 agent 审计报告和 diff
-→ 修复当前 slice 范围内的所有阻塞问题
-→ 将非阻塞问题、局部待确认和需求优化分流到 TODO / discussion / deferred risks / 后续 slice gate
-→ 复审直到当前 slice 阻塞项为 0，或确认主链路不可安全推进
-→ 运行 Goal Exit 检查
-→ 更新 status.yaml
-→ commit
-→ 若达到 Goal 终态，按 app goal 工具契约同步完成 / 阻塞终态
-→ continuous 默认继续下一 slice；single_slice 才停下汇报
+核对最新用户约束、状态与实际代码
+→ 按必需结果与依赖选任务；输入有缺口先判断可用协议/隔离方式，再决定 main_thread / worker / hybrid
+→ 给实现者当前约束、真实类型/入口、可改范围和自测反例
+→ 实现并运行 min_self_check；记录实际观测
+→ 自测通过记 implemented；普通任务可继续
+→ 基础批次依赖前 / 功能批次闭合：固定代码与契约快照
+→ 独立验证和 CR 可在同一版本并行，审查期间不修改该版本
+→ 主线程裁决发现、合并同类问题；按影响范围修复与复核
+→ 验收证据充分、无阻塞：批次及其任务记 accepted
+→ 核对新差异影响；更新状态和恢复入口；继续下一任务
+→ 最终批次核对完整差异、覆盖、集成、未完成项后给出交付结论
 ```
 
-每个切片只能在 Exit 全部满足后标记 done。实现报告缺失、验证失败、CR 阻塞项未关闭、未登记 mock、status 未更新都不能 commit。若仅剩必须人工介入的问题，按 Human Intervention 规则登记；Goal 最终状态不能标 `complete`。
+实现后的普通自测不强制新建 validator。正式批次的验证与 CR 必须独立于实现者；可由同一独立 Agent 分别履行两种职责并留下可区分的结果，不要求两个固定角色实例或六角色矩阵。缺少独立能力时，只能继续不依赖其验收的可隔离工作；到审查边界明确缺口，不能以自评冒充独立审查。项目明确允许的 self review 例外必须记录依据与局限。
 
-## 状态机
+## 所有者与并行
 
-`status.yaml` 是唯一执行状态源。推荐状态：
+- 主线程掌握用户意图、共享规则、证据和审查裁决；核心语义、共同状态、身份/计费/并发规则优先亲自实现或先定骨架再委派。
+- 机械修改、独立模块、可隔离测试适合 worker。主线程不承担纯转发职责，也不照单接受 reviewer 的产品建议。
+- 子 Agent 只改授权范围，不能自行推进 `status.yaml`、合并工作树、提交或发布。报告可由主线程将工具返回结果整理到文件，不能虚构来源。
+- 消费者需要协议还是实际能力，按 `references/plan/task-breakdown.md` 拆成真实可验收的任务与依赖；契约可用不代表真实能力 accepted，最终集成仍须等真实能力验收。
+- 共享契约未定时不并行改其生产者和消费者。并行工作明确文件归属；审查用只读 worktree 或内容哈希快照，避免验证/审查期间有人修改同一输入。
+- 证据记录原始观测、命令和结论，避免把实现者的成功摘要当成独立判断的起点。报告长度以可复查为准，不按每次工具调用建一份文档。
 
-- `ready`
-- `in_progress`
-- `requirement_delta_pending`
-- `test_failed`
-- `cr_pending`
-- `cr_changes_requested`
-- `blocked`
-- `needs_human_intervention`
-- `complete`
+### 并行任务与写入责任
 
-进入切片时：
+同一任务内可以分工，也可让输入已就绪、写入范围独立的多个任务同时执行；无并行收益时保持串行。沿用现有任务状态，不新增并行状态机：
 
-- `execution.current_slice` = 当前 slice。
-- `execution.state` = `in_progress`。
+- `execution.current_slice` 只表示主线程当前焦点；非空时须指向 `in_progress`。主线程只协调 worker 时可以为空，不表示没有任务执行。
+- 每个实际开始实现的任务都记 `in_progress`。焦点以外的进行中任务必须在 `active_workers` 有实现者对应，不能把已派发工作留成 `todo`。任务的 `implementation_owner.mode` 同步为 `worker` 或 `hybrid`；依赖和允许范围保持不变。
+- `active_workers` 只登记尚未交回写权限的实现 worker。每项四个必填信息：`id`（执行者唯一标识）、`slice_id`、`state`（`running / stale`）、`write_scope`（仓库相对文件/目录前缀，不含 `..` 或 glob）；已有实际报告可附 `report`。模板见 `templates/goal/status.yaml`。多个 worker 可以属于同一任务，但写范围不能相同或互相包含。
+- 主线程也须避让仍被 worker 持有的写范围；共用文件/共享契约由一个 owner 修改，消费者同步后继续。声明范围须核实实际路径、符号链接与独立工作树的对应文件；脚本只查声明重叠，不是文件锁或权限隔离。
+- `running` 对应任务必须为 `in_progress`；`stale` 表示执行中断或失联，产物与写权限尚未完成交回，继续占用原范围。可继续的半成品保持 in_progress；需要暂停恢复的按上节进入 awaiting_revalidation，并保留如实的部分实现记录，不声称自测通过。
+- 完成、停止或失联后，先核实工具状态、实际差异和报告，确认不再写入，再删除登记/转移 owner；核对自测后更新任务状态。未能确认停止时继续保留 stale 和范围，推进其他无冲突工作，不盲目重派。
+- 所有进行中任务都须满足原依赖条件；跨批次和关键基础仍等验收，委派或 stale 登记不能绕过。上游失效时，受影响的半成品进入 awaiting_revalidation；查实停止并核对产物后可移除 stale worker，任务保持待恢复，其他就绪工作继续。恢复实现前重新核对依赖与写入责任。`single_slice` 只允许一个进行中或仍由 worker 持有写权限的任务，同任务内部可分工。
 
-切片完成时：
+正式只读验证/CR 按批次状态、固定版本和报告管理，不放进实现 worker 表，不为了开展审查把已实现任务改回 `in_progress`。主线程仍需等核验实际结束并裁决后才验收。运行期间有人修改同一范围时，原核验结论按实际影响失效。
 
-- 当前 slice 状态改为 `done`。
-- `execution.next_slice` 指向下一片；最后一片为 `null`。
-- `execution.current_slice` 清空。
-- `last_cr` 指向最后一轮 `.goal/cr/<slice>-round-<n>.md`。
-- 更新 `counters.open_blocker`、`counters.open_cr_findings`、`counters.open_deferred`、`counters.open_human_intervention`、`counters.http_mock_count`。
+## 自测、真实路径与界面证据
 
-执行中如果存在 active workers，`status.yaml` 应记录 worker id / role / slice / report path / state。worker 完成不代表 slice 完成；只有主 agent 完成 Exit 审计后才能推进。
+每个任务的 `min_self_check` 说明行为、风险/反例、方法与预期；选择见 `skills/test-scope-analysis/SKILL.md`。命令成功但没有观测到目标行为，不算有效自测。
 
-active worker 必须可追踪。若 worker 在线程列表 / worker 管理器中不可见、长时间无报告、或 `status.yaml` 记录与实际工作区不一致，主 agent 必须将其标记为 `stale`，收敛当前 diff 和报告，停在 `blocked` 或可恢复状态；不得继续假装 worker 仍在执行。
+在同一功能批次内尽早贯通最小真实路径，然后扩展。可保留前端先 mock 的 lane，但不能先完成所有 mock 页面、后端层和测试，到最后才第一次让真实入口写入并读回。外部供应方可替换；应用自身的装配、解析、持久化和读取不可用手造结果替代。
 
-## 问题分流
+涉及界面时读 `references/delivery/evidence-driven-delivery.md`：采用稿版本、页面/状态、视口与允许差异必须传到实际实现者和修复者；首个可运行代表页面先同条件校准，之后在功能批次统一验收。视觉还原、交互一致、业务正确分别有证据，源码修好不等于还原已验收。已安装 impeccable 时按实际问题选择命令，其建议不能改变用户已确认设计。证据和 CR 同属一个版本即可合并验收，不强制另写一轮零问题证据确认；之后代码/契约变化只复核受影响部分。
 
-Goal 长链路默认不断流。验证、CR 或实现中发现的问题，先判断是否阻塞当前 slice 主链路：
+工具准备按 `references/delivery/tooling-prerequisites.md`，只检查当前需要且可能失效的能力；不每片重复安装和认证。
 
-| 类型 | 处理 |
-| --- | --- |
-| 当前 slice 范围内，影响正确性、数据安全、发布安全、状态一致性、接口契约或当前验收 | 当前 slice 必须修复，验证 / CR 复跑，阻塞 findings 为 0 后才能提交 |
-| 不影响当前 slice 交付，但需要后续讨论或人工判断 | 写入 TODO / discussion / `.goal/risks-deferred.md`，标清影响、owner、触发条件、最晚对齐点，继续主链路 |
-| 只影响后续 slice | 写入对应后续 slice 的前置检查、tasks 或 `.goal/design-handoff.md`，不阻塞当前 slice |
-| 外部依赖、真实环境、生产验证、真实 provider smoke | 当前 slice 可用 local/mock 完成时，登记到 release / smoke / R09 / R10 gate，不阻塞当前 slice |
-| 状态文件、工作区、worker 结果不一致到不可恢复，或无法保证主链路继续正确推进 | 进入 `blocked` 或 `needs_human_intervention` |
+## 裁决与修复
 
-禁止把“后续讨论项、局部待确认、真实环境验证、P2/Nit、外部资源缺口”混入当前 slice 的无限返修循环；也禁止把当前 slice 正确性问题伪装成后续项。
+遵循 `references/stages/review.md`。具体影响决定阻塞性，不能靠改 P1/P2 标签放行正确性、数据、权限、状态或验收缺陷。无当前影响的建议登记 owner、影响和最晚处理点，不无限阻塞。
 
-## 开发 Gate 与发布 Gate
+同一问题族第二次出现时，由主线程先检查共享规则、所有生产者/消费者、重试/恢复和状态组合，再决定共同修复或方案同步。禁止只因达到两轮或三轮就通过，也不因轮数自动停工；有新证据且能继续解决就继续。仅真正依赖用户、外部资源或当前能力无法解决时登记阻塞。
 
-普通开发 slice 只做开发级验证：
+用户主动介入并修改要求时，先核对其对当前验收和依赖的影响。高影响变化只在同步期间冻结受影响任务，更新业务决定及派生契约后继续，不再请求一次批准；不受影响的工作可继续。普通建议记待办，不擅自扩成新需求，也不把用户明确的新约束忽略为低优先级 TODO。用户仅问进度时简短回答并继续。
 
-- 本地 DB / disposable DB、migration replay、单测、集成测试、mock/local provider、contract、UI smoke。
-- 不连接生产 / 测试 / 预发真实环境，不执行生产 SSH，不安装线上系统包，不做真实 provider 付费 smoke，除非当前 `run_mode=release_gate` 或 slice 明确属于发布前置。
+## 快照与证据有效性
 
-发布级验证放入 release slice / R10 / `release_gate`：
+- 在 `execution.baseline_commit` 记录 Goal 开始的代码基线。快照必须包含范围内实际文件内容及可执行位（包括未提交及新文件）和相关需求/契约；仅记录 HEAD 不足以绑定未提交工作。
+- 非最终批次在 `snapshot_scope.paths` 声明仓库相对源码文件/目录前缀，在 `contracts` 声明相关需求、原型或业务契约文件。范围重新枚举新增、修改和删除；自动包含前置批次范围及相关任务定义。无关批次修改或追加独立任务不使其失效，共同规则与前置输入改变则要复验。主线程仍需核实未注册的实际依赖，脚本不能推断业务影响。
+- 用 `ruby <playbook-root>/scripts/check-goal.rb --snapshot-batch <goal-dir> <batch-id> <输出JSON>` 采集批次版本。最终批次不限定源码路径，核对全部基线差异和契约。旧全仓中间快照须核实实际报告范围、补充范围并复核后显式迁移，不能只换哈希把旧报告当新证据。
+- 每个批次引用快照、验证报告和 CR 报告；报告写明同一版本、覆盖的验收与未验证项。
+- 任一新改动先检查影响到的批次、消费者及验收，回退受影响批次；未影响的证据可复用。修改共同契约时扩大复核，不能仅看文件名相同与否。
+- 最终批次以基线到最终版本的全部差异检查覆盖，包括 CR 后修复、新文件、合并结果和契约变更。可引用既有批次结论，并补审尚未覆盖的影响域。
+- 可用 `ruby <playbook-root>/scripts/check-goal.rb <goal-dir>` 检查状态结构与证据引用。它不能判断测试是否自证、审查是否准确或产品是否满足用户意图，语义结论仍由独立验证和主线程核实。
 
-- 生产或测试服务器 SSH、系统包安装、真实 provider smoke、凭据/日志/ACL/SELinux、回滚、灰度、备份、发布后验证。
-- 如果开发 slice 发现发布风险，只记录到发布 gate 或 `risks-deferred.md`，不要把当前开发切片升级成生产演练。
+## 恢复记录与 Git 检查点
 
-## 验证要求
+`status.yaml` 是唯一进度索引；`resume.md` 只写下一动作和必要证据指针，不再复制所有计数。普通任务完成、批次裁决、阻塞/需求变化和停止前更新一次；不要求每个 worker 工具步骤同步多份表。
 
-可验功能应尽早验证，不要积压到最后：
+在这些已有边界按 `references/delivery/execution-evidence.md` 留下关键选择理由、实际结果和证据引用，用于复盘批次、委派、验证和返工。复用已有记录或一份 `execution-log.md`，不复制测试/CR 正文；首次真实路径、代表页面校准、需求变化与等待可合并到对应条目。时间和 token 只取可靠观测，缺失不影响正常交付。
 
-- UI mock smoke：验证页面、操作矩阵、loading / empty / error / 权限态。
-- API contract test：验证 DTO、状态码、错误码、mock policy。
-- Service / job test：验证被依赖业务逻辑、状态流、幂等、重试。
-- Mock 清理检查：验证 mock ledger 对应项已关闭。
-- Integration smoke：验证写 API、读 API、页面可见结果和失败态闭环。
+已实现且有效自测通过、无已知当前行为阻塞的功能分支代码，可在已有 Git 授权下提交检查点，状态仍为 `implemented`，明确待审批次。提交不等于验收，不允许为了压缩上下文提交破损半成品；没有 Git 授权时保留可恢复工作区即可。不得提交用户不属于本任务的改动。
 
-当前 slice 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时，验证必须包含 UI Drift Gate；时机遵循「吞吐与防空转 / UI Drift 时机」，不要每个中间 fixer 都全量重跑：
+上下文压缩后仍在当前线程恢复；不主动新开替代线程。按开始/恢复清单先核对 resume 和全部 active_workers，再决定继续、收回或重派；worker 的失联处理遵循上面的写入责任约定。
 
-- 对照已确认的 `ui-flow.md` / `prototype/` 检查实现是否偏离主路径、操作矩阵、状态映射、权限和错误态；如果 UI 基线来自 Open Design，同时定位 projectId、studioUrl/previewUrl、entryFile 或 artifact bundle，必要时用 `get_artifact` 拉取 entry file 和依赖文件作为验证证据。
-- 如果目标项目存在 `.agents/skills/impeccable/SKILL.md`，默认按 `impeccable audit` 做技术质量检查；若主要风险是信息架构、主次操作、视觉层级或清晰度偏离原型，再按 `impeccable critique` 补设计审查。
-- 如果是在 CR 后修复前端问题，默认按 `impeccable polish` 做视觉、布局、文案和状态细节修复；修完再按 `impeccable audit` 复验，必要时补 `impeccable critique`。
-- 验证报告必须记录使用的 impeccable 命令或 skipped 原因，以及 `UI Drift: Passed / Fixed / Blocking / Skipped`。
-- 发现主用户路径、审核对象、状态流、权限或 API/ViewModel 契约变化时，不能在 slice 内静默修复，必须标为 Blocking 并回到 UI Flow / 方案阶段做 Change Sync。
+## 完成与发布分开
 
-验证报告必须写入 `.goal/validation/`，并作为 CR 输入。测试绿不能替代验证报告；验证报告也不能替代 CR。
+`execution.state: complete` 与 `delivery.code_complete: true` 仅在以下条件全部满足时设置：
 
-## CR 要求
+- 全部任务和批次 `accepted`，没有 current/next slice；最终版本覆盖已核对。
+- 本次已承诺的验收全部通过，真实路径及界面证据达到要求；尚未审查、未验证或待人工完成的本次范围不能算完成。
+- 当前阻塞项为零，模拟台账无替代真实交付的残留，工作树结果已集成；待办和外部风险明确归属。
+- 最终验证与审查对应交付版本，发布范围和未执行的环境检查单独说明。
 
-代码改动默认必须有文件化 CR。每轮 CR 独立落盘：
+默认 `delivery.release_readiness: not_requested`。代码完成不代表已发布，也不自动启动真实 provider 付费调用、生产 SSH、迁移、备份或上线。用户将发布包含在本次目标时，发布门禁未完成就不能宣布整个请求完成。真实环境验收如果已是本次成功标准，也不能借“以后发布再测”移走。
 
-```text
-.goal/cr/<slice>-round-<n>.md
-```
+存在局部缺口时，按中央规则用契约隔离推进可执行工作；在依赖消费、集成及交付边界回收 TODO/模拟。交付可用部分时如实列出必需缺口，不能 complete。只有不存在可继续的工作时才将整体记为 `needs_human_intervention` 或 `blocked`，写原因、证据、恢复条件；不自动重开产品问答。纯环境缺口无需修改已完整的业务实现。
 
-CR 文件必须包含：
+## 旧包迁移
 
-- reviewer kind：`subagent` / `external` / `self`。
-- reviewer role：Domain / Architecture / FE / Backend / DB / AI Pipeline / Delivery / Release 等。
-- 当前 slice 和任务范围。
-- 输入的 worker report 和 validation report。
-- 已运行测试命令及结果。
-- acceptance 覆盖表。
-- 前端 slice 的 UI Drift 结论、impeccable 命令或 skipped 原因。
-- Findings：P0 / P1 / P2 / Nit，或 Blocker / Should-fix / Nit，并说明是否阻塞当前 slice。
-- 每条 finding 的关闭状态：`fixed` / `rejected_false_positive` / `human_intervention`。
-- 普通开发 slice：当前 slice 阻塞项必须为 0；P2/Nit 或后续讨论项可记录为 non-blocking follow-up，必须有 owner、影响、触发条件或后续 slice。
-- 局部待确认 / 需求优化 / 交互建议如果不影响当前 P0/P1 验收，必须记录为 TODO ledger 项，不作为 CR 阻塞项。
-- `release_gate` 或用户明确要求“零 Nit / 全部修完”时，所有 findings 必须关闭。
-
-禁止：
+旧 Goal 按原项目契约恢复，不能自动覆写用户要求的逐片审查、零 Nit、发布或数据门禁。若采用 v2，先在 `gate.md` 记录原策略、改后策略、授权依据、任务→批次映射、未验收工作与风险；从已确认 tasks/acceptance 推导；无法安全推导时保留旧策略继续可执行范围，将迁移缺口交主线程处理，不因迁移不完整停止原本可执行的工作。已审且代码/契约未变的证据可复用；不能把历史 done 直接批量改成 accepted。
 
-- 主 agent 在 `status.yaml` 中直接写 `Blocker=0` 冒充 CR。
-- 用“测试绿”“build 绿”“实现子 agent”代替 CR。
-- 用 validator report 代替 CR。
-- 用 worker report 代替验证或 CR。
-- CR 文件不存在时 commit 代码改动。
-- 遗留 P0/P1/Blocker/Should-fix 不处理。
-- 把会影响正确性、数据、安全、发布或用户主路径的问题降级为 non-blocking P2/Nit。
+新模板字段详见 `templates/goal/status.yaml`、`slices.yaml`。旧包暂不迁移时使用 `per_slice` 语义和已有证据要求；新检查器只验证 v2，不以不支持旧 schema 为由伪造新状态。
 
-如果环境不支持子 agent，只有在 `.goal/GOAL.md` 或 `.goal/gate.md` 明确允许 self review 时，才能写 `reviewer kind: self`，并必须标注原因。
+同为 v2 的早期候选如果没有 `snapshot_scope` 或仍用旧 JSON 清单，也需要上述显式范围迁移；不根据 `schema_version` 相同就推定证据可直接复用。
 
-## CR 修复循环
+## App 进度镜像与输出
 
-默认修复所有当前 slice 阻塞项；P2/Nit 和后续讨论项按问题分流处理：
+Codex app Goal 只是可选 UI 镜像，执行权威仍是项目文件。只有用户请求创建/使用 Goal 且当前工具契约允许时才调用 `get_goal` / `create_goal`；不覆盖不匹配的 active Goal，不凭空设置 token 预算。终态同步遵循工具对 complete/blocked 的实际条件，不能为了进度条绕过工具限制。
 
-```text
-运行验证
-→ 子 agent CR
-→ 修复当前 slice 的 P0 / P1 / Blocker / Should-fix
-→ P2 / Nit / 后续讨论项：不影响当前 slice 主链路时登记 non-blocking follow-up
-→ 若修复改到前端页面 / UI 状态，重新执行 UI Drift Gate
-→ 对误报写 rejected_false_positive 及理由
-→ 重跑受影响验证
-→ 再次 CR
-→ 直到当前 slice 阻塞项 = 0，或主链路不可安全推进
-```
-
-同一 finding 默认最多经历 2 轮 worker fixer。第 3 轮不得继续派同质 fixer；主 agent 必须：
-
-- 先切换 `implementation_owner=main_thread|hybrid` 由主线程收口一轮；或
-- 需求 / 方案冲突：回到需求确认或 Change Sync；或
-- 需要人类、外部环境或发布资源：登记 Human Intervention / release_gate；或
-- 只是 P2/Nit 或后续讨论项且不影响当前 slice：登记 non-blocking follow-up，不继续耗时。
-
-主线程收口后仍无法关闭当前 slice 阻塞项时，进入 `blocked` / `needs_human_intervention` / design sync，禁止 silent fixer-4+。
-
-只有 agent 无法独立解决、必须人类介入的问题，才能登记为 Human Intervention TODO。它不是普通 Deferred，也不是 CR waiver。
-
-Human Intervention 必须同时满足：
-
-- 代码中有 `TODO(human-intervention:<slice>)` 注释，说明为什么 agent 不能解决。
-- `.goal/human-intervention.md` 登记 `id`、`source_slice`、`reason`、`user_visible_impact`、`code_stub`、`required_human_action`。
-- `status.yaml.counters.open_human_intervention > 0`。
-- 最终 `execution.state` 只能是 `needs_human_intervention`，不能是 `complete`。
-
-## Deferred 规则
-
-默认不允许 Deferred。
-
-仅当阻塞来自外部环境、第三方依赖、预发资源或用户明确接受的非本轮风险时，才能写入 `.goal/risks-deferred.md`。每条必须包含：
-
-- `id`
-- `source_slice`
-- `expires_at_slice`
-- `user_visible_impact`
-- `code_stub`
-- `owner_or_resolution`
-
-最后一个 slice 禁止在 `open_deferred > 0` 时标记 done 或 complete。Deferred 必须关闭；如果风险仍需保留，Goal 应进入 `blocked` 或 `needs_human_intervention`，不能用 waiver 把 open Deferred 转成完成。
-
-## Exit 检查
-
-每个 slice commit 前必须确认：
-
-- `slice.tests` 必跑项 exit 0，或失败原因已写入 `status.yaml.execution.state: blocked`。
-- `.goal/runs/<slice>-*.md` 中必要实现报告存在，且 scope 未越界；若主线程实现，必须有 `.goal/runs/<slice>-main-thread-<n>.md` 或等价报告。
-- `.goal/validation/<slice>-*.md` 中必要验证报告存在，或缺失原因已写入 slice exit / status。
-- `.goal/cr/<slice>-round-<n>.md` 存在，且阻塞 findings 为 0；普通开发 slice 的 P2/Nit follow-up 已登记。
-- 没有新增未登记 HTTP mock、fixture-only 读路径或 pending API。
-- `.goal/mock-ledger.md` 与代码中的 mock / pending API 一致。
-- 局部待确认、需求优化和交互建议已登记 TODO ledger；只要不破坏当前验收、数据/权限/状态正确性，不能阻塞下一 slice。
-- worktree worker 已按 `.goal/worktree-plan.md` 合并或登记阻塞。
-- 没有遗留未处理 P0/P1/Blocker/Should-fix 或普通 TODO；P2/Nit follow-up 已登记且不影响当前 slice。
-- `status.yaml` 已更新为下一状态。
-- commit message 包含 slice id 和主要 task id。
-
-最后一片还必须确认：
-
-- `execution.next_slice: null`。
-- `counters.open_deferred: 0`。
-- `counters.open_blocker: 0`。
-- `counters.open_cr_findings: 0`。
-- HTTP mock 计数为 0 或白名单有书面 waiver。
-- P0 acceptance 全部通过或 waiver。
-- `.goal/mock-ledger.md` 无 open 项，或所有 open 项都有书面 waiver。
-- smoke A/B 状态明确。
-- 若 `open_human_intervention > 0`，最终状态必须是 `needs_human_intervention`，并在最终回复列明人为介入项。
-
-## 允许停止
-
-只有以下情况允许结束执行：
-
-- `next_slice: null` 且 global exit 全绿或有书面 waiver。
-- `status.yaml.execution.state: blocked`，并写清不可恢复原因、证据和下一步需要谁处理。
-- `status.yaml.execution.state: needs_human_intervention`，且自动可处理项已经全部完成。
-- 用户明确要求停止或暂停。
-- 工具/上下文硬上限；此时先尽量把当前 slice 收敛到可恢复状态，并更新 `status.yaml`。
-- `run_mode: single_slice` 下当前 slice 已 commit / blocked / needs_human_intervention / 可恢复，并已向用户汇报。
-
-普通切片边界默认不交还控制权：说明当前 slice 结果并继续下一 slice。只有 `run_mode: single_slice`、用户明确暂停、真正阻塞、needs_human_intervention 或工具上限时才停下。
-
-## 上下文压缩
-
-Goal Execute 不主动新开替代线程。上下文压缩不是停止理由，也不是开新线程理由。
-
-允许主 agent 在当前 Goal 内调度受控子 agent、worker session 或 worktree worker 来降低主线程上下文压力；这些 worker 不是恢复权威，也不能替代当前 Goal 主线程。
-
-恢复规则：
-
-```text
-读 .goal/status.yaml
-→ 读 .goal/slices.yaml[next_slice 或 current_slice]
-→ 读 .goal/resume.md
-→ 读当前 slice 最近的 .goal/runs、.goal/validation、.goal/cr 报告
-→ git status / git log
-→ 继续当前 slice 或下一 slice
-```
-
-禁止为了上下文压缩提交半成品 checkpoint commit。只有达到安全边界才 commit：
-
-```text
-实现完成 → 验证绿 → CR open findings=0 或仅剩 Human Intervention → status 更新 → commit
-```
-
-如果上下文或工具硬上限临近但没有达到安全边界，只更新 `status.yaml` 和 `.goal/resume.md` 到可恢复状态，不 commit。
-
-## 输出
-
-执行中给用户的同步保持简短：
-
-- 当前 slice。
-- 已完成的验证。
-- 下一步。
-
-最终完成时汇报：
-
-- 完成的 slices 和 commits。
-- 关键 worker / validator / reviewer 报告。
-- 关键测试 / smoke。
-- CR 状态。
-- Deferred / waiver / Human Intervention 清单。
-- 与设计契约的偏差。
+执行中简短说明当前任务、已得到的证据和下一步。最终说明已实现与已验收范围、关键测试/CR、未验证项、发布状态和代码位置；不列无意义的仪式清单。

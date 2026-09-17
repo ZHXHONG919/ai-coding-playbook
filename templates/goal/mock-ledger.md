@@ -1,26 +1,14 @@
-# Mock Ledger
+# 模拟与替换记录（存在时建立）
 
-> 目标：记录所有 mock、pending API、fixture-only 读路径，并确保它们有清理 slice 或书面 waiver。
+> 只记录实际使用的 mock、pending API、替身或 fixture-only 读取。缺口事实在 TODO 或既有清单维护，本表引用其 ID；纯环境问题无需制造 mock。
 
-## Open Items
+| ID / 关联缺口 | 创建任务 | 契约位置 | 模拟边界 / 允许环境 | 下游可验证范围 | 真实替换任务 / 回收点 | 替换验收证据 | 状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M-001 / TD-001 | | | 开发/测试 | | | | open / closed / waived |
 
-No open mock items.
-
-## Ledger
-
-| Mock ID | Type | Created By Slice | Contract | Allowed Until Slice | Cleanup Slice | User-visible Impact | Status | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| M-R01-001 | HTTP mock / fixture / pending API | R01 | | R03 | R03 | | open / closed / waived | |
-
-## Waivers
-
-| Mock ID | Reason | User-visible Impact | Approved By / Time | Follow-up |
-| --- | --- | --- | --- | --- |
-| | | | | |
-
-## Rules
-
-- Every mock must have a cleanup slice when it is created.
-- A final Goal state of `complete` requires no open mock ledger items.
-- Waived mock items must be reflected in `.goal/status.yaml` global exit.
-- Code comments or TODOs must reference the Mock ID when a mock is intentionally left in code.
+- 使用前明确输入输出、错误状态与副作用边界；模拟数据可辨识，真实路径不得依赖伪造统计、默认放行权限或空成功写入。
+- 模拟可证明消费者交互、协议处理或部分边界，不证明缺失业务能力已实现。真实能力与最终集成保留各自任务和验收。
+- 创建时即明确替换任务、回收时点、真实验收入口；关闭必须有替换后证据，不能只删台账条目。
+- 完整 Goal 不能含替代本次必需行为的 open/waived 模拟。开发/测试专用 fixture 不算生产模拟；如果保留的开发替身已与真实路径隔离，可按实说明关闭的范围。
+- `waived` 仅适用于已有约定允许延期、且不影响本次成功标准的项；注明依据、用户可见限制与后续责任，并同步实际交付状态。Agent 不能用 waiver 免除必需验收。
+- 代码中有意保留的占位引用本 ID；交付限制通过同一缺口 ID 关联，不重复维护事实。

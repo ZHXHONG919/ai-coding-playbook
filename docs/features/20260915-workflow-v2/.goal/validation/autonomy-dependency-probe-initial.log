@@ -1,0 +1,13 @@
+Run options: --name /test_contract_probe/ --seed 59249
+
+# Running:
+
+.F
+
+Finished in 0.305473s, 6.5472 runs/s, 19.6417 assertions/s.
+
+  1) Failure:
+ContractIsolationProbe#test_contract_probe_integration_cannot_bypass_real_ability [docs/features/20260915-workflow-v2/.goal/validation/autonomy-dependency-probe.rb:36]:
+Expected "主线程执行状态只能有一个 in_progress 任务" to include "依赖 S02 尚未达到".
+
+2 runs, 6 assertions, 1 failures, 0 errors, 0 skips

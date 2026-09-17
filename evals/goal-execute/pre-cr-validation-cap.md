@@ -1,28 +1,26 @@
-# Eval: 验证空转后必须尽早进入 CR
+# 评测：验证失败先按原因分流
 
 ## Prompt
 
 ```text
-unit-1 失败修了，unit-2 又失败再修，unit-3 还要再跑一轮全量，先别 CR。
+同一解析问题修了两次，准备再跑一次全量测试后才交给reviewer；当前批次已经可验收。
 ```
 
 ## Expected Route
 
-- 触发 `goal-execute`。
-- 读取 `max_pre_cr_validation_rounds` 与吞吐规则。
-- 要求实现后完整验证一轮；失败修复后再完整验证一轮即可进入 CR。
+- `ai-coding-playbook` → `goal-execute`，读取当前Goal策略与对应执行契约。
 
 ## Must Include
 
-- 禁止验证空转 3+ 轮才首次 CR。
-- 并发 / Job slice 的 validator 必须覆盖竞态清单后才能宣称 Passed。
-- CR 后只重跑受影响验证，不默认整库全量。
+- 分析失败是否同族和影响域，不机械追加全量。
+- 固定快照的批次验证与CR可并行，不能用轮数当质量。
+- 失败不假称通过；按根因修复并定向复验，必要时升级主线程。
 
 ## Must Not
 
-- 用“再验证稳一点”无限推迟 CR。
-- 验证未覆盖锁内再校验 / lease / await 持久化就宣称绿灯进 CR，随后被 CR 打回同一类竞态。
+- 无限完整验证才允许首次CR。
+- 达到预算就忽略仍有的真实缺陷。
 
 ## Regression Notes
 
-检查 `skills/goal-execute/SKILL.md` 验证与 CR 对齐，以及 `templates/goal/slices.yaml` / `review-policy.md`。
+检查实际输出与动作，不能用规则关键词或文件存在证明行为通过。

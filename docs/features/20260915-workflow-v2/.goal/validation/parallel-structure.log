@@ -1,0 +1,13 @@
+Goal 结构、状态与快照检查通过；这不证明验收行为或代码审查语义正确。
+Run options: --seed 47521
+
+# Running:
+
+....................................................................
+
+Finished in 10.867577s, 6.2571 runs/s, 23.5563 assertions/s.
+
+68 runs, 256 assertions, 0 failures, 0 errors, 0 skips
+14组行为样例结构通过；未运行Agent，不能声称行为通过。
+仓库模式：未读取或修改全局安装链接。
+playbook 结构检查通过

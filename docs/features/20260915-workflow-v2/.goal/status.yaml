@@ -1,0 +1,59 @@
+---
+schema_version: 2
+feature: workflow-v2
+branch: codex/workflow-v2
+review_strategy: functional_batch
+execution:
+  state: complete
+  baseline_commit: 8b59b6a2bfa41686128480fde3873cf122dee81b
+  current_slice:
+  next_slice:
+  last_commit:
+  updated_at: '2026-09-17'
+run_control:
+  mode: continuous
+slices:
+  R01: accepted
+  R02: accepted
+  R03: accepted
+  R99: accepted
+review_batches:
+  B01:
+    state: accepted
+    snapshot: ".goal/snapshots/parallel-B01.json"
+    validation_report: ".goal/validation/parallel.md"
+    review_report: ".goal/cr/parallel.md"
+    blocking_findings: 0
+  B02:
+    state: accepted
+    snapshot: ".goal/snapshots/parallel-B02.json"
+    validation_report: ".goal/validation/parallel.md"
+    review_report: ".goal/cr/parallel.md"
+    blocking_findings: 0
+  B99:
+    state: accepted
+    snapshot: ".goal/snapshots/parallel-final.json"
+    validation_report: ".goal/validation/parallel.md"
+    review_report: ".goal/cr/parallel.md"
+    blocking_findings: 0
+acceptance:
+  A01: passed
+  A02: passed
+  A03: passed
+delivery:
+  code_complete: true
+  release_readiness: not_requested
+active_workers: []
+reports:
+  R02: ".goal/validation/parallel.md"
+  R03: ".goal/validation/parallel.md"
+  R01: ".goal/validation/parallel.md"
+  R99: ".goal/validation/parallel.md"
+blocked:
+  reason:
+  evidence:
+  needs:
+codex_app_goal:
+  enabled: false
+  role: ui_mirror_only
+  source_of_truth: ".goal/status.yaml"

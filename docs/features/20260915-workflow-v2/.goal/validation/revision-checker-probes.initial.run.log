@@ -1,0 +1,17 @@
+Run options: --name /RevisionReviewerProbes#/ --seed 57803
+
+# Running:
+
+.....F...F.
+
+Finished in 2.031913s, 5.4136 runs/s, 11.8115 assertions/s.
+
+  1) Failure:
+RevisionReviewerProbes#test_reopened_consumer_must_reset_passed_acceptance [/tmp/revision-checker-probes.rb:85]:
+Revalidation preserved passed acceptance:
+
+  2) Failure:
+RevisionReviewerProbes#test_template_cannot_prefill_passed_acceptance [/tmp/revision-checker-probes.rb:76]:
+Template prefilled acceptance=passed was allowed
+
+11 runs, 24 assertions, 2 failures, 0 errors, 0 skips

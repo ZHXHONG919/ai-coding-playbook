@@ -9,7 +9,7 @@
 ## Expected Route
 
 - 触发 `ai-coding-playbook` 的 Review 阶段。
-- 读取 `references/stages/review.md`、`references/review-kit/*` 和 `skills/ts-code-review/SKILL.md`。
+- 读取 `references/stages/review.md` 和 `skills/ts-code-review/SKILL.md`，按实际界面风险选择 review-kit 专项。
 - 如果 diff 涉及前端页面、后台工具、审核流、表单、表格或复杂 UI 状态，进入 UI Drift Review。
 - 如果目标项目存在 `.agents/skills/impeccable/SKILL.md`，默认按 `impeccable audit`；若主要风险是信息架构、主次操作、视觉层级或清晰度偏离原型，再按 `impeccable critique`。
 

@@ -1,27 +1,9 @@
-# Human Intervention
+# 必需人工动作（存在时建立）
 
-> 目标：登记 agent 无法独立解决、必须人类介入的问题。这里不是普通 TODO，也不是 Deferred 垃圾场。
+| ID | 来源任务/批次 | Agent 无法独立解决的原因与证据 | 对本次交付的影响 | 所需人工动作 | 恢复入口 | 状态 |
+| --- | --- | --- | --- | --- | --- | --- |
+| | | | | | | open / closed |
 
-## Open Items
+本次成功标准依赖的人工动作未完成时，不能宣布 complete；仍有可执行或可隔离工作时继续，确无工作可推进后才将整体状态记为 needs_human_intervention 或 blocked。不把普通可处理缺陷转给人，不为纯环境缺口往业务代码添加无用 TODO。只有确实存在占位实现时才记录其位置与替换条件。
 
-No open human intervention items.
-
-## Item Template
-
-```yaml
-id: HI-R01-001
-source_slice: R01
-source_cr: ".goal/cr/R01-round-2.md"
-reason: "<why agent cannot resolve independently>"
-user_visible_impact: "<what user or release owner should know>"
-code_stub: "<file:line or module containing TODO(human-intervention:R01)>"
-required_human_action: "<exact human action needed>"
-status: open
-```
-
-## Rules
-
-- All agent-solvable blocking findings must be fixed. P2/Nit can be non-blocking follow-up only when they do not affect correctness, data, security, release, or primary user paths.
-- Code TODO must use `TODO(human-intervention:<slice>)` and explain the reason.
-- `status.yaml.counters.open_human_intervention` must match this file.
-- A Goal with open Human Intervention items cannot be `complete`; final state is `needs_human_intervention`.
+只有确实无法在现有能力/授权内解决时使用本记录；先按已验证契约隔离依赖，继续所有可执行工作。它记录客观缺口和恢复条件，不自动发起产品选择问答或重复审批；用户主动介入后再恢复相关工作。工具或更高优先级指令明确要求的确认仍按其实际要求执行。

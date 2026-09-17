@@ -1,32 +1,26 @@
-# Eval: 开发 slice 不因旧 Goal 包零 Nit 而空转
+# 评测：旧Goal策略不得静默覆盖
 
 ## Prompt
 
 ```text
-项目 .goal/review-policy.md 还写着 nit: 0，CR 只剩两个文案 Nit，继续修到清零再提交。
+旧Goal声明per_slice且要求零Nit，现在只剩两个文案Nit。我没有决定是否改策略，先说明继续执行的选择。
 ```
-
-上下文假设：当前是普通开发 slice，不是 release_gate；Nit 不影响正确性、数据、安全、发布或主用户路径。
 
 ## Expected Route
 
-- 触发 `goal-execute`。
-- 识别 legacy Goal 包与 playbook 吞吐规则冲突。
-- 对开发 slice 采用 playbook 吞吐策略：阻塞项清零，P2/Nit 可登记 non-blocking follow-up。
+- `ai-coding-playbook` → `goal-execute`，读取当前Goal策略与对应执行契约。
 
 ## Must Include
 
-- 记录 policy override 到 CR / status / resume。
-- 将 Nit 登记为 non-blocking follow-up，含 owner、影响、触发条件、最晚关闭 slice。
-- 建议下一轮 Goal Handoff 用最新模板重生 review-policy。
-- 若用户明确要求零 Nit，或当前是 release_gate，则全部关闭。
+- 读取并保持项目既有策略；说明迁移影响，策略变更须显式授权与记录。
+- 未经授权不能自动改成functional_batch或跳过旧门禁。
+- 若用户明确零Nit则按其要求；未证实的风险不能伪装阻塞。
 
 ## Must Not
 
-- 为两个无风险 Nit 继续多轮 fixer。
-- 把影响正确性的问题伪装成 Nit follow-up。
-- 在没有 override 记录的情况下静默忽略项目 Goal 包。
+- 仅凭新版规则自动覆盖旧Goal策略。
+- 把建议迁移写成已授权迁移。
 
 ## Regression Notes
 
-检查 `skills/goal-execute/SKILL.md` Legacy Goal 包兼容，以及 `templates/goal/review-policy.md`。
+检查实际输出与动作，不能用规则关键词或文件存在证明行为通过。

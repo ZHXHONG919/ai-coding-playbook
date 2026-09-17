@@ -1,0 +1,17 @@
+{
+  "case_id": "02-e2e-business-result",
+  "expected_route": [
+    "ai-coding-playbook",
+    "skills/test-scope-analysis/SKILL.md"
+  ],
+  "must_include": [
+    "检查发布、持久化回读和实际编译后的预选文本及槽位值。",
+    "现有结果不能证明业务验收；缺最终产物证据不能accepted。",
+    "区分真实提示词编译与供应商生图，本轮不虚称已生图。"
+  ],
+  "must_not": [
+    "用页面打开、测试数量或CR轮数替代业务验收。",
+    "未调用供应商却声称生图成功。"
+  ],
+  "review_method": "依据隔离运行的实际输出与动作逐条判定；结构检查不等于行为通过。"
+}

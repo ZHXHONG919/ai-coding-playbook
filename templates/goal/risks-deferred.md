@@ -1,27 +1,9 @@
-# Risks / Deferred
+# 未完成项与范围外风险（存在时建立）
 
-> 默认不允许 Deferred。只有外部环境、第三方依赖、预发资源或用户明确接受的非本轮风险，才能登记。
+| ID | 来源任务/批次 | 当前影响 | 本次必须完成？及依据 | 处理者/到期边界 | 代码/证据位置 | 状态 |
+| --- | --- | --- | --- | --- | --- | --- |
+| | | | | | | open / closed |
 
-## Open Deferred
+本次验收所必需的未完成项不能通过改名、改严重级别或 waiver 变成通过；依赖任务不能越过其处理边界。已约定可延期边界内、不影响本次结果的项由主线程自主安排；未约定时只有不影响本次结果的后续建议可留待以后，或按用户明确调整范围处理。记录依据、隔离方式、owner 和恢复条件。允许隔离继续开发不等于允许删掉必需交付；可先交付可用部分，整个 Goal 仍按原验收判断。
 
-No open deferred items.
-
-## Deferred Template
-
-```yaml
-id: DT-001
-source_slice: R01
-expires_at_slice: R03
-user_visible_impact: "<one sentence visible to the user>"
-code_stub: "<file:line or module>"
-reason: "<why this cannot be resolved in the source slice>"
-owner_or_resolution: "<who or which slice will close it>"
-status: open
-```
-
-## Rules
-
-- `expires_at_slice` 不得晚于最后一片前一片。
-- 代码 stub、状态文件和本文登记必须一致。
-- 最后一片不能在 `open_deferred > 0` 时标记 done 或 complete；若风险仍未关闭，Goal 应进入 `blocked` 或 `needs_human_intervention`。
-- 关闭 Deferred 时必须删除或替换对应 stub，并更新 `status.yaml`。
+发布未在本次范围时，可记录未来环境检查；已经承诺真实环境验收时不能单方面推给发布阶段。原项目有更严格延期或发布规则时遵守。

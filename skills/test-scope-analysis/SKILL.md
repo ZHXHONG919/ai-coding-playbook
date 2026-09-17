@@ -1,80 +1,57 @@
 ---
 name: test-scope-analysis
-description: 根据代码差异、功能方案、任务文档或变更文件推导 TypeScript pnpm 单仓项目的测试范围和验证策略。适用于测试范围、测试策略、test scope、what to test、validation plan 和合并前验证方案。
+description: 根据已确认行为和代码差异制定自测检查单、功能验收与回归范围。适用于测试范围、必要自测、测试策略、test scope、what to test、validation plan 和合并前验证方案；不替代用户指定测试命令的直接执行。
 ---
 
-# Test Scope Analysis
+# 测试范围分析
 
-## 输入
+## 输入与依据
 
-- git diff / commit range / changed files。
-- 可选：`plan.md`、`tasks.md`、feature design 或测试用例文档。
+- 读取目标项目 `README.md`、`AGENTS.md`、测试说明，以及相关需求、任务和实际改动。
+- 没有差异范围时，先定位本次文件和受影响调用方；不要把已有测试全量当成本次范围。
+- 涉及 pnpm 单仓命令时读 `references/scenarios/pnpm-monorepo.md`；验证可信度按 `references/delivery/evidence-driven-delivery.md`。
+- 用户只要求运行指定命令时直接执行；正式发布准备度另用 `release-safety-review`。
 
-## 非适用场景
+## 把“必要自测”写成检查单
 
-- 用户只是要求运行某条测试命令并返回结果。
-- 用户要求完整实现测试代码，应进入对应实现或专项 skill。
-- 发布前 Go / No-Go 检查优先使用 `release-safety-review`。
+实现前由主线程从已确认行为和风险选定，完成后按实际差异补齐。每项须能回答：
 
-## 必读材料
+> 改变了什么行为 → 哪个反例或风险需要防住 → 从哪个真实入口触发、在哪里观察 → 预期是什么 → 什么证据足够。
 
-1. 目标业务项目 `README.md`、`AGENTS.md`、测试相关文档。
-2. 涉及 monorepo 命令时读取 `references/scenarios/pnpm-monorepo.md`。
+| 改变的行为 | 反例 / 风险 | 入口与观测点 | 明确预期 | 最小充分证据 |
+| --- | --- | --- | --- | --- |
+| 表单保存失败可重试 | 失败后输入丢失或重复创建 | 实际表单提交；观察输入、提示和请求 | 保留输入，重试成功只创建一次 | 已有组件测试或浏览器操作 |
+| 修改服务端批准权限 | 普通用户绕过页面直接请求；合法角色也被拒绝 | 实际批准接口；读取结果和记录状态 | 非法请求被拒绝且零状态变化；合法批准成功 | 接口测试，使用真实权限判断与同一存储读回 |
+| 最终响应增加来源校验 | 本地回退没有模型调用，被错误拒绝 | 真实响应编排入口；观察执行记录和最终保存结果 | 模型、本地、跳过模式与调用证据一致；合法回退能保存 | 固定外部响应的路径测试及非法组合反例 |
+| 持久化大小裁剪 | 保留字段仍超限；裁剪身份破坏重放 | 生产投影与恢复入口；观察大小、引用和副作用 | 输出有界、身份关系可用，跨裁剪阈值重放不重复执行 | 边界输入及状态转换测试 |
 
-## 分析步骤
+例子用于选范围，不要求每次运行所有行，也不要求全部状态做笛卡尔积。
 
-1. 获取变更文件。
-2. 过滤纯格式、注释、文档之外的行为变更。
-3. 按影响面分类：server / web / extension / deploy / migration / AI provider。
-4. 提取用户可观测行为变化。
-5. 映射到测试：unit / e2e / smoke / manual。
-6. 对照 `tasks.md` 或方案中的验收项，标出缺失覆盖。
-7. 输出缺失测试建议和可执行命令。
+## 选择和停止规则
 
-## 行为变更识别
+1. 列出本次行为、共享契约和直接消费者，区分普通主路径、此次改变触及的失败态及关键组合。
+2. 复用能证明该行为的现有测试；简单文案、间距等可逆低影响改动以实际查看为主，不为镜像实现而新增测试。
+3. 类型检查证明类型约束；构建证明可构建。它们不能替代权限、状态、落库、真实交互等行为证据。
+4. 公共规则、身份、状态、权限、计费或持久化发生变化时，检查受影响消费者及关键状态转换。至少覆盖改变后的合法路径，避免“加强校验”误拒绝既有合法行为。
+5. 多模块功能尽早建立一条最短应用路径，调用实际业务编排并观察最终结果；后续场景复用它，不等到全部实现完才搭验收入口。外部依赖可在约定边界替换，但不得在测试中重写业务决策。
+6. 选择最小相关命令并注明覆盖的风险；包名、脚本和 spec 路径必须来自项目事实，不能编造。全量回归只在共享改动影响面无法可靠隔离、项目明确要求或交付风险需要时运行，不因“正在执行 Goal”自动触发。
+7. 检查通过且实际改动没有扩大影响时停止追加或重复测试。实现者可执行普通任务自测；独立验证安排在必要基础和完整功能批次，审查时机见 `references/stages/review.md`。
 
-| 类型 | 例子 | 测试建议 |
-| --- | --- | --- |
-| API contract | path/request/response changed | e2e / supertest |
-| Service logic | branch/state changed | unit/component |
-| DB schema | entity/migration changed | migration replay |
-| UI interaction | button/form/route changed | component/browser smoke |
-| Provider integration | timeout/retry/fallback changed | mock + minimal real smoke |
-| Release script | deploy behavior changed | shellcheck + dry-run |
-| Shared package | types/utils changed | downstream package tests |
+当前必测行为失败时，该任务不能标为自测通过；无依赖的任务仍可推进。依赖尚未具备时，明确已验证的替身边界、未验证的真实部分及所属验收批次，不能据此宣布功能交付。
 
-## pnpm monorepo 命令模板
+## 证据是否可信
 
-先读项目文档确认包名；无项目事实时使用占位符：
-
-```bash
-# 单包测试
-pnpm --filter <package> test
-
-# 单包构建
-pnpm --filter <package> build
-
-# 根目录全量（较重，说明理由再用）
-pnpm test
-pnpm build
-```
-
-输出 `Commands To Run` 时：
-
-- 优先最小相关 `--filter`。
-- 说明每个命令覆盖什么风险。
-- 无法确定包名时写待确认，不编造 filter。
+- 期望值来自有效业务规定、已确认样例、独立契约或用户认可需保留的旧行为；不从本次被测实现计算后再与自身比较。旧代码和旧测试只直接证明现状，遇到来源冲突时先说明，不以“旧测试通过”决定产品口径。
+- 高风险或存在两种可能解释时，挑一个能区分它们的输入。例如规范要求截止前取消，旧实现却允许截止时刻，则直接检查该边界；已有有效规则或用户确认时按其执行，不固定增加一轮确认。
+- 固定 provider 可以机械校验实际请求并返回预声明输出，不能计算业务 action 来迎合断言。固定响应只能证明应用如何消费结果，不能证明真实模型效果。
+- 写后读必须由被测代码产生记录，再从同一存储读取；手工预填最终记录只能证明读取行为。
+- 对高风险验收，用一个针对性的错误输入、断开调用或字段篡改证明检查会失败；不要求给每个测试增加完整变异测试工程。
 
 ## 输出
 
-```markdown
-## Suggested Test Scope
+普通任务可把以下内容合并到任务记录，不强制另建报告：
 
-## Missing Coverage
-
-## Commands To Run
-
-## Manual Smoke Steps
-
-## Mapping To Tasks / Acceptance
-```
+- 上述检查单及对应验收项。
+- 可执行命令或人工操作步骤，以及它们证明的行为。
+- 实际结果、代码版本、未覆盖部分及为何当前证据足够。
+- 功能批次还需补的真实集成或运行环境验证。

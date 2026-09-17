@@ -1,54 +1,12 @@
-# Resume
+# 恢复入口
 
-> 目标：上下文压缩后在当前线程恢复执行。不主动新开替代线程。
+> 进度只在 `status.yaml`；此文件保存下一动作和读哪里，不复制全部计数。
 
-## Policy
+- 下一动作：<要实现/验证/审查的任务或批次>。
+- 当前证据：<实现/自测、验证、CR、快照路径>。
+- 需要注意：<最新约束的来源、未完成修改、阻塞原因；活动 worker 直接引用 status.active_workers，不复制第二份状态>。
+- worker 恢复动作（存在时）：<先查哪个执行者/工作区，哪些范围尚不能接管，停止或报告的证据入口>。
 
-- New thread allowed: no
-- Controlled worker subagents allowed: yes
-- Checkpoint commit allowed: no
-- Resume source of truth: `.goal/status.yaml`
-- Supporting evidence: `.goal/runs/`、`.goal/validation/`、`.goal/cr/`
+恢复时读取 status、本文、当前/下一及活动 worker 对应的 slices/batch 和相关证据，再检查 git、实际代码与执行者是否仍在写入。用户最新要求优先；状态不能覆盖代码事实。发生冲突先核实并修正索引。
 
-## Resume Steps
-
-```text
-1. Read .goal/status.yaml (source of truth).
-2. Read this Current Snapshot; if it disagrees with status.yaml, rewrite this file immediately.
-3. Read .goal/slices.yaml[current_slice or next_slice] only.
-4. Read latest current-slice reports in `.goal/runs/`, `.goal/validation/`, `.goal/cr/`.
-5. Read only the slice `required_docs` that are needed for the next action.
-6. Run git status and git log.
-7. If requirement_delta.pending, freeze orthogonal fixers and sync docs before more code.
-8. If current_slice has uncommitted changes, continue that slice.
-9. If previous slice reached safe commit boundary, continue next_slice.
-```
-
-## Current Snapshot
-
-| Field | Value |
-| --- | --- |
-| Branch | |
-| Current slice | |
-| Next slice | |
-| Execution state | |
-| Implementation owner | |
-| Last commit | |
-| Worktree status | |
-| Last tests | |
-| Last implementation report | |
-| Last validation report | |
-| Last CR | |
-| Open blocking findings | |
-| Non-blocking follow-ups | |
-| Worker fixer rounds | |
-| Requirement delta pending | |
-| Open human intervention | |
-
-## Notes
-
-- Do not commit half-finished work because of context pressure.
-- Commit only after implementation, validation, CR blocking findings closure, and status update.
-- Sync this snapshot after every implementer / fixer / validator / reviewer step.
-- Implementation or validator summaries are supporting evidence, not the source of truth.
-- Do not reread the entire Goal package on every resume; prefer status + current slice + latest reports.
+普通任务或批次边界、需求变化、阻塞和停止前更新。上下文压缩后同线程继续；可用受控 worker，不主动新开替代线程。已有授权下 implemented 且自测通过的代码可提交检查点，但不能记成 accepted；不为上下文压力提交破损半成品。

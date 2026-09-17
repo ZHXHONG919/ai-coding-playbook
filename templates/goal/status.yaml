@@ -1,127 +1,73 @@
-schema_version: 1
+schema_version: 2
 feature: "<feature-id>"
 branch: "<branch-name>"
+review_strategy: functional_batch # functional_batch | per_slice；旧包迁移须记录依据
 
 execution:
-  state: ready # ready | in_progress | requirement_delta_pending | test_failed | cr_pending | cr_changes_requested | blocked | needs_human_intervention | complete
+  state: ready # ready | in_progress | requirement_delta_pending | blocked | needs_human_intervention | complete
+  baseline_commit: "<Goal 开始时的完整 commit>"
+  current_slice: null # 主线程焦点；非空须 in_progress；只协调 worker 时可为空
   next_slice: R01
-  current_slice: null
   last_commit: null
-  safe_to_commit: false
   updated_at: "<YYYY-MM-DD>"
-  requirement_delta:
-    pending: false
-    summary: null
-    freeze_orthogonal_fixers: true
-  todo_policy:
-    local_todo_blocks_next_slice_by_default: false
-    blocking_only_when_acceptance_or_data_permission_state_breaks: true
 
 run_control:
-  mode: continuous
-  default_mode: continuous
-  single_slice_requires_explicit_user_request: true
-  release_gate_requires_explicit_release_context: true
-  continue_after_each_slice: true
+  mode: continuous # continuous | single_slice | prepare_only | release_gate
 
-orchestration:
-  mode: main_agent_owns_slice_quality
-  main_agent_responsibilities:
-    - choose_implementation_owner
-    - dispatch_workers
-    - audit_reports
-    - update_status
-    - merge_worktrees
-    - commit
-  workers_may_update_status: false
-  workers_may_commit: false
-  workers_may_merge_worktrees: false
-  main_agent_may_edit_business_code_when_owner: true
+# 状态与代码/证据必须核实一致，不能从历史 done 直接推导 accepted。
+# awaiting_revalidation：已有全部/部分改动，因输入变化或执行中断暂停待恢复/复验。
+# 保留真实记录（已改/未改、已测/未测、产物核实与恢复条件），不代表完成；批次退回 pending。
+# 该状态不满足消费者依赖；前置恢复后进入 in_progress，补完实现和必要自测才回 implemented。
+slices:
+  R01: todo # todo | in_progress | implemented | awaiting_revalidation | accepted
+  R02: todo
+  R99: todo
 
-implementation_owner:
-  current_slice: null
-  mode: null
+review_batches:
+  B01:
+    state: pending # pending | in_review | accepted
+    snapshot: null # 用 --snapshot-batch 生成，绑定批次范围、前置批次与相关契约；不能只填 HEAD
+    validation_report: null
+    review_report: null
+    blocking_findings: 0 # 初始计数不是审查通过的证据
+  B99:
+    state: pending
+    snapshot: null
+    validation_report: null
+    review_report: null
+    blocking_findings: 0
+
+acceptance:
+  A01: pending # pending | passed；模板只能 pending，未验证不能填 passed
+  # passed 表示当前有效非最终已验收批次证明了完整断言，不表示全部映射任务已完成。
+  # 待复验任务关联的 passed 若无其他这样的有效批次支持，须退回 pending。
+  # 共享 ID 必须是同一完整断言；不同部分结果应使用各自验收 ID。
+
+delivery:
+  code_complete: false
+  release_readiness: not_requested # not_requested | pending | ready；不等于已部署
+
+# 只登记尚未交回写权限的实现 worker；只读验证/CR 用批次记录。
+# 焦点外的每个 in_progress 都须有关联 worker；开始/恢复实现仍核对原依赖。
+active_workers: []
+# 有并行工作时用实际记录替换空列表；以下示例不是待启动任务：
+# - id: worker-adapter-b
+#   slice_id: R02                   # 存在的任务；implementation_owner 为 worker/hybrid
+#   state: running                  # running | stale；stale 范围须查实停止后才释放
+#   write_scope: [src/adapters/b]    # 仓库相对前缀，无 .. / glob；worker 与主线程避让
+#   report: .goal/runs/R02.md        # 可选，已有实际报告才填写
+# 同一任务多个 worker 也要各自登记，范围不可相同/父子包含；不把已派发任务留 todo。
+# 半成品需暂停时用 awaiting_revalidation + 如实的部分实现记录；stale 保留未交回的写权限。
+# 查实停止并核对产物后可删 worker，任务仍待恢复；恢复实现前仍须满足依赖。
+# single_slice 只准一个进行中或仍占写权限的任务；未记录 worker 的旧串行包仍可用。
+reports: {} # 任务实现/自测记录路径；普通任务可共用一份记录
+blocked:
   reason: null
-  main_thread_may_edit: []
-  worker_scope: []
-  independent_validation_required: true
-  independent_cr_required: true
+  evidence: null
+  needs: null
 
 codex_app_goal:
   enabled: true
   role: ui_mirror_only
   source_of_truth: ".goal/status.yaml"
-  objective: "<feature-id> Goal Execute"
-  create_on_execute_when_available: true
-  sync_terminal_state_when_allowed: true
-  app_goal_state: unknown
-  last_sync_at: null
-
-active_workers: []
-
-last_worker_report:
-  slice: null
-  role: null
-  path: null
-  status: null
-
-last_validation:
-  slice: null
-  kind: null
-  path: null
-  result: null
-
-counters:
-  open_blocker: 0
-  open_cr_findings: 0
-  open_blocking_findings: 0
-  open_non_blocking_followups: 0
-  open_todo_items: 0
-  open_deferred: 0
-  open_human_intervention: 0
-  http_mock_count: 0
-  open_mock_ledger_items: 0
-  active_worktrees: 0
-  worker_fixer_rounds_current_slice: 0
-  pre_cr_validation_rounds_current_slice: 0
-
-slices:
-  R01: todo
-  R99: todo
-
-last_cr:
-  slice: null
-  path: null
-  round: null
-  blocker: null
-  open_blocking_findings: null
-  open_non_blocking_followups: null
-  reviewer_kind: null
-  reviewer_role: null
-
-global_exit:
-  p0_acceptance: pending
-  deferred_zero: pending
-  blocker_zero: pending
-  cr_findings_zero: pending
-  human_intervention_zero_or_state_needs_human_intervention: pending
-  http_mock_zero: pending
-  mock_ledger_zero: pending
-  todo_ledger_summarized: pending
-  worktrees_merged_or_blocked: pending
-  smoke_a: pending
-  smoke_b: pending
-
-resume:
-  mode: same_thread
-  new_thread_allowed: false
-  controlled_worker_subagents_allowed: true
-  resume_doc: ".goal/resume.md"
-  worker_reports_dir: ".goal/runs"
-  validation_reports_dir: ".goal/validation"
-  checkpoint_commit_allowed: false
-
-blocked:
-  reason: null
-  evidence: null
-  needs: null
+  # 仅在用户请求与当前工具契约允许时创建/同步；不覆盖不匹配 active Goal。

@@ -1,6 +1,6 @@
-# Feature Kickoff 阶段
+# 需求开工与文档落盘
 
-> 目标：在进入正式方案和实现前，准备分支、需求文档目录、方案文档和任务列表，让后续开发可追踪、可暂停、可 Review。
+> 目标：确定当前需求的工作分支、保存位置和必要记录。保存文档只增加分支保护，不自动提高方案复杂度。
 
 ## 使用时机
 
@@ -8,6 +8,8 @@
 - 用户明确希望本轮需求落盘管理，而不是只在对话里讨论。
 - 用户要求创建或修改业务项目中的 `requirements.md`、`plan.md`、`ui-flow.md`、`tasks.md`、`prototype/`、`.goal/*` 等需求/方案文件。
 - 普通方案咨询、代码解释、临时 Review 不进入本阶段。
+
+先判断这次需要什么：只保存轻量方案时，完成分支检查后写这一份文件；复杂需求才按实际设计与恢复需要选择后续产物。用户已授权当前范围时直接推进，不因节点名称变化重复请求确认。
 
 ## 分支检查
 
@@ -25,9 +27,9 @@ Doc-write gate：只在聊天里输出方案、分析或建议时，不需要切
 分支处理原则：
 
 - 如果在 `main` / `master` 且工作区干净：不要直接写需求/方案文件；询问或按项目规则创建需求功能分支后再落盘。若项目规则要求先更新主干，只允许按 `references/git-safety.md` 做 `git fetch` 和只读检查，不自动 pull / merge / rebase。
-- 如果在功能分支：询问是在当前分支继续，还是切回主干拉最新后新建分支。
+- 如果在功能分支：先核对是否属于当前需求；已有明确范围和授权则继续，无法判断归属时再询问。不为落盘自动切回主干或更新 base。
 - 如果在 `release/*`、`hotfix/*` 或无法判断意图的分支：先询问，不自动切分支。
-- 如果有未提交改动：不要自动 pull、切分支或 rebase，先说明风险并询问处理方式。
+- 如果有未提交改动：不自动 pull、切分支或 rebase。已在获授权的当前功能分支，且改动归属明确属于当前任务时，可继续写文档、实现和回写状态；来源不明或与其他任务重叠时先核实，确需用户选择再询问，不为每次正常续写重复停工。
 - 不要在功能分支上自动执行 `git merge origin/main`、`git rebase origin/main` 或 `git pull --rebase`；如果需要更新 base，先按项目规则说明是否走 PR 页面 / merge queue。
 - 不要使用 `--autostash` 绕过脏工作区门禁。
 - 不要因为用户只是“写方案 / 先讨论”就自动切分支；但如果用户要求把方案写入业务项目文件，等同进入 doc-write gate，必须先处理分支。
@@ -50,118 +52,36 @@ chore/YYYYMMDD-short-topic
 docs/features/YYYYMMDD-short-topic/
 ```
 
-目录内默认文件：
+如果业务项目已有保存位置，沿用即可。按实际需要选择文件，不一次创建所有空模板：
 
-```text
-requirements.md
-plan.md
-tasks.md
-notes.md
-```
+| 当前需要 | 最小记录 | 何时增加内容 |
+| --- | --- | --- |
+| 保存局部、易回退且验收清楚的方案 | 一份 `plan.md` 或用户指定文件，按 `references/stages/plan-light.md` | 少量步骤与验证写在同一份文件内 |
+| 复杂需求的业务决定与工程设计 | `requirements.md` 或等价确认来源，以及 `plan.md` | 按 `references/stages/plan.md` 选择相关设计规则；不复制同一业务决定 |
+| 任务需要多人协作或单独恢复 | `tasks.md`，或已有等价任务来源 | 按 `references/plan/task-breakdown.md` 写依赖、自测、批次和所有者 |
+| 页面路径需要确认 | `ui-flow.md` 或已有原型说明 | 复用确认稿；只有需要表达交互时新增原型 |
+| 多批次执行需要跨上下文恢复，或用户要求 Goal | `.goal/` | 由 `references/stages/goal-handoff.md` 选择核心及可选模板 |
+| 出现尚未纳入上述记录的讨论或延期事项 | 在现有记录补一段；量大才建 `notes.md` 或台账 | 不为尚未发生的讨论提前建空文件 |
 
-- `requirements.md`：需求分析、需求确认基线、已确认口径、非目标、待确认阻塞项和文档一致性检查。
-- `plan.md`：技术方案、领域抽象、图、接口/表/任务映射、风险和验收。
-- `tasks.md`：任务列表、状态、验证、CR 结果和进度记录。
-- `notes.md`：过程记录、用户补充、临时决策、非本轮 backlog。
+复杂方案必须能反向追溯到需求确认来源。轻量方案不因保存到 feature 目录，就额外生成 `requirements.md`、`tasks.md`、`notes.md` 或完整设计报告。
 
-需求分析文档和技术方案默认放在同一个 feature 目录下。`requirements.md` 是 `plan.md` 的前置输入；复杂需求没有同目录 `requirements.md` 或等价需求确认记录，不进入方案设计。
+## 任务记录按需要扩展
 
-如果业务项目已有 feature 文档目录或模板，优先使用项目本地规则，但必须能从 `plan.md` 反向追溯到需求确认稿。
+少量任务可以只在方案末尾写步骤与验证；需要独立任务表时，起点为：
 
-## 初始化内容
+| ID | 任务与范围 | 依赖 | 最小自测 | 所属验收批次 |
+| --- | --- | --- | --- | --- |
+| T01 |  | 无 / 任务 ID | 输入或操作 → 预期 → 证据 | B01 |
 
-`requirements.md` 至少包含：
-
-```markdown
-# Requirements
-
-## Confirmed Scope
-
-## Non-goals
-
-## Users / Scenarios
-
-## Inputs / Outputs
-
-## Complex Boundaries
-
-## Confirmed / Pending / Assumed
-
-## Consistency Check
-```
-
-`plan.md` 至少包含：
-
-```markdown
-# Feature Plan
-
-## Requirement Baseline
-
-## Goal
-
-## Evidence
-
-## Non-goals
-
-## Domain Model
-
-## Flows / Diagrams
-
-## Engineering Mapping
-
-## Decisions
-
-## Test & Acceptance
-
-## Open Questions
-```
-
-`tasks.md` 至少包含：
-
-```markdown
-# Tasks
-
-| ID | 类型 | 状态 | 任务 | 依赖 | 并行组 | 模拟策略 | 文件/模块 | 工具前置 ID | 证据等级 | 界面基线 | 证据门禁 | 验证 | 代码审查 | 备注 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| T01 | CONTRACT / FE_MOCK_LOOP / SERVER_CAPABILITY / MOCK_REPLACEMENT / INF / BIZ / FE / INTEGRATION / QA | Todo |  |  |  | none / create / close |  | [] / TP-001 | E0 / E1 / E2 / E3 | 无 / 原型 / 现有页面 | 接口数据 / 冒烟 / 实现截图 / 原型对比 / 多端一致性 | Pending | Pending |  |
-
-## Progress
-
-## Review Log
-
-## 工具前置清单
-
-| ID | 能力 | 首选 CLI | 等价结构化方式 | 安装状态 | 认证状态 | 需要用户配合 | 界面控制是否必要 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| TP-001 |  |  |  | ready / missing | ready / pending | none / login / scan / code / permission | no / visual-only / blocked |
-
-## Mock Ledger
-
-| Mock ID | Created By | Cleanup Task | Status |
-| --- | --- | --- | --- |
-
-## Parallel / Worktree Plan
-
-| Group | Worktree Allowed | Ownership | Merge Order |
-| --- | --- | --- | --- |
-```
-
-任务状态建议：
-
-- `Todo`
-- `In Progress`
-- `Blocked`
-- `Code Done`
-- `Test Failed`
-- `CR Pending`
-- `CR Changes Requested`
-- `Done`
-- `Skipped`
+- 状态只在一处维护：已有 Goal 时用 `.goal/status.yaml`，其余记录保存任务定义与证据指针；不同时维护逐任务进度表、CR 状态表和另一份总进度。
+- 普通任务自测通过记 `implemented`；所属批次验收后才记 `accepted`。正式 CR 归属批次，不给每一行重复设置独立 CR 门禁。
+- 按相关性补 lane、文件归属、模拟清理、证据等级、界面基线和证据门禁；共享的基线与工具要求引用一次即可，不在每行抄完整描述。
+- 需要第三方工具时记录工具前置清单或引用已有台账，内容按 `references/delivery/tooling-prerequisites.md`；没有工具依赖就不建空清单。
+- 只有实际并行、模拟或待办事项出现时，记录对应所有者、清理任务或最晚处理点。不因模板有栏目就发明工作。
 
 ## 与后续阶段的关系
 
 - kickoff 只做工作区和产物准备，不替代方案阶段。
-- 需求分析和需求确认阶段负责维护 `requirements.md`。
-- 方案阶段负责基于 `requirements.md` 把 `plan.md` 写到可实现、可测试、可评审；如果发现需求基线不清，回到需求确认阶段。
-- 方案讨论阶段采纳反馈时必须同步同目录相关文档：需求口径改 `requirements.md`，方案结构改 `plan.md`，实现边界改 `tasks.md`，页面流程改 `ui-flow.md` / `prototype/`。
-- 实现阶段按 `tasks.md` 小步推进；每完成一个任务必须经过实现、测试、CR 闸口后才能标记 `Done`。
+- 需求与方案阶段在选定记录中维护当前决定及实现依据；高影响需求不清时，暂停依赖部分并补齐依据。
+- 采纳新要求时，先更新业务决定的来源，再同步实际受影响的派生任务、页面与验收；不补建无关文件，也不逐字重抄整套文档。
+- 实现阶段按选定的任务记录小步推进；任务有效自测后记 `implemented`，基础依赖前或功能批次闭合时独立验证与 CR，验收后记 `accepted`。参照 `references/stages/implementation.md`，不要把检查点提交当成验收。

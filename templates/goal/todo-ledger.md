@@ -1,28 +1,13 @@
-# TODO Ledger
+# 局部缺口与后续事项（存在时建立）
 
-> 目标：记录 CR、实现、验证中发现的局部待确认、需求优化、交互建议、契约优化和技术债。默认不阻塞 Goal 连续推进，开发完成或阶段 checkpoint 时集中和人对齐。
+> 复用项目已有清单即可。主线程按 `references/delivery/agent-delivery-flow.md` 判断影响与处理顺序；本表不产生人工逐项审批，也不替代 status。
 
-## Open Items
+| ID | 来源任务 / 约束 | 当前影响及是否本次必需 | 契约与隔离方式 | owner | 解除条件 / 最晚回收点 | 关闭证据 | 状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| TD-001 | | | | | | | open / closed / promoted-to-blocker |
 
-No open TODO items.
-
-## Ledger
-
-| TODO ID | Source Slice | Source | Type | Current Impact | Latest Alignment Point | Suggested Handling | Status | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TD-R01-001 | R01 | CR / implementation / validation / user feedback | requirement-question / UX-improvement / contract-improvement / tech-debt | non-blocking / blocking reason | R99 / goal-end / next kickoff | follow-up slice / backlog / drop | open / closed / promoted-to-blocker | |
-
-## Blocking Promotion Rules
-
-Promote a TODO to `blocking_delta` only when:
-
-- Current P0/P1 acceptance cannot be judged or no longer holds.
-- Continuing would create wrong data, wrong permissions, or wrong state.
-- A later slice directly depends on the unresolved contract and it cannot be isolated by mock, adapter, or feature flag.
-- The user explicitly asks to stop and confirm before continuing.
-
-## Rules
-
-- Local pending questions and improvement ideas do not block the next slice by default.
-- CR must fix current-scope blockers, but should route non-blocking demand changes here.
-- Final Goal output must summarize open TODO items for human alignment.
+- 局部逻辑缺口可通过稳定协议、adapter 或开发/测试替身隔离；记录哪些消费者能继续、哪些真实行为仍未完成。无模拟时无需另建 mock 台账。
+- 在依赖消费、集成、交付前检查适用的回收点；前置条件恢复后安排替换与真实验收。不能只留一条无 owner、无处理边界的代码 TODO。
+- 本次验收无法成立，或继续会制造错误数据、权限、状态时，阻止依赖该缺口的工作；能隔离的工作继续。整项升级为阻塞不等于整个 Goal 必须停工。
+- 非本次必需项在已有可延期约定内由主线程安排；用户未授权的新增建议不能变成本次必须做的需求。最终说明仍开放项及影响，无需默认要求用户逐条对齐。
+- 缺口只记一处：mock / risks-deferred 引用本 ID，避免三份正文不一致。关闭需有对应验收证据，写入 TODO 不算修复或完成。

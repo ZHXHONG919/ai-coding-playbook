@@ -50,7 +50,7 @@
 按项目 .goal 执行，并创建 app goal 进度条跟踪。
 ```
 
-AI 应该先读项目 `.goal/status.yaml`，再用 `get_goal` / `create_goal` 创建或复用 Codex app goal；app goal 只是 UI 镜像，切片进度仍回写 `.goal/status.yaml`。其他工具没有等价 UI goal 能力时直接跳过镜像，不影响 `.goal` 执行。
+AI 应该先读项目 `.goal/status.yaml`，再按用户请求和当前工具契约用 `get_goal` / `create_goal` 创建或复用 Codex app goal；app goal 只是 UI 镜像，切片进度仍回写 `.goal/status.yaml`。其他工具没有等价 UI goal 能力时直接跳过镜像，不影响 `.goal` 执行。
 
 ## 进阶说法
 
@@ -68,7 +68,7 @@ AI 应该执行：
 - 在安全边界内处理主干状态和功能分支创建；只读检查和 `git fetch` 可以直接做，有未提交改动或分支意图不明确时先询问。
 - 不自动 `git pull`、`git merge origin/main`、`git rebase origin/main`，也不使用 `--autostash` 绕过脏工作区；项目要求 PR-only 时提示到 PR 页面 / merge queue 更新 base。
 - 创建 `docs/features/YYYYMMDD-short-topic/`。
-- 初始化 `requirements.md`、`plan.md`、`tasks.md`、`notes.md`。
+- 按复杂度保存必要内容：轻量需求可只写一份简短方案；复杂需求按需拆分需求、方案和任务，笔记只在有独立信息时创建。
 - 复杂需求先进入需求分析 / 需求确认阶段，确认后再进入方案阶段；不直接改业务代码。
 
 ### Git 分支安全
@@ -114,7 +114,7 @@ AI 应该输出：
 
 进入 feature 文档管理时，需求确认稿默认写到同目录 `requirements.md`，技术方案写到同目录 `plan.md`。`plan.md` 必须引用需求基线；复杂需求没有 `requirements.md` 或等价确认记录，不进入方案设计。
 
-方案讨论阶段采纳反馈时，AI 应该输出并执行同步修改清单：需求变化同步 `requirements.md`，方案结构同步 `plan.md`，字段/API/任务变化同步 `tasks.md`，页面流程变化同步 `ui-flow.md` 和必要的 `prototype/`。如果只改一个文件，需要说明其它文件不需要同步的理由。
+方案讨论阶段采纳反馈时，先更新单一业务决定，再同步实际受影响的方案、任务、页面流程或原型；派生文档可引用决定编号。只改一份轻量方案不需要为未创建的其他文档补解释。
 
 复杂后台、运营、审核或批量操作需求推荐完整流程：
 
@@ -141,10 +141,10 @@ Open Design 是可选的设计探索工作台。新页面、大改版、多版�
 
 - UI Flow / 原型需要新建或重构页面结构时，用 `impeccable shape`。
 - 原型完成后，用 `impeccable critique` 做设计审查。
-- 页面实现完成后，用 `impeccable audit` 做 UI Drift Gate。
-- CR 后修前端问题时，用 `impeccable polish` 修复，再用 `impeccable audit` 复验。
+- 页面实现按已确认采用稿检查，按实际风险选择 `impeccable audit` 或 `critique`；首个代表页面先校准，最终按功能批次留证。
+- CR 后按实际问题选择 audit / polish，复验受影响状态；未变化且有效的证据复用，不固定执行 polish 再 audit。
 
-用户不需要每次手写这些命令；显式指定某个 impeccable 命令时，以用户指定为准。impeccable 发现主路径、审核对象、权限、状态流或 API/ViewModel 契约变化时，不能直接改代码，必须回到 UI Flow / 方案阶段做 Change Sync。
+用户不需要每次手写这些命令；显式指定某个 impeccable 命令时，以用户指定为准。已确认的视觉和产品决定优先于通用美化建议；发现需要改变确认稿时，先按统一实现规则同步和确认未授权的产品选择，已有明确授权不重复暂停。
 
 Open Design 和 impeccable 的分工是：Open Design 帮忙探索和呈现设计方向；impeccable 守住设计质量、实现质量和 UI Drift Gate。Open Design 通过不等于 impeccable 通过。
 
@@ -178,17 +178,17 @@ AI 应该输出：
 ### 按任务实现
 
 ```text
-按 tasks.md 从 T01 开始实现，每完成一个任务都补测试、跑测试、做 CR，再继续下一个。
+按 tasks.md 从 T01 开始实现，普通任务自测通过后继续，基础依赖前审查，按功能批次验证和 CR，最后核对完整验收。
 ```
 
 AI 应该执行：
 
 - 按任务依赖顺序小步修改。
-- 每个任务完成后补必要测试并运行最小有效测试。
-- 涉及前端页面、后台工具、审核流、表单、表格或复杂 UI 状态时，对照已确认的 `ui-flow.md` / `prototype/` / Open Design artifact 执行 UI Drift Gate；如果安装了 impeccable，记录使用的命令和 `UI Drift: Passed / Fixed / Blocking / Skipped`。
-- 唤起 scoped CR 子 agent；不可用时按 Review 姿态自审并记录。
-- 修复阻塞 CR 问题；如果 fix 改到前端页面或 UI 状态，重新执行 UI Drift Gate，必要时复审。
-- 更新 `tasks.md` 的状态、验证结果和 CR 记录。
+- 按任务改变的行为选择最小有效自测；复用已有覆盖，不为纯格式改动新增测试。
+- 涉及界面时，对照同一采用稿分别验证视觉还原、交互一致、业务正确；源码 Fixed 不能代替运行验收。已安装 impeccable 时按实际风险选择检查，采用稿和证据共用一个来源。
+- 普通轻量任务可自审；正式基础/功能批次按统一 Review 规则独立审查。缺少独立能力时保留待审缺口，只有项目明确允许的 self review 例外才可采用并说明局限。
+- 修复阻塞 CR 问题；改到界面后只复验受影响区域和状态，共同规则影响扩大才扩大范围，复用仍有效的证据。
+- 无 Goal 时更新现有任务记录；已有 Goal 时进度只写 `status.yaml`，记录实现/验收差别与证据。
 
 ### 测试范围
 

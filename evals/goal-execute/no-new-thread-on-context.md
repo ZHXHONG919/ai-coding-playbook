@@ -1,31 +1,27 @@
-# Eval: Goal Execute 上下文压缩不主动新开替代线程
+# 评测：压缩上下文时保存真实状态
 
 ## Prompt
 
 ```text
-上下文快满了，帮我开个新线程继续这个 goal。
+上下文快满了，继续当前goal，把恢复信息记清楚。
 ```
 
 ## Expected Route
 
-- 触发 `goal-execute`。
-- 读取 `.goal/status.yaml`、`.goal/resume.md`。
-- 说明默认不主动新开替代线程。
+- `ai-coding-playbook` → `goal-execute`，读取当前Goal策略与对应执行契约。
 
 ## Must Include
 
-- 继续当前线程，恢复入口是 `.goal/status.yaml`。
-- 允许当前 Goal 内受控 worker / validator / reviewer 子 agent，但它们不是恢复权威。
-- 如上下文或工具硬上限临近，更新 `.goal/status.yaml` 和 `.goal/resume.md`。
-- 不做半成品 checkpoint commit。
-- commit 只允许在安全边界：实现完成、验证绿、CR 阻塞 findings 关闭、状态更新。
+- 恢复权威是status和resume；不因压缩主动开替代任务。
+- 可记录已实现且必要自测通过的checkpoint，仍需Git授权。
+- 记录未验收批次和未审差异，checkpoint不等于accepted。
 
 ## Must Not
 
-- 主动创建替代线程并让聊天摘要成为权威。
-- 为上下文压缩提交未通过测试或 CR 的半成品。
-- 让聊天摘要成为恢复权威。
+- 为上下文压缩主动新开替代任务。
+- 把未通过必要自测的半成品标为implemented。
+- 把聊天摘要或checkpoint当完成证明。
 
 ## Regression Notes
 
-如果 agent 主动开新线程，检查 `skills/goal-execute/SKILL.md` 的上下文压缩规则和 `templates/goal/resume.md`。
+检查实际输出与动作，不能用规则关键词或文件存在证明行为通过。

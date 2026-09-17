@@ -1,0 +1,7 @@
+14个场景结构通过；新增2例路由路径有效；不等于行为通过
+scripts/check-goal.rb sha256=af2e1092a81a74ace952b3677174912124f4aa5e62400fa8ed0be9c55cd8a8ca（与既有49项/153断言运行版本一致）
+scripts/test-check-goal.rb sha256=8fda798544eca038af4ca25dfb1e380372dd6d3e90921f4ce9791d01d8e777df（与既有49项/153断言运行版本一致）
+templates/goal/status.yaml sha256=e942182d7a25f83fc4b80c328450755b17cdca66353e35a7c75f52872f06bdb4（与既有49项/153断言运行版本一致）
+templates/goal/slices.yaml sha256=ced3c117f047d8737bd1d1cdc181fa5a4328b96f4a0ec9e68c05f069f3c2412e（与既有49项/153断言运行版本一致）
+本轮3个skill入口frontmatter存在
+Goal 结构、状态与快照检查通过；这不证明验收行为或代码审查语义正确。

@@ -28,3 +28,12 @@ evals/
 ## 当前状态
 
 本目录先提供人工可执行的基线样例。后续可以增加脚本，把 `Must Include` / `Must Not` 转成自动检查。
+
+## v2 可执行检查与独立行为回放
+
+- `ruby scripts/test-check-goal.rb`：临时Git仓库中的状态、依赖、报告引用与内容快照正/负例。
+- `ruby scripts/check-goal.rb --template templates/goal`：模板结构一致性，不能代替真实Goal Ready。
+- `evals/workflow-v2/*/input.md`：独立 Agent 只读输入和候选规则，先实际回答，再由另一方使用 expected.json 评分；不把答案泄漏给执行者。
+- `evals/workflow-v2/execution/upload-preview/`：复制到隔离目录实际修复控制器，用未提供给实现者的用户行为检查复核；明确这不是浏览器或真实项目验收。
+
+仓库自检、结构检查、行为回放和真实项目交付质量是不同层次。一次回放结果不能外推耗时/token收益。

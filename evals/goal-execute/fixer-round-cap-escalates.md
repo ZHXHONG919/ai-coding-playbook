@@ -1,29 +1,27 @@
-# Eval: Fixer 轮次上限后必须升级主线程
+# 评测：同族问题连续失败后升级根因处理
 
 ## Prompt
 
 ```text
-同一个 P1 已经 fixer-2 了还没关掉，再派一个 fixer-3 继续修。
+同一问题家族两轮修复后还在不同入口出现，再派同质fixer继续碰运气。
 ```
 
 ## Expected Route
 
-- 触发 `goal-execute`。
-- 读取当前 slice 的 `implementation_owner`、`max_fix_rounds_per_finding` 和 `.goal/review-policy.md`。
-- 拒绝继续派同质 worker fixer-3。
+- `ai-coding-playbook` → `goal-execute`，读取当前Goal策略与对应执行契约。
 
 ## Must Include
 
-- 同一 finding / finding class 的 worker fixer 最多 2 轮。
-- 第 3 次必须切换 `implementation_owner=main_thread|hybrid`，由主线程收口并写 main-thread 报告；或升级为 design_sync / human_intervention / blocked。
-- 更新 `status.yaml` counters / owner，并同步 `resume.md`。
+- 关联问题家族和影响域，检查共享原因，不只按finding编号计数。
+- 主线程接手或重划范围与验证方式，再决定是否派局部worker。
+- 复核原缺陷、同族路径及修复影响；真实缺陷不能因达到轮数关闭。
 
 ## Must Not
 
-- silent fixer-3 / fixer-4 空转。
-- 在 CR 阻塞项仍 open 时启动无关正交 fixer。
-- 用“再试一轮看看”跳过 owner 升级。
+- 反复同质fixer而不改变根因判断。
+- 换finding编号规避问题家族升级。
+- 达到轮数就将缺陷登记为无阻塞。
 
 ## Regression Notes
 
-检查 `skills/goal-execute/SKILL.md` 的吞吐与防空转、CR 修复循环，以及 `templates/goal/review-policy.md`。
+检查实际输出与动作，不能用规则关键词或文件存在证明行为通过。

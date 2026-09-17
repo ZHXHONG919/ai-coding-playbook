@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 轻量自检：确认关键文件存在，校验路由与安装状态。
+# 自检仓库结构、路由与 Goal 契约；--repo-only 不读取安装链接。
+REPO_ONLY=false
+for arg in "$@"; do
+  case "$arg" in
+    --repo-only) REPO_ONLY=true ;;
+    --help|-h)
+      echo "用法：bash scripts/check-playbook.sh [--repo-only]"
+      echo "--repo-only 仅检查候选仓库，不检查或修改全局安装。"
+      exit 0 ;;
+    *) echo "未知参数：$arg" >&2; exit 2 ;;
+  esac
+done
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 required=(
+  "scripts/check-goal.rb"
+  "scripts/test-check-goal.rb"
+  "evals/workflow-v2/README.md"
+  "evals/workflow-v2/checker.md"
   "README.md"
   "AGENTS.md"
   "docs/conversation-usage.md"
@@ -43,6 +58,9 @@ required=(
   "references/plan/field-ownership.md"
   "references/plan/task-breakdown.md"
   "references/delivery/evidence-driven-delivery.md"
+  "references/delivery/agent-delivery-flow.md"
+  "references/delivery/execution-evidence.md"
+  "templates/execution-log.md"
   "references/delivery/tooling-prerequisites.md"
   "references/review-kit/review-flow.md"
   "references/review-kit/architecture.md"
@@ -256,18 +274,18 @@ if ! grep -q 'app goal 进度条' "$ROOT_DIR/platforms/codex/overlays/ai-coding-
   exit 1
 fi
 
-if ! grep -q 'Product Flow Gate' "$ROOT_DIR/references/stages/plan.md"; then
-  echo "plan stage missing Product Flow Gate" >&2
+if ! { grep -q 'ui-flow.md' "$ROOT_DIR/references/stages/plan.md" && grep -q '新的主用户路径需要确认' "$ROOT_DIR/references/stages/plan.md"; }; then
+  echo "方案阶段缺少界面流程与新主路径确认边界" >&2
   exit 1
 fi
 
-if ! grep -q 'Latest Requirement Delta Gate' "$ROOT_DIR/references/stages/plan.md"; then
-  echo "plan stage missing Latest Requirement Delta Gate" >&2
+if ! { grep -q '最新要求与一致性' "$ROOT_DIR/references/stages/plan.md" && grep -q 'decision-table.md' "$ROOT_DIR/references/stages/plan.md"; }; then
+  echo "方案阶段缺少最新要求与单一业务决策同步规则" >&2
   exit 1
 fi
 
-if ! grep -q 'Cross-doc Consistency Scan' "$ROOT_DIR/references/stages/implementation.md"; then
-  echo "implementation stage missing cross-doc consistency scan" >&2
+if ! { grep -q '单一业务决定' "$ROOT_DIR/references/stages/implementation.md" && grep -q '已经授权的新要求不重复申请确认' "$ROOT_DIR/references/stages/implementation.md"; }; then
+  echo "实现阶段缺少受影响契约同步或既有授权边界" >&2
   exit 1
 fi
 
@@ -351,43 +369,28 @@ if ! grep -q 'Open Design 只在新页面' "$ROOT_DIR/agents/AGENTS.template.md"
   exit 1
 fi
 
-if ! grep -q 'Open Design baseline' "$ROOT_DIR/templates/goal/worker-report.md"; then
-  echo "worker report template missing Open Design baseline evidence" >&2
+if ! { grep -q '目标项目已安装 impeccable' "$ROOT_DIR/references/stages/plan.md" && grep -q '原型' "$ROOT_DIR/references/stages/plan.md"; }; then
+  echo "方案阶段缺少按原型变化选择界面质量检查" >&2
   exit 1
 fi
 
-if ! grep -q 'Open Design artifact' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices template missing Open Design artifact in ui-drift validator" >&2
+if ! { grep -q '有已确认界面时' "$ROOT_DIR/references/stages/implementation.md"; }; then
+  echo "实现阶段缺少已确认界面与交互基线" >&2
   exit 1
 fi
 
-if ! grep -q 'impeccable 视角的原型质量检查' "$ROOT_DIR/references/stages/plan.md"; then
-  echo "plan stage missing impeccable prototype quality check" >&2
+if ! { grep -q '前端与原型一致性' "$ROOT_DIR/references/stages/review.md"; }; then
+  echo "审查阶段缺少前端与原型一致性规则" >&2
   exit 1
 fi
 
-if ! grep -q 'UI Drift Gate' "$ROOT_DIR/references/stages/implementation.md"; then
-  echo "implementation stage missing UI Drift Gate" >&2
+if ! { grep -q 'references/stages/review.md' "$ROOT_DIR/skills/ts-code-review/SKILL.md" && grep -q '实际调用方' "$ROOT_DIR/skills/ts-code-review/SKILL.md"; }; then
+  echo "代码审查Skill缺少统一规则入口或真实调用方检查" >&2
   exit 1
 fi
 
-if ! grep -q 'UI Drift Review' "$ROOT_DIR/references/stages/review.md"; then
-  echo "review stage missing UI Drift Review" >&2
-  exit 1
-fi
-
-if ! grep -q 'UI Drift Review' "$ROOT_DIR/skills/ts-code-review/SKILL.md"; then
-  echo "ts-code-review missing UI Drift Review guidance" >&2
-  exit 1
-fi
-
-if ! grep -q 'impeccable polish' "$ROOT_DIR/references/stages/implementation.md"; then
-  echo "implementation stage missing impeccable fix command mapping" >&2
-  exit 1
-fi
-
-if ! grep -q 'UI Drift Gate' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing UI Drift Gate validation rule" >&2
+if ! { grep -q 'audit / critique / polish' "$ROOT_DIR/references/stages/implementation.md"; }; then
+  echo "实现阶段缺少按风险选择界面检查方式" >&2
   exit 1
 fi
 
@@ -413,107 +416,14 @@ for overlay in cursor claude codex; do
   fi
 done
 
-for evidence_field in 'level:' 'expected_baseline:' 'gate:' 'required_states:' 'required_roles:' 'required_clients:' 'pre_cr_ui_check:' 'final_capture_timing:' 'zero_blocker_confirmation:' 'max_ui_capture_methods:' 'max_attempts_per_method:'; do
-  if ! grep -q "$evidence_field" "$ROOT_DIR/templates/goal/slices.yaml"; then
-    echo "goal slices template missing evidence field: $evidence_field" >&2
-    exit 1
-  fi
-done
-
-if command -v ruby >/dev/null 2>&1; then
-  ruby -e '
-    require "yaml"
-    doc = YAML.safe_load(File.read(ARGV[0]), aliases: true)
-    required = %w[level expected_baseline gate required_states required_roles required_clients shared_with_task_ids pre_cr_ui_check final_capture_timing zero_blocker_confirmation max_ui_capture_methods max_attempts_per_method fallback]
-    slices = doc.fetch("slices")
-    slices.each do |slice|
-      tooling_ids = slice.fetch("tooling_prerequisite_ids")
-      abort("slice #{slice["id"]} tooling_prerequisite_ids must be an array") unless tooling_ids.is_a?(Array)
-      evidence = slice.fetch("evidence")
-      missing = required.reject { |key| evidence.key?(key) }
-      abort("slice #{slice["id"]} evidence missing: #{missing.join(", ")}") unless missing.empty?
-    end
-  ' "$ROOT_DIR/templates/goal/slices.yaml" || {
-    echo "goal slices template is not valid YAML" >&2
-    exit 1
-  }
-
-  ruby -e '
-    require "yaml"
-    slices = YAML.safe_load(File.read(ARGV[0]), aliases: true).fetch("slices")
-    catalog = YAML.safe_load(File.read(ARGV[1]), aliases: true).fetch("tooling_prerequisites")
-    slices.each do |slice|
-      ids = slice.fetch("tooling_prerequisite_ids")
-      abort("slice #{slice["id"]} has duplicate tooling IDs") unless ids.uniq.length == ids.length
-      missing = ids.reject { |id| catalog.key?(id) }
-      abort("slice #{slice["id"]} references missing tooling IDs: #{missing.join(", ")}") unless missing.empty?
-    end
-  ' "$ROOT_DIR/templates/goal/slices.yaml" "$ROOT_DIR/templates/goal/tooling-prerequisites.yaml" || {
-    echo "goal tooling references are inconsistent" >&2
-    exit 1
-  }
-fi
-
-if ! grep -Eq '^\| ID .*证据等级.*界面基线.*证据门禁.*\|$' "$ROOT_DIR/references/plan/task-breakdown.md" || ! grep -Eq '^\| ID .*证据等级.*界面基线.*证据门禁.*\|$' "$ROOT_DIR/references/stages/feature-kickoff.md"; then
-  echo "task templates missing evidence level" >&2
+if ! { grep -q '证据等级、界面基线与证据门禁' "$ROOT_DIR/references/plan/task-breakdown.md" && grep -q '证据等级' "$ROOT_DIR/references/stages/feature-kickoff.md"; }; then
+  echo "任务拆解与开工模板缺少可复用证据要求" >&2
   exit 1
 fi
 
-if [ "$(grep -c '^    evidence:' "$ROOT_DIR/templates/goal/slices.yaml")" -ne 2 ]; then
-  echo "goal slices template must contain complete evidence blocks for development and global exit" >&2
+if ! { grep -q 'tooling_prerequisite_ids' "$ROOT_DIR/references/plan/task-breakdown.md" && grep -q '工具前置清单' "$ROOT_DIR/references/stages/feature-kickoff.md"; }; then
+  echo "任务拆解与开工模板缺少共享工具清单引用" >&2
   exit 1
-fi
-
-for evidence_field in 'level:' 'expected_baseline:' 'gate:' 'required_states:' 'required_roles:' 'required_clients:' 'pre_cr_ui_check:' 'final_capture_timing:' 'zero_blocker_confirmation:' 'max_ui_capture_methods:' 'max_attempts_per_method:' 'fallback:'; do
-  if [ "$(grep -c "^      $evidence_field" "$ROOT_DIR/templates/goal/slices.yaml")" -ne 2 ]; then
-    echo "each goal evidence block must contain: $evidence_field" >&2
-    exit 1
-  fi
-done
-
-if ! grep -q 'legacy_not_declared' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing legacy evidence migration strategy" >&2
-  exit 1
-fi
-
-if ! grep -q 'tooling-prerequisite' "$ROOT_DIR/AGENTS.md" || [ "$(grep -c '^    tooling_prerequisite_ids:' "$ROOT_DIR/templates/goal/slices.yaml")" -ne 2 ]; then
-  echo "third-party tooling prerequisite routing is incomplete" >&2
-  exit 1
-fi
-
-if ! grep -Eq '^\| ID .*工具前置 ID.*证据等级.*界面基线.*证据门禁.*\|$' "$ROOT_DIR/references/plan/task-breakdown.md" || ! grep -Eq '^\| ID .*工具前置 ID.*证据等级.*界面基线.*证据门禁.*\|$' "$ROOT_DIR/references/stages/feature-kickoff.md"; then
-  echo "task templates missing tooling prerequisite ID mapping" >&2
-  exit 1
-fi
-
-if ! grep -q 'tooling-prerequisites.yaml' "$ROOT_DIR/skills/goal-execute/SKILL.md" || ! grep -q '旧 Goal 缺少工具字段' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing tooling persistence or legacy migration" >&2
-  exit 1
-fi
-
-if command -v ruby >/dev/null 2>&1; then
-  ruby -e '
-    require "yaml"
-    doc = YAML.safe_load(File.read(ARGV[0]), aliases: true)
-    items = doc.fetch("tooling_prerequisites")
-    abort("tooling_prerequisites must be a mapping") unless items.is_a?(Hash)
-    required = %w[capability selected_method cli authentication capability_boundary readiness]
-    items.each do |id, item|
-      missing = required.reject { |key| item.key?(key) }
-      abort("#{id} missing: #{missing.join(", ")}") unless missing.empty?
-      kind = item.fetch("selected_method").fetch("kind")
-      cli = item.fetch("cli")
-      if kind == "cli"
-        abort("#{id} selects cli but cli.required is not true") unless cli["required"] == true
-        abort("#{id} selects cli but command is missing") if [nil, "", "not_applicable"].include?(cli["command"])
-      else
-        abort("#{id} does not select cli but cli.required is true") if cli["required"] == true
-      end
-    end
-  ' "$ROOT_DIR/templates/goal/tooling-prerequisites.yaml" || {
-    echo "tooling prerequisites template is invalid" >&2
-    exit 1
-  }
 fi
 
 if ! grep -q '不得写入密码、验证码' "$ROOT_DIR/references/delivery/tooling-prerequisites.md"; then
@@ -521,63 +431,8 @@ if ! grep -q '不得写入密码、验证码' "$ROOT_DIR/references/delivery/too
   exit 1
 fi
 
-if ! grep -q 'Goal Gate 前置阶段' "$ROOT_DIR/references/stages/goal-handoff.md" || ! grep -q 'Goal Execute 不负责首次安装' "$ROOT_DIR/references/stages/goal-handoff.md"; then
-  echo "tooling preparation timing is ambiguous" >&2
-  exit 1
-fi
-
 if ! grep -q '每种方式最多两次完整尝试' "$ROOT_DIR/references/delivery/tooling-prerequisites.md" && ! grep -q '连续失败遵守证据驱动交付的尝试预算' "$ROOT_DIR/references/delivery/tooling-prerequisites.md"; then
   echo "third-party tooling rules missing UI control attempt budget" >&2
-  exit 1
-fi
-
-if ! grep -q '运行时代码是否变化' "$ROOT_DIR/templates/goal/evidence-confirmation.md" || ! grep -q 'new_cr_present' "$ROOT_DIR/templates/goal/evidence-confirmation.md"; then
-  echo "evidence confirmation template missing code-change gate" >&2
-  exit 1
-fi
-
-if ! grep -q '替换原因' "$ROOT_DIR/templates/goal/evidence-confirmation.md"; then
-  echo "evidence confirmation template missing reviewer fallback" >&2
-  exit 1
-fi
-
-if ! grep -q '证据驱动执行' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing evidence-driven execution rules" >&2
-  exit 1
-fi
-
-if ! grep -q 'ui-drift' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices template missing ui-drift validator" >&2
-  exit 1
-fi
-
-if ! grep -q 'Impeccable command' "$ROOT_DIR/templates/goal/validation-report.md"; then
-  echo "validation report template missing impeccable command evidence" >&2
-  exit 1
-fi
-
-if ! grep -q 'UI Drift Review' "$ROOT_DIR/templates/goal/cr-template.md"; then
-  echo "CR template missing UI Drift Review section" >&2
-  exit 1
-fi
-
-if ! grep -q 'Open Design baseline' "$ROOT_DIR/templates/goal/validation-report.md"; then
-  echo "validation report template missing Open Design baseline evidence" >&2
-  exit 1
-fi
-
-if ! grep -q 'Open Design baseline tuple' "$ROOT_DIR/templates/goal/cr-template.md"; then
-  echo "CR template missing Open Design baseline tuple evidence" >&2
-  exit 1
-fi
-
-if ! grep -q 'Open Design artifact' "$ROOT_DIR/templates/goal/review-policy.md"; then
-  echo "review policy missing Open Design artifact input" >&2
-  exit 1
-fi
-
-if ! grep -q 'UI / Impeccable Baseline' "$ROOT_DIR/templates/goal/design-handoff.md"; then
-  echo "design handoff template missing UI / Impeccable baseline" >&2
   exit 1
 fi
 
@@ -601,13 +456,13 @@ if ! grep -q '用户不需要每次手写这些命令' "$ROOT_DIR/docs/conversat
   exit 1
 fi
 
-if ! grep -q '未安装 impeccable 时，不阻塞' "$ROOT_DIR/references/stages/implementation.md"; then
-  echo "implementation stage missing non-blocking impeccable fallback" >&2
+if ! { grep -q '目标项目已安装 impeccable 时' "$ROOT_DIR/references/stages/implementation.md"; }; then
+  echo "实现阶段应仅在已安装时使用impeccable，不强制安装" >&2
   exit 1
 fi
 
-if ! grep -q '不得用视觉建议覆盖' "$ROOT_DIR/references/stages/review.md"; then
-  echo "review stage missing business-contract override ban" >&2
+if ! { grep -q '视觉建议不能覆盖已确认产品规则' "$ROOT_DIR/references/stages/review.md"; }; then
+  echo "审查阶段缺少视觉建议不能改写产品规则的边界" >&2
   exit 1
 fi
 
@@ -621,291 +476,42 @@ if ! grep -q '^\.codex/$' "$ROOT_DIR/.gitignore"; then
   exit 1
 fi
 
-if ! grep -q '必须进入 Goal Handoff' "$ROOT_DIR/AGENTS.md"; then
-  echo "AGENTS.md missing mandatory Goal Handoff gate" >&2
+if ! { grep -q 'references/stages/goal-handoff.md' "$ROOT_DIR/AGENTS.md"; }; then
+  echo "AGENTS缺少Goal交接路由" >&2
   exit 1
 fi
 
-if ! grep -q '不能直接进入代码实现' "$ROOT_DIR/references/stages/goal-handoff.md"; then
-  echo "goal-handoff missing mandatory no-direct-implementation rule" >&2
+if ! { grep -q 'references/stages/goal-handoff.md' "$ROOT_DIR/references/stages/implementation.md" && grep -q 'skills/goal-execute/SKILL.md' "$ROOT_DIR/references/stages/implementation.md"; }; then
+  echo "实现阶段缺少Goal准备与恢复入口" >&2
   exit 1
 fi
 
-if ! grep -q 'gate.md: Ready' "$ROOT_DIR/references/stages/implementation.md"; then
-  echo "implementation stage missing Goal Gate Ready precondition" >&2
+# Goal 第二版使用结构和状态语义检查，避免英文短语或固定切片数量绑住流程。
+if ! command -v ruby >/dev/null 2>&1; then
+  echo "Goal 契约检查需要 Ruby（仅使用标准库），未执行检查。" >&2
   exit 1
 fi
-
-# Goal Execute invariants should be mechanically checked, not only file existence.
-if ! grep -q 'run_mode' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing run_mode gate" >&2
-  exit 1
-fi
-
-if ! grep -q 'continuous' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing continuous default" >&2
-  exit 1
-fi
-
-if ! grep -q 'implementation_owner' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing implementation owner gate" >&2
-  exit 1
-fi
-
-if ! grep -q 'P0/P1/Blocker/Should-fix' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing blocking finding closure rule" >&2
-  exit 1
-fi
-
-if ! grep -q 'non-blocking follow-up' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing P2/Nit follow-up rule" >&2
-  exit 1
-fi
-
-if ! grep -q '开发 Gate 与发布 Gate' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing dev/release gate split" >&2
-  exit 1
-fi
-
-if ! grep -q 'needs_human_intervention' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing needs_human_intervention state" >&2
-  exit 1
-fi
-
-if ! grep -q 'main-thread' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing main-thread implementation report rule" >&2
-  exit 1
-fi
-
-if ! grep -q 'validation report' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing validation report evidence rule" >&2
-  exit 1
-fi
-
-if ! grep -q 'mock-ledger.md' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing mock ledger rule" >&2
-  exit 1
-fi
-
-if ! grep -q 'worktree-plan.md' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing worktree plan rule" >&2
-  exit 1
-fi
-
-if ! grep -q 'Codex App Goal 镜像' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing Codex app goal mirror rule" >&2
-  exit 1
-fi
-
-if ! grep -q '吞吐与防空转' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing throughput anti-thrash section" >&2
-  exit 1
-fi
-
-if ! grep -q 'max_pre_cr_validation_rounds' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing pre-CR validation round cap" >&2
-  exit 1
-fi
-
-if ! grep -q 'requirement_delta_pending' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing mid-slice requirement delta state" >&2
-  exit 1
-fi
-
-if ! grep -q 'Legacy Goal 包兼容' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing legacy Goal package override rule" >&2
-  exit 1
-fi
-
-if ! grep -q '禁止 silent fixer-3+' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing fixer round escalation rule" >&2
-  exit 1
-fi
-
-if ! grep -q 'Slice Size Gate' "$ROOT_DIR/references/stages/goal-handoff.md"; then
-  echo "goal-handoff missing Slice Size Gate" >&2
-  exit 1
-fi
-
-if ! grep -q 'Throughput Gate' "$ROOT_DIR/references/stages/goal-handoff.md"; then
-  echo "goal-handoff missing Throughput Gate" >&2
-  exit 1
-fi
-
-if ! grep -q 'max_pre_cr_validation_rounds' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices template missing max_pre_cr_validation_rounds" >&2
-  exit 1
-fi
-
-if ! grep -q 'non_blocking_findings_routed' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices template missing non_blocking_findings_routed exit" >&2
-  exit 1
-fi
-
-if grep -q 'no_unresolved_nit_or_should_fix' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices template still forces unresolved nit/should_fix exit on all slices" >&2
-  exit 1
-fi
-
-if ! grep -q 'pre_cr_ui_check' "$ROOT_DIR/templates/goal/slices.yaml" || ! grep -q 'final_capture_timing' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices template missing split UI evidence timing" >&2
-  exit 1
-fi
-
-if grep -q 'once before first CR' "$ROOT_DIR/templates/goal/slices.yaml" || grep -q 'before_first_cr_and_after_ui_fix' "$ROOT_DIR/templates/goal/review-policy.md"; then
-  echo "goal templates still force full UI drift before first CR" >&2
-  exit 1
-fi
-
-if ! grep -q 'concurrency-checklist' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices template missing concurrency-checklist validator" >&2
-  exit 1
-fi
-
-if ! grep -q 'legacy_nit_zero_on_dev_slice: false' "$ROOT_DIR/templates/goal/review-policy.md"; then
-  echo "review policy missing legacy nit-zero default false" >&2
-  exit 1
-fi
-
-if ! grep -q 'requirement_delta' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing requirement_delta block" >&2
-  exit 1
-fi
-
-if ! grep -q 'Slice Size Gate' "$ROOT_DIR/templates/goal/gate.md"; then
-  echo "goal gate missing Slice Size Gate checklist" >&2
-  exit 1
-fi
-
-if ! grep -q 'Goal 吞吐优先于仪式完整' "$ROOT_DIR/AGENTS.md"; then
-  echo "AGENTS.md missing Goal throughput principle" >&2
-  exit 1
-fi
-
-if grep -Eq 'open_deferred > 0.*(除非|允许|可).*waiver' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute allows final open deferred waiver" >&2
-  exit 1
-fi
-
-if ! grep -q 'new_thread_allowed: false' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing new_thread_allowed=false" >&2
-  exit 1
-fi
-
-if ! grep -q 'workers_may_update_status: false' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing worker status boundary" >&2
-  exit 1
-fi
-
-if ! grep -q 'continue_after_each_slice: true' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing continue_after_each_slice default" >&2
-  exit 1
-fi
-
-if ! grep -q 'main_agent_may_edit_business_code_when_owner: true' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing owner-scoped main-agent edit boundary" >&2
-  exit 1
-fi
-
-if ! grep -q '^implementation_owner:' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing implementation_owner block" >&2
-  exit 1
-fi
-
-if ! grep -q 'active_workers' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing active worker tracking" >&2
-  exit 1
-fi
-
-if ! grep -q 'validation_reports_dir' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing validation report resume path" >&2
-  exit 1
-fi
-
-if ! grep -q 'checkpoint_commit_allowed: false' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing checkpoint_commit_allowed=false" >&2
-  exit 1
-fi
-
-if ! grep -q 'codex_app_goal:' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing Codex app goal mirror policy" >&2
-  exit 1
-fi
-
-if ! awk '/^codex_app_goal:/{in_block=1; next} /^[^[:space:]][^:]*:/{in_block=0} in_block && /enabled: true/{found=1} END{exit !found}' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status Codex app goal should default enabled" >&2
-  exit 1
-fi
-
-if ! awk '/^codex_app_goal:/{in_block=1; next} /^[^[:space:]][^:]*:/{in_block=0} in_block && /role: ui_mirror_only/{found=1} END{exit !found}' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status Codex app goal must remain UI mirror only" >&2
-  exit 1
-fi
-
-if ! awk '/^codex_app_goal:/{in_block=1; next} /^[^[:space:]][^:]*:/{in_block=0} in_block && /source_of_truth: ".goal\/status.yaml"/{found=1} END{exit !found}' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status Codex app goal source of truth must be .goal/status.yaml" >&2
-  exit 1
-fi
-
-if ! awk '/^codex_app_goal:/{in_block=1; next} /^[^[:space:]][^:]*:/{in_block=0} in_block && /create_on_execute_when_available: true/{found=1} END{exit !found}' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status Codex app goal should create on execute when available" >&2
-  exit 1
-fi
-
-if ! grep -q 'codex_app_goal.enabled: false' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing Codex app goal disabled escape hatch" >&2
-  exit 1
-fi
-
-if ! grep -q 'create_goal' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing automatic create_goal behavior" >&2
-  exit 1
-fi
-
-if ! grep -q '不需要用户额外点名' "$ROOT_DIR/skills/goal-execute/SKILL.md"; then
-  echo "goal-execute missing automatic Codex app goal mirror default" >&2
-  exit 1
-fi
-
-if ! grep -q 'human_intervention_zero_or_state_needs_human_intervention' "$ROOT_DIR/templates/goal/status.yaml"; then
-  echo "goal status missing strict human intervention global exit" >&2
-  exit 1
-fi
-
-if ! grep -q 'status_complete_or_needs_human_intervention' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices missing final status complete/needs-human-intervention gate" >&2
-  exit 1
-fi
-
-if ! grep -q 'output_pattern: ".goal/cr/R99-round-{n}.md"' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal final slice missing required CR round output pattern" >&2
-  exit 1
-fi
-
-if ! grep -q 'validators:' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices missing validators" >&2
-  exit 1
-fi
-
-if ! grep -q 'mock_ledger' "$ROOT_DIR/templates/goal/slices.yaml"; then
-  echo "goal slices missing mock ledger linkage" >&2
-  exit 1
-fi
-
-if ! grep -q 'Worktree Plan' "$ROOT_DIR/templates/goal/worktree-plan.md"; then
-  echo "goal worktree plan template missing title" >&2
-  exit 1
-fi
-
-if ! grep -q 'Mock Ledger' "$ROOT_DIR/templates/goal/mock-ledger.md"; then
-  echo "goal mock ledger template missing title" >&2
-  exit 1
-fi
-
-if ! grep -q 'open / fixed / rejected_false_positive / non_blocking_follow_up / later_slice_gate / release_gate / human_intervention' "$ROOT_DIR/templates/goal/cr-template.md"; then
-  echo "goal CR template missing normalized finding statuses" >&2
-  exit 1
-fi
+ruby "$ROOT_DIR/scripts/check-goal.rb" --template "$ROOT_DIR/templates/goal"
+ruby "$ROOT_DIR/scripts/test-check-goal.rb"
+ruby -rjson -e '
+  root = ARGV.fetch(0)
+  cases = Dir.glob(File.join(root, "[0-9][0-9]-*" )).select { |p| File.directory?(p) }.sort
+  required_ids = %w[01-real-identifier 02-e2e-business-result 03-upload-preview-intent 04-no-invented-legacy-data 05-fallback-is-not-real-mode 06-fix-family-and-impact 07-stale-status 08-ordinary-vs-foundation]
+  missing = required_ids - cases.map { |dir| File.basename(dir) }
+  abort("缺少既有行为场景：#{missing.join(", ")}") unless missing.empty?
+  cases.each do |dir|
+    input = File.join(dir, "input.md")
+    expected = File.join(dir, "expected.json")
+    abort("缺少场景输入或预期：#{dir}") unless File.file?(input) && File.file?(expected)
+    data = JSON.parse(File.read(expected))
+    abort("场景ID不匹配：#{dir}") unless data.fetch("case_id") == File.basename(dir)
+    %w[expected_route must_include must_not].each do |key|
+      items = data.fetch(key)
+      abort("场景缺少非空#{key}：#{dir}") unless items.is_a?(Array) && !items.empty? && items.all? { |v| v.is_a?(String) && !v.empty? }
+    end
+  end
+  puts "#{cases.length}组行为样例结构通过；未运行Agent，不能声称行为通过。"
+' "$ROOT_DIR/evals/workflow-v2"
 
 check_install_target() {
   local target_name="$1"
@@ -960,7 +566,11 @@ check_install_target() {
   fi
 }
 
-check_install_target "codex" "$HOME/.codex/skills"
-check_install_target "cursor" "$HOME/.cursor/skills"
+if [ "$REPO_ONLY" = false ]; then
+  check_install_target "codex" "$HOME/.codex/skills"
+  check_install_target "cursor" "$HOME/.cursor/skills"
+else
+  echo "仓库模式：未读取或修改全局安装链接。"
+fi
 
-echo "playbook structure ok"
+echo "playbook 结构检查通过"

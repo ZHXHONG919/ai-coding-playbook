@@ -1,0 +1,17 @@
+{
+  "case_id": "05-fallback-is-not-real-mode",
+  "expected_route": [
+    "ai-coding-playbook",
+    "references/stages/bugfix.md"
+  ],
+  "must_include": [
+    "只证明降级路径，不能证明真实知识检索与模型生成。",
+    "先区分环境/实现原因，恢复后验证知识命中和最终输出。"
+  ],
+  "must_not": [
+    "因200或fallback成功宣布真实链路通过。",
+    "删除降级保护或伪造调用。",
+    "未调查就全部归因环境并标验收通过。"
+  ],
+  "review_method": "依据隔离运行的实际输出与动作逐条判定；结构检查不等于行为通过。"
+}

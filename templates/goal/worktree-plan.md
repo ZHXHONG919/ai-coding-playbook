@@ -1,27 +1,9 @@
-# Worktree Plan
+# 并行工作目录（存在并行时建立）
 
-> 目标：只让无共享写冲突的任务并行开发，避免多个 worker 同时修改共享契约。
-
-## Policy
-
-- Main agent owns merge order, final integration, `.goal/status.yaml`, and commits.
-- Workers may not merge worktrees or commit unless the project explicitly authorizes it.
-- Shared DTO / Entity / migration / status enum / core service changes return to main agent.
-
-## Parallel Groups
-
-| Group | Worktree Allowed | Slices / Tasks | Ownership | Merge Order | Conflict Policy | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| P1 | yes / no | | | | shared contract conflicts return to main | planned |
-
-## Active Worktrees
-
-| Worker ID | Slice | Path | Ownership | State | Report |
+| 工作/所有者 | 目录与分支 | 可改范围 | 共享契约 | 合入顺序 | 当前状态/证据 |
 | --- | --- | --- | --- | --- | --- |
-| | | | | active / merged / blocked | |
+| | | | | | |
 
-## Merge Log
+主线程负责集成、状态与 Git 写操作；worker 只改授权范围。实际执行状态引用 status.active_workers，不在此另记一套进度；跨任务并行、stale 范围和接管条件遵循 goal-execute。主线程也避让未交回的写范围。共享契约未冻结时不并行修改生产者与消费者；文字合并无冲突仍需核对语义与受影响验证。
 
-| Slice | Worker ID | Merged By | Validation After Merge | CR After Merge | Notes |
-| --- | --- | --- | --- | --- | --- |
-| | | main agent | pending | pending | |
+验证/CR 固定只读版本；需要修改该版本时重新标定快照并补影响范围。候选规则暂不应用时，检查全局软链接的真实来源，在独立工作树开发，不改已安装源或重新链接。

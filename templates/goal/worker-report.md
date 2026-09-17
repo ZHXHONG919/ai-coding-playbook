@@ -1,67 +1,17 @@
-# Worker Report <slice-id> <role> <n>
+# 实现与自测记录：<任务 ID>
 
-Role: implementer / fixer / worktree-worker
-Slice: <slice-id>
-Worker id: <id>
-Date: <YYYY-MM-DD>
+- 实现者 / 所有者：<主线程或 worker>。
+- 范围 / 所属批次：<文件与批次>。
+- 用户约束与真实契约：<编号、必要原文、代码位置>。
+- 改了什么、为什么：<简述>。
 
-## Assignment
+| 改变的行为 / 反例 | 方法与真实观测点 | 预期 | 实际结果与证据 |
+| --- | --- | --- | --- |
+| | | | |
 
-| Field | Value |
-| --- | --- |
-| Scope | |
-| Non-goals | |
-| Ownership | |
-| Required docs | |
-| Worktree | none / <path> |
+- mock / UI / 工作树影响：<适用项才写，引用台账或基线>。
+- 未验证项或待裁决问题：<没有则写无；存在时写事实、影响、依赖与可隔离建议，引用已有台账>。
+- 下游可用范围：<协议/模拟开发/真实能力中已证明的部分及证据，不把建议状态当成验收>。
+- 建议状态：implemented / 需要修复 / 需要主线程裁决。主线程核实后回写 status；实现者不自行宣布批次验收，也不直接把普通取舍升级为用户确认。
 
-## Changes
-
-| File / Module | Change | Reason |
-| --- | --- | --- |
-| | | |
-
-## Scope Guard
-
-| Check | Result | Evidence |
-| --- | --- | --- |
-| Stayed inside assigned scope | pending | |
-| Did not update `.goal/status.yaml` | pending | |
-| Did not commit or merge worktree | pending | |
-| Did not change unauthorized shared contracts | pending | |
-
-## Tests / Local Checks
-
-| Command | Result | Notes |
-| --- | --- | --- |
-| | pending | |
-
-## UI / Impeccable Impact
-
-Required when the worker or fixer touches frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state.
-
-| Item | Value |
-| --- | --- |
-| UI touched | yes / no |
-| Compared docs | `ui-flow.md` / `prototype/` / Open Design artifact / n/a |
-| Open Design baseline | projectId + runId if any + studioUrl/previewUrl + entryFile + artifact bundle file list/path / skipped or blocked + reason |
-| Impeccable command used | shape / critique / audit / polish / bolder / quieter / colorize / layout / clarify / skipped |
-| UI Drift status | Passed / Fixed / Blocking / Skipped |
-| Notes | |
-
-## Mock Ledger Impact
-
-| Mock ID | Action | Evidence |
-| --- | --- | --- |
-| | create / close / unchanged | |
-
-## Open Issues
-
-| ID | Issue | Suggested owner |
-| --- | --- | --- |
-| | | main / implementer / validator / reviewer / human |
-
-## Summary
-
-- Status: complete / blocked / needs-fix
-- Next recommended step:
+需要分析执行策略时，主线程在既有执行记录引用本报告及关键选择理由，不要求实现者另写工具流水账。

@@ -1,0 +1,9 @@
+Run options: --name /test_contract_probe/ --seed 9509
+
+# Running:
+
+..
+
+Finished in 0.300182s, 6.6626 runs/s, 19.9879 assertions/s.
+
+2 runs, 6 assertions, 0 failures, 0 errors, 0 skips

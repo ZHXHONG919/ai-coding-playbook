@@ -1,0 +1,20 @@
+{
+  "compared_to": "autonomy-final.json",
+  "changed_paths": [
+    "docs/features/20260915-workflow-v2/.goal/GOAL.md",
+    "docs/features/20260915-workflow-v2/.goal/acceptance.md",
+    "docs/features/20260915-workflow-v2/.goal/slices.yaml",
+    "docs/features/20260915-workflow-v2/plan.md",
+    "evals/goal-execute/resume-from-status.md",
+    "evals/workflow-v2/checker.md",
+    "references/delivery/agent-delivery-flow.md",
+    "references/plan/task-breakdown.md",
+    "references/stages/goal-handoff.md",
+    "scripts/check-goal.rb",
+    "scripts/test-check-goal.rb",
+    "skills/goal-execute/SKILL.md",
+    "templates/goal/resume.md",
+    "templates/goal/status.yaml",
+    "templates/goal/worktree-plan.md"
+  ]
+}

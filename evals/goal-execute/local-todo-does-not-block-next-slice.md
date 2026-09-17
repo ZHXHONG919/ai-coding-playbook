@@ -15,9 +15,9 @@
 ## Must Include
 
 - 将“批量筛选 / 字段重命名”分类为 `todo_candidate` 或 non-blocking follow-up。
-- 写入 `.goal/todo-ledger.md` 或等价 TODO ledger，包含来源 slice、当前影响、最晚对齐点和建议处理。
+- 写入 `.goal/todo-ledger.md` 或等价 TODO ledger，包含来源 slice、当前影响、owner、最晚处理点和建议处理。
 - 当前 slice 若原验收、验证和 CR 阻塞项已清零，应继续下一 slice。
-- 最终或阶段性汇报时集中列出 open TODO，要求和人对齐。
+- 最终或阶段性汇报时集中列出 open TODO 的影响、处理依据与 owner；主线程按约定自主处理，不重开人工逐项确认。
 
 ## Must Not
 

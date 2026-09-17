@@ -51,13 +51,13 @@
 | --- | --- |
 | 需求分析 / 梳理需求 | `references/stages/requirement.md` |
 | 复杂需求进入方案前 / 需求确认 / 对齐口径 | `references/stages/requirement-confirmation.md` + `references/stages/requirement.md` |
-| 新需求开工 / kickoff / 建方案和任务目录 / 开始一个需求 | `references/stages/feature-kickoff.md` + `references/git-safety.md` + `references/stages/plan.md` + `references/plan/*` |
-| 技术方案 / 功能设计 / 模型设计 / 架构设计 | 先判断轻量或复杂：轻量读 `references/stages/plan-light.md` + `templates/plan-light.md`；复杂先读 `references/stages/requirement-confirmation.md`，再读 `references/stages/plan.md` + `references/plan/*` + 匹配 `references/scenarios/*`，落盘用 `templates/feature-design.md` |
-| 方案评审 / 设计 CR / 设计评审 | `skills/design-review/SKILL.md` + `references/stages/plan.md` + `references/plan/*` |
-| 生成 Goal 包 / Goal Handoff / 执行契约 / 复杂方案转连续执行 | `references/stages/goal-handoff.md` + `references/plan/task-breakdown.md` + `templates/goal/*` |
+| 新需求开工 / kickoff / 建方案和任务目录 / 开始一个需求 | `references/stages/feature-kickoff.md` + `references/git-safety.md`；落盘不改变复杂度，按实际范围选择轻量或复杂方案规则 |
+| 技术方案 / 功能设计 / 模型设计 / 架构设计 | 先判断轻量或复杂：轻量读 `references/stages/plan-light.md` + `templates/plan-light.md`；复杂先读 `references/stages/requirement-confirmation.md`，再读 `references/stages/plan.md`；按该阶段说明选择相关 `references/plan/` 规则 + 匹配 `references/scenarios/*`，落盘用 `templates/feature-design.md` |
+| 方案评审 / 设计 CR / 设计评审 | `skills/design-review/SKILL.md` + `references/stages/plan.md`；按该阶段说明选择相关 `references/plan/` 规则 |
+| 生成 Goal 包 / Goal Handoff / 执行契约 / 复杂方案转连续执行 | `references/stages/goal-handoff.md` + `references/plan/task-breakdown.md`；按交接要求选择 `templates/goal/` 的核心及相关可选模板 |
 | 开始实现 / 按方案落地 | `references/stages/implementation.md` + `references/git-safety.md` + `references/plan/task-breakdown.md` |
 | 按 Goal 执行 / 续跑 goal / 从 status.yaml next_slice 继续 | `skills/goal-execute/SKILL.md` + `references/stages/implementation.md` + `references/git-safety.md` |
-| Review / 检查代码 / 看风险 | `references/stages/review.md` + `references/review-kit/*` + `skills/ts-code-review/SKILL.md` |
+| Review / 检查代码 / 看风险 | `references/stages/review.md` + `skills/ts-code-review/SKILL.md`；按风险选择 `references/review-kit/` 对应专项 |
 | bug / 报错 / 排障 / 事故分析 | `references/stages/bugfix.md` + `references/git-safety.md` + `workflows/incident-workflow.md` |
 | 发布前检查 / 回滚方案 / Go No-Go / 上线 / 发版 / 发测试 / 发生产 / 已 merge 或明确发布上下文中的部署下 | `references/stages/release.md` + `references/git-safety.md` + `skills/release-safety-review/SKILL.md` |
 | Git 分支 / pull / merge main / rebase main / 同步主干 / 更新 base / force push / 冲突处理 | `references/git-safety.md` |
@@ -79,7 +79,7 @@
 
 ## 方案阶段核心要求
 
-方案阶段默认不改代码。复杂方案必须按以下顺序推导：
+方案阶段默认不改代码。复杂方案按以下依赖关系推导，按实际风险选择需要的图和细节，不机械补齐所有产物：
 
 ```text
 用户目标 / 旧方案 / 当前项目事实
@@ -98,39 +98,35 @@
 → 本轮待确认问题
 ```
 
-### 关键门禁
+### 决定流程轻重的规则
 
-- 没有证据，不写成事实。
-- 用户原话和最新确认业务规则优先于工程直觉；当业务规则与“更安全 / 更严格 / 防压力”的工程限制冲突时，不能自行选择工程保守实现，必须把冲突列为 Blocking 并回到需求确认。
-- 复杂方案定义：命中任一强触发项（DB/migration、状态流、异步/LLM/外部链路、权限安全计费、发布回滚补偿、跨两个以上端、用户要求多角度评审），或命中两个及以上累积触发项（多模块多文件、新 API/DTO/ViewModel/Job/页面、新业务概念、兼容旧数据/旧接口、人工审核/批量操作、异常分支、新测试策略、待确认风险、任务依赖链）。
-- 复杂需求没有需求确认，不进入方案阶段；需求阶段提出的问题必须在需求阶段收口，不能拖到方案阶段决定。
-- 没有区分 `Confirmed / Pending / Assumed`，不把需求分析稿当方案依据。
-- 需求文档存在互相冲突的口径时，必须先做一致性检查和需求确认。
-- 没有角色视角判断，不进入复杂方案细节；角色不是头衔，必须体现业务、领域、架构、交付和 Review 责任。
-- 没有领域抽象，不进入表设计。
-- 没有业务结构图，不进入详细表设计。
-- 没有核心流程图，不进入任务拆解。
-- 有状态字段，就必须有状态流转图。
-- 有异步 / LLM / 审核 / 同步链路，就必须有数据流或产物流图。
-- 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态的全栈方案，进入任务拆解前必须补 UI flow；页面流程不直观时补静态原型或说明不需要的理由。
-- 只在聊天里讨论方案时不强制切分支；一旦要在业务项目落盘或修改 `requirements.md`、`plan.md`、`ui-flow.md`、`tasks.md`、`prototype/`、`.goal/*` 等需求/方案文件，必须先进入 kickoff / doc-write gate 并完成分支检查。不得在 `main` / `master` 上直接写需求方案文件；工作区干净时先按需求创建功能分支，工作区不干净时先停下说明风险。
-- 涉及前端项目和 API 交互时，任务拆解必须采用 Frontend-first Mock Lane：`CONTRACT → FE_MOCK_LOOP → SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRATION / QA`。Goal Handoff 只能继承 `tasks.md` 的 lane 和依赖图，不重新按独立功能点拆 slice。
-- Open Design 是可选的设计探索工作台；进入 UI Flow / 静态原型阶段时先做 `skip / existing-baseline / run / blocked` 判定。只有新页面/大改版、多版视觉方向、复杂交互路径、跨角色后台流程或用户明确要求看图确认时才启动新 run；已有 Open Design 确认稿只作为 baseline 拉取，不重复生成；单字段、单按钮、文案、间距和局部样式微调不要默认使用。判定结果和 project/artifact 证据或跳过/阻塞原因必须记录到 `ui-flow.md`、原型说明或设计交接中。
-- 目标项目已安装 `.agents/skills/impeccable` 时，UI Flow / 静态原型完成后必须做 impeccable 视角的质量检查；按阶段选择 `shape / critique / audit / polish` 等命令并记录结果；实现、CR 后 fix 或 Goal 切片涉及前端页面时必须做 UI Drift Gate，防止实现偏离已确认原型。
-- 涉及后台页面、运营流程、审核流、批量操作或复杂前端状态时，原型 / UI Flow 完成后必须停下；没有用户明确确认并授权进入详细方案设计，不写详细 `plan.md`、不拆 `tasks.md`、不生成 Goal。
-- 用户提出“最新要求 / 改方案并修逻辑 / 口径调整”时，必须先做 Latest Requirement Delta Gate：逐条对比用户原话、最新确认业务规则、旧方案和当前文档，执行跨文档一致性扫描；若 `requirements.md`、`plan.md`、`tasks.md`、`ui-flow.md`、`.goal/*` 仍有互相冲突的业务约束，不能进入实现。
-- 复杂方案进入任务拆解或实现前，必须经过 design CR（`skills/design-review/SKILL.md`）；用户授权且环境支持时优先唤起 scoped design CR 子 agent。
-- 复杂长链路方案在 Design CR Ready 后、实现前，必须进入 Goal Handoff：生成 `.goal/` 执行契约并通过 Goal Gate；没有 `.goal/status.yaml` 和 `gate.md: Ready`，不进入代码实现。
-- 复杂 Goal 执行默认采用 continuous 主线程负责制：用户说“用 goal 开工 / 按 goal 执行 / 继续 Goal”时，主 agent 从 `.goal/status.yaml` 的 current/next slice 连续推进，完成一个 slice 后自动进入下一 slice，直到 Goal 完成、真正阻塞、或需要人工介入。只有用户明确说“只跑一片 / 先停在当前 slice / 只做状态检查”时，才使用 `single_slice` 或 `prepare_only`。
-- 主 agent 是当前 slice 的技术负责人，必须先判定 `implementation_owner`。实现可以由 `main_thread`、`worker` 或 `hybrid` 完成；核心领域、状态机、DTO / Entity / migration、provider、并发和用户最新口径同步优先由主线程或混合模式承担。无论谁实现，独立 validation 和 CR 不能省略，且必须文件化说明原因、范围和风险。
-- CR 当前 slice 阻塞问题必须清零：影响正确性 / 数据安全 / 发布安全 / 状态一致性 / 接口契约 / 当前验收的问题必须在当前 slice 修复，CR 阻塞 findings 为 0 才能提交。局部待确认、需求优化、交互优化、后续讨论项、外部依赖或真实环境验证，默认沉淀到 TODO ledger / discussion / deferred risks / 后续 slice gate，标清影响、owner、触发条件和最晚对齐点；只要不破坏当前 P0/P1 验收、数据/权限/状态正确性，且后续 slice 可用 mock / adapter 隔离，就不得阻塞下一 slice。普通开发 slice 不要为了清零 Nit/P2 无限返修；release gate 或用户明确要求“零 Nit”时才全部关闭。
-- Goal 吞吐优先于仪式完整：保留实现→验证→CR→修复→Exit→commit，但必须执行 Slice Size Gate、验证/CR 对齐、fixer 轮次上限、UI Drift 时机控制和 mid-slice Requirement Delta 冻结；禁止验证空转、正交 fixer 打断 CR 闭环、以及把 Job/生命周期/预算/identity 塞进同一过大 slice。
-- 开发 slice 与发布 gate 必须分离：生产 SSH、线上系统包、真实 provider smoke、日志/ACL/SELinux、回滚和发布后验证只属于 release slice / R10 / `release_gate`，不得默认拖入早期开发 slice。
-- Goal 执行允许使用受控子 agent、worker session 或 worktree worker 来降低主线程上下文负担；这不等于为上下文压缩主动新开替代线程，恢复权威仍然只有 `.goal/status.yaml` 和 `.goal/resume.md`。
-- Codex app 的 Goal 进度条只是 UI 可视化镜像；执行权威仍是 `.goal/status.yaml`。在 Codex 环境中，只要进入 Goal Execute 且当前工具提供 `get_goal` / `create_goal`，主 agent 应先读取项目 `.goal`，再默认创建或复用 app-level goal，并按工具契约同步完成 / 阻塞终态；仅当 `codex_app_goal.enabled: false` 或已有不匹配 active app goal 时跳过或说明冲突。不要用 app goal 替代 `status.yaml`。
-- 已存在 `.goal/status.yaml` 且用户要求续跑 Goal 时，进入 `skills/goal-execute/SKILL.md`；不要用聊天历史或平行 Markdown 进度表覆盖 `status.yaml`。
-- 没有字段、状态、接口、任务和验收细节，不进入实现。
-- 进入 kickoff 的需求必须有 `plan.md` 和 `tasks.md`；实现阶段每个任务完成前必须经过实现、测试、CR 闸口。
+- 没有证据，不写成事实。用户最新确认的业务规则优先于工程直觉；不能用“更安全”或 reviewer 建议擅自替换用户行为。
+- 方案复杂度按规则变化与影响判断：新的共享状态/权限/计费/身份规则、不可逆数据变化、跨端协作语义、失败恢复或高影响未知需要复杂方案；复用既有规则的普通 API、字段、样式、只读查询不因技术名词自动升级。细则见 `references/stages/plan-light.md`。
+- 需求区分已确认、待确认和假设。只让影响当前验收或直接依赖的高影响未知阻塞；可隔离的局部建议记录处理点，其余工作继续。
+- 业务决定集中在单一来源；方案、任务、验收引用编号及必要原文。新口径先更新来源，再同步受影响的派生契约，不逐字重抄整包文档。
+- 复杂方案先核实实际入口、上游类型、消费者、数据归属及已有规则，再做领域与工程映射。图用于解释共同概念、状态和跨端流转，不按模板数量凑图；图清楚后才进入依赖这些规则的实现。
+- 复杂方案需要 design CR；复用已有确认与授权，不因换节点重复询问。需要结构化跨上下文恢复或用户要求 Goal 时进入 Goal Handoff，Gate Ready 后执行；轻量改动不强制建 Goal。
+- 写需求/方案文件也要检查分支；主干干净时创建功能分支，不直接写 main/master；脏工作区不自动 stash、merge 或 rebase。保存轻量方案只写所需文件，不因落盘升级为全套需求、方案、任务和日志。
+- 前端与 API 交互保留 Frontend-first Mock Lane：`CONTRACT → FE_MOCK_LOOP → SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRATION / QA`；在一个功能批次内尽早走通小的真实路径再扩展，不等全功能写完才第一次联调。Goal 继承 tasks 的 lane、依赖与批次。
+- 涉及主用户路径、审核、批量操作或复杂状态时，任务拆解前给出 UI flow；已有确认基线复用。需要用户选择交互方向时展示后等待确认；已有明确确认与落地授权不重复暂停。
+- Open Design 只在新页面/大改版、多方案视觉探索、复杂路径或用户明确要求时考虑，记录 `skip / existing-baseline / run / blocked` 和依据。已确认稿只作基线；小样式改动不默认新建 run。
+- 已安装 impeccable 时按实际阶段与问题选择 `shape / critique / audit / polish`；界面实现对照确认基线。证据按功能批次合并、修复后复核受影响状态，不每次中间修改重复完整审计。
+
+### 实现、验证与审查
+
+- 节点职责与中文交接提示见 `references/delivery/agent-delivery-flow.md`；审查细则只有 `references/stages/review.md` 一处。
+- 需求/原型已确认且获实施授权后，按中央节点规则自主推进；每次交接保留结果、约束、事实、范围、验证与返回要求。局部缺口由主线程判断、约定协议并隔离，保持真实能力与集成验收，除非用户主动介入不重开产品问答。
+- 普通任务最小有效自测通过后可记 `implemented` 并继续；改变后续依赖的共享规则时单列基础批次，在依赖方开始前审查；功能批次闭合后正式独立验证与 CR，验收后才记 `accepted`。新 Goal 默认 `functional_batch`；用户/项目明确逐片审查时用 `per_slice`。
+- 自测须对应改变的行为、反例、真实入口/观测点与预期；build 绿、手造业务结果或 mock 页面通过不能代替真实功能验收。检查方法见 `skills/test-scope-analysis/SKILL.md`。
+- 主线程负责技术判断和审查裁决；实现可由 `main_thread / worker / hybrid` 承担。正式验证/CR 独立于实现者，可在同一固定版本并行，不为每个节点强制创建一个 Agent 或一份报告。
+- 主线程核实 finding 的依据和用户影响，区分缺陷、误报与新建议。修复按问题族和影响范围复核；同类再次出现先查共同原因与所有消费者/状态，不继续机械补丁，也不以轮数上限替代质量判断。
+- 当前正确性、数据、权限、状态、契约或承诺验收缺陷必须解决；P2/Nit 等不影响当前结果的建议记录 owner、影响与处理时点，不无限返工。严重级别标签不能用来规避真实缺陷。
+- 最终核对 Goal 基线到交付版本的全部差异及验收覆盖；未审批次、CR 后新增影响和必需未验证项未关闭不能宣布完成。代码完成与发布准备度分别记录；用户要求真实环境验收时不能擅自移到未来发布。
+- 开发默认使用本地或可丢弃环境；真实 provider 调用在属于本次验证范围且已有授权时执行，明确成本与证明边界，不必等到发布。生产 SSH、发布迁移和部署按明确发布范围与项目 SOP 执行。
+- Goal 默认 continuous；普通任务/批次边界继续执行，用户明确只跑一片或只检查时用 `single_slice / prepare_only`。状态以 `.goal/status.yaml` 为索引，实际代码和证据用于核实，用户最新约束不能被旧状态覆盖。
+- 仅在普通任务完成、批次裁决、需求变化、阻塞或停止等可恢复边界更新状态；resume 保存下一动作和指针，不复制多份进度。已有 Git 授权且实现/自测通过的代码可提交检查点，提交不代表验收，不为上下文压力提交破损半成品。
+- App Goal 只作 UI 镜像；创建与终态同步遵守用户请求和当前工具契约，不覆盖已有不匹配目标，不替代项目状态，不为进度条突破工具限制。
+- 旧 Goal 不自动覆盖项目要求；改用新策略时记录原策略、授权依据、任务映射与证据版本。历史 done 不能直接转换成新 accepted。
 
 ## 轻量领域设计口径
 

@@ -1,0 +1,150 @@
+---
+schema_version: 2
+feature: workflow-v2
+slices:
+- id: R01
+  task_ids:
+  - T01
+  lane: CONTRACT
+  review_batch: B01
+  review_boundary: before_dependents
+  dependencies: []
+  scope:
+  - 状态与内容快照检查器及模板
+  non_goals:
+  - 不安装、不推送、不改原main
+  implementation_owner:
+    mode: hybrid
+    reason: 主线程负责契约，独立范围并行
+    ownership:
+    - 当前任务涉及的候选规则/脚本
+  min_self_check:
+  - behavior: 状态与内容快照检查器及模板
+    risk: 意图丢失、错误验收或重复仪式
+    method: 当前模板通过；错误状态和过期证据拒绝
+    expected: 对应用户约束 D01–D10
+  required_docs:
+  - "../plan.md"
+  tooling_prerequisite_ids: []
+  evidence:
+    level: E1
+    gate: api_data
+    expected_baseline: "../plan.md"
+- id: R02
+  task_ids:
+  - T02
+  lane: CONTRACT
+  review_batch: B02
+  review_boundary: batch
+  dependencies: []
+  scope:
+  - 中文流程、节点、上游方案任务规则
+  non_goals:
+  - 不安装、不推送、不改原main
+  implementation_owner:
+    mode: hybrid
+    reason: 主线程负责契约，独立范围并行
+    ownership:
+    - 当前任务涉及的候选规则/脚本
+  min_self_check:
+  - behavior: 中文流程、节点、上游方案任务规则
+    risk: 意图丢失、错误验收或重复仪式
+    method: 检查真实事实、用户约束和任务批次映射
+    expected: 对应用户约束 D01–D10
+  required_docs:
+  - "../plan.md"
+  tooling_prerequisite_ids: []
+  evidence:
+    level: E1
+    gate: api_data
+    expected_baseline: "../plan.md"
+- id: R03
+  task_ids:
+  - T03
+  lane: CONTRACT
+  review_batch: B02
+  review_boundary: batch
+  dependencies:
+  - R02
+  scope:
+  - 验证/CR规则与调用方、回归场景
+  non_goals:
+  - 不安装、不推送、不改原main
+  implementation_owner:
+    mode: hybrid
+    reason: 主线程负责契约，独立范围并行
+    ownership:
+    - 当前任务涉及的候选规则/脚本
+  min_self_check:
+  - behavior: 验证/CR规则与调用方、回归场景
+    risk: 意图丢失、错误验收或重复仪式
+    method: 仓库自检；历史批量推演与隔离代码修复；本轮独立留证产物试验
+    expected: 对应用户约束 D01–D10
+  required_docs:
+  - "../plan.md"
+  tooling_prerequisite_ids: []
+  evidence:
+    level: E1
+    gate: api_data
+    expected_baseline: "../plan.md"
+- id: R99
+  task_ids:
+  - QA
+  lane: QA
+  review_batch: B99
+  review_boundary: batch
+  dependencies:
+  - R01
+  - R03
+  scope:
+  - 最终差异、独立审查与安装隔离核对
+  non_goals:
+  - 不安装、不推送、不改原main
+  implementation_owner:
+    mode: hybrid
+    reason: 主线程负责契约，独立范围并行
+    ownership:
+    - 当前任务涉及的候选规则/脚本
+  min_self_check:
+  - behavior: 最终差异、独立审查与安装隔离核对
+    risk: 意图丢失、错误验收或重复仪式
+    method: 完整基线差异有证据；原安装源与链接未变
+    expected: 对应用户约束 D01–D10
+  required_docs:
+  - "../plan.md"
+  tooling_prerequisite_ids: []
+  evidence:
+    level: E1
+    gate: api_data
+    expected_baseline: "../plan.md"
+review_batches:
+- id: B01
+  kind: foundation
+  snapshot_scope:
+    paths: [scripts/check-goal.rb, scripts/test-check-goal.rb, templates/goal/slices.yaml, templates/goal/status.yaml, evals/workflow-v2/checker.md]
+    contracts: [docs/features/20260915-workflow-v2/plan.md, docs/features/20260915-workflow-v2/.goal/acceptance.md]
+  slice_ids:
+  - R01
+  acceptance_ids:
+  - A01
+  earliest_real_path: 模板→真实Ruby检查器→状态/快照负例，不用关键词假通过
+- id: B02
+  kind: functional
+  snapshot_scope:
+    paths: [AGENTS.md, README.md, agents, references, skills, templates, docs/adoption-guide.md, docs/codex-usage.md, docs/conversation-usage.md, evals, workflows, scripts/check-playbook.sh]
+    contracts: [docs/features/20260915-workflow-v2/plan.md, docs/features/20260915-workflow-v2/.goal/acceptance.md]
+  slice_ids:
+  - R02
+  - R03
+  acceptance_ids:
+  - A02
+  earliest_real_path: 候选入口→独立场景判断；隔离控制器实际修复和自测
+- id: B99
+  kind: final
+  snapshot_scope:
+    contracts: [docs/features/20260915-workflow-v2/plan.md]
+  slice_ids:
+  - R99
+  acceptance_ids:
+  - A03
+  earliest_real_path: 不适用：汇总前序真实检查并补最终差异覆盖

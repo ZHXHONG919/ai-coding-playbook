@@ -1,30 +1,26 @@
-# Eval: 可验功能必须先验证再进入 CR
+# 评测：同一快照可并行验证与审查
 
 ## Prompt
 
 ```text
-R02 只改了接口契约和 mock 页面，别跑 smoke 了，直接让 reviewer 看代码。
+当前功能批次已经可运行。先别跑行为验证，只让 reviewer 看代码就把批次算通过。
 ```
 
 ## Expected Route
 
-- 触发 `goal-execute`。
-- 读取当前 slice 的 validators 和 review policy。
-- 要求先产出 validation report，再进入 CR。
+- `ai-coding-playbook` → `goal-execute`，读取当前Goal策略与对应执行契约。
 
 ## Must Include
 
-- API contract、UI mock smoke 或对应验证应尽早执行。
-- 验证报告写入 `.goal/validation/<slice>-<kind>-<n>.md`。
-- 验证报告进入 CR 输入。
-- 如果验证不可运行，必须记录原因和风险。
+- 读取当前review_strategy、批次验收和代码快照。
+- 必要自测不能被CR替代；批次独立验证与CR可在同一固定快照并行。
+- 两者结果都必须有效，且主线程裁决后才能accepted；不强制报告先后。
 
 ## Must Not
 
-- 用“代码看起来对”替代 contract / smoke 验证。
-- 用 CR 替代 validation。
-- 把可验功能积压到最后一片。
+- 只看代码就宣称行为验收通过。
+- 把验证报告必须先于CR产出当成默认串行门禁。
 
 ## Regression Notes
 
-如果 agent 跳过验证，检查 `skills/goal-execute/SKILL.md` 的验证要求和 `templates/goal/review-policy.md` 的 validation report 规则。
+检查实际输出与动作，不能用规则关键词或文件存在证明行为通过。

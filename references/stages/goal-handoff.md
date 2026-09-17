@@ -1,233 +1,73 @@
-# Goal Handoff 阶段
+# Goal 执行交接
 
-> 目标：在复杂方案通过 Design CR 后，把 `plan.md` / `tasks.md` 转成可恢复、可检查、可连续执行的 `.goal/` 执行契约。Goal Handoff 是方案到实现之间的交接阶段，不重新讨论需求，不直接改业务代码。
+> 把已确认的成功场景、任务依赖和验证方式转成可恢复执行包。复用方案决定，不重新发明产品规则，也不为每个节点复制一份文档。
 
-## 使用时机
+## 何时使用
 
-- 复杂 feature 已完成需求确认、方案、任务拆解和 Design CR，用户准备进入连续实现。
-- 用户要求“生成 goal / 执行契约 / 按 goal 执行”。Goal 默认 continuous，除非用户明确要求只跑单片或只做状态检查。
-- 任务包含多切片、多模块、异步任务、LLM/外部系统、前后端联调、smoke、CR 门禁或发布验收。
-- 既有 `tasks.md` 无法稳定支撑上下文恢复、CR 审计或最终验收闭环。
+用户要求生成/执行/恢复 Goal，或任务有明显跨上下文恢复需求、多个相互依赖的交付批次时使用。轻量修改直接进入实现阶段；不是碰到 DB、API 或异步调用就强制建 Goal。
 
-Goal Handoff 必须同时读取 `references/plan/task-breakdown.md`。涉及用户可见结果、界面或批量问题时，还必须读取 `references/delivery/evidence-driven-delivery.md`；涉及第三方应用、网站或桌面工具时，必须读取 `references/delivery/tooling-prerequisites.md`。Goal 是 `tasks.md` 的执行契约化，不重新发明交付顺序、证据要求或工具准备方式。
-
-旧 Goal 包兼容：
-
-- `schema_version` 较旧或切片缺少 `evidence` 时，续跑前从已确认的 `tasks.md`、`acceptance.md`、`ui-flow.md` 和原型做一次显式迁移，并把推导结果和依据记录到 `gate.md` / 当前代码审查报告。
-- 能明确推导时补齐证据等级、基线、门禁和关键状态；不能明确推导时记录 `legacy_not_declared` 和风险，不得静默统一填 E1，也不得重新发明产品基线。
-- 无法推导且影响当前验收判断时进入需求/设计同步；不影响当前验收的纯后端旧切片可使用接口、测试或数据证据并说明理由。
-- 新 Goal Handoff 必须使用最新模板；兼容规则只用于续跑旧包。
-
-旧 Goal 缺少工具前置字段时：
-
-- 从旧 `tasks.md`、切片命令、`required_docs` 和验收项推导第三方工具依赖，生成 `.goal/tooling-prerequisites.yaml` 和任务映射，并记录依据。
-- 无第三方工具依赖时显式写 `tooling_prerequisite_ids: []` 和 `not_applicable`，不能因字段缺失默认需要安装。
-- 无法推导且当前切片确实需要第三方访问时，停在工具前置同步；不得绕过门禁直接控制浏览器。
-
-## 强制场景
-
-命中以下任一条件，Design CR Ready 后不能直接进入代码实现，必须先完成 Goal Handoff 并通过 Goal Gate：
-
-- 用户要求按 slice 实现、每片 CR / commit、跨会话续跑，或明确要求连续执行。
-- 任务需要 5 个以上切片，或任务之间存在明显依赖链。
-- 涉及异步任务、LLM / AI provider、外部系统、审核流、同步链路或发布 smoke。
-- 涉及前后端联调，且 P0 用户路径需要写 API、读 API、页面可见结果闭环。
-- 需要 Deferred / Human Intervention / 多轮 CR / 全局验收门禁。
-
-满足强制场景时，`design-review.md Ready` 只代表方案门禁通过，不代表可以直接写代码；实现前还必须有 `.goal/status.yaml` 和 `gate.md: Ready`。
-
-## 非适用场景
-
-- 单文件 bugfix、文案样式、小范围测试补充。
-- 1 到 3 步内能完成，且没有跨切片依赖或最终 smoke 的轻量需求。
-- 需求仍有 Blocking Pending，或 Design CR 结论不是 Ready。
+先读 `references/plan/task-breakdown.md` 和 `references/delivery/agent-delivery-flow.md`。涉及界面/用户可见结果追加 `references/delivery/evidence-driven-delivery.md`；确需第三方工具追加 `references/delivery/tooling-prerequisites.md`。
 
 ## 进入条件
 
-必须先满足：
+- 用户已授权落地，成功场景、不能改变的行为和非目标明确。
+- 沿用中央节点规则的交接与自主推进约定，记录必需结果、已约定可延期范围和已知时间约束；缺省不将必需结果降成可延期。
+- 当前要执行任务所需的事实、契约和高影响未知已有结论；未来局部能力未就绪时有稳定边界、owner 与回收点，不阻塞可执行工作。不能用 mock 代替未确定的权限/状态语义。
+- 需要复杂方案时已有 design CR，阻塞实际实现或依赖的问题已关闭；已有授权不重复询问。
+- `tasks.md` 或等价任务来源定义依赖、功能批次、最小自测、最早真实路径及验收。涉及界面时有适合范围的确认基线。
+- 按 Git 安全规则在功能分支写文件；候选规则不得误写到用户要求暂不应用的实时安装源。
 
-- `requirements.md` 或等价需求基线已区分 Confirmed / Pending / Assumed。
-- `plan.md` 已定稿或有明确当前方案版本。
-- `tasks.md` 已覆盖字段、状态、接口、任务、验证和 CR；涉及前端项目 + API 交互时，已采用 Frontend-first Mock Lane。
-- 复杂方案 Design CR 无未关闭 P0；P1 不阻塞首轮实现。
-- 相关 `ui-flow.md`、API 契约、状态图、数据流或发布/smoke 文档已同步。
+## 最小执行包
 
-如果任一条件不满足，回到需求确认、方案或设计 CR，不生成 Goal 包。
+放在项目既有 feature 文档目录下的 `.goal/`。默认核心文件：
 
-## 产物位置
+| 文件 | 保存什么 | 避免重复 |
+| --- | --- | --- |
+| `GOAL.md` | 范围、非目标、来源、交付边界与策略例外 | 引用需求决定，不重抄业务规则 |
+| `acceptance.md` | 验收编号、成功/失败场景、真实入口和证据 | 已有完整验收可引用原文和编号 |
+| `slices.yaml` | 任务、批次、依赖、自测与执行所有者 | 从 tasks 继承，不另按技术层重排 |
+| `status.yaml` | 唯一进度索引、基线、批次证据、下一动作 | 不同时回写 tasks 的第二份状态 |
+| `gate.md` | 是否可开工、策略来源和遗留影响 | 记录实际检查结论，不以模板已填完代替 Ready |
+| `resume.md` | 恢复动作、最新约束来源、未完成修改与 worker 核实入口 | 恢复时必须读取，不复制所有计数和状态 |
 
-默认在 feature 文档目录下生成：
+按需要建立 runs / validation / cr / snapshots。mock、待办、人工介入、工具准备、并行工作树和延期风险只在存在对应事项时建台账，或指向项目已有台账。`review-policy.md` 只写项目策略和例外；默认细则引用 `references/stages/review.md`。`design-handoff.md` 在确实需要集中契约索引时使用。
 
-```text
-docs/features/<feature>/.goal/
-├── GOAL.md
-├── acceptance.md
-├── slices.yaml
-├── status.yaml
-├── review-policy.md
-├── mock-ledger.md
-├── todo-ledger.md
-├── worktree-plan.md
-├── human-intervention.md
-├── resume.md
-├── risks-deferred.md
-├── design-handoff.md
-├── gate.md
-├── runs/
-├── validation/
-└── cr/
-```
+Goal 的执行选择、返工和证据引用沿用现有记录；没有合适载体时用一份 `execution-log.md`，见 `references/delivery/execution-evidence.md` 与 `templates/execution-log.md`。它是历史证据索引，不是第七份必需开工文件，也不替代 status。
 
-如果业务项目已有目录规范，遵循项目规范，但必须保留同等语义。
+## v2 任务与批次映射
 
-## Goal 包职责
+`schema_version: 2`；`review_strategy: functional_batch` 为新包默认，执行 `run_control.mode: continuous`。两个选择独立；`per_slice` 保留给用户/项目明确要求的逐片审查。
 
-| 文件 | 职责 |
-| --- | --- |
-| `GOAL.md` | 范围、非目标、分支、来源文档、全局完成标准、允许停止条件 |
-| `acceptance.md` | 按用户路径写 P0/P1 验收，绑定写 API、读 API、页面可见结果和失败态 |
-| `slices.yaml` | 每个切片的 scope、non-goals、必读文档、测试命令、Exit 清单和 CR 要求 |
-| `status.yaml` | 唯一执行状态源：next slice、当前状态、active workers、last reports、open blocker/deferred、last CR、global exit；可包含 Codex app goal UI 镜像策略 |
-| `review-policy.md` | CR 审核流程、角色矩阵、轮次、通过条件和所有 findings 的关闭规则 |
-| `mock-ledger.md` | 记录 mock / pending API / fixture-only 读路径的创建、到期、清理和 waiver |
-| `todo-ledger.md` | 记录局部待确认、需求优化、交互建议、契约优化和技术债；默认不阻塞下一 slice，Goal 结束或阶段 checkpoint 集中和人对齐 |
-| `worktree-plan.md` | 记录允许并行的 worktree worker、ownership、merge order 和冲突策略 |
-| `human-intervention.md` | 唯一允许遗留给人的事项；必须说明 agent 无法独立解决的原因 |
-| `resume.md` | 上下文压缩后的同线程恢复提示；不用于主动新开线程 |
-| `risks-deferred.md` | 允许的 Deferred 例外；默认 none |
-| `design-handoff.md` | 方案结论、关键决策、契约指针、禁止执行期重辩论的边界 |
-| `gate.md` | Goal Gate 检查结果：Ready / Not Ready，以及进入执行前必须修复的问题 |
-| `runs/` | implementer / fixer worker 的文件化报告 |
-| `validation/` | validator 的文件化验证报告 |
-| `cr/` | 每个切片的文件化 CR 结果，禁止只在进度表中手写 Blocker=0 |
+- 每个任务有 `review_batch`、`review_boundary`、scope、non_goals、依赖、所有者、最小自测和必要文档。
+- 普通任务 `review_boundary: batch`。一个批次覆盖一条完整用户路径，范围由验收决定，不按固定任务数量切分。
+- 共享规则改变且后续任务依赖其正确性时，用 `before_dependents`，把该有限范围独立成 `kind: foundation` 批次；验收通过后才启动依赖。不要对整片大功能做部分验收，也不要把所有 DTO / API 任务都当基础变更。
+- `per_slice` 策略每任务一个批次，`review_boundary: task`（基础任务仍保留 `before_dependents`）。
+- 普通依赖在同一批次内可以依赖已 `implemented` 的任务；跨批次或基础依赖必须等前批次 `accepted`。
+- 并行实现按 goal-execute 的写入责任约定初始化；current_slice 是主线程焦点，其他实际进行中任务关联 active_workers。模板空列表不是禁止并行，也不是预设已有 worker；不得为了启动 worker 跳过依赖。
+- 已有全部或部分改动因前置变化/执行中断暂停时用 `awaiting_revalidation`，记录实际进展、未验证项和恢复条件，不冒充已完成，也不能满足依赖；恢复后补完实现并定向复验，细则见 goal-execute。
+- 同一验收编号在不同批次必须指同一个完整断言，不能把不同局部结果混用同一编号。返修使唯一通过证据失效时将验收改为 pending；若另一有效非最终批次仍完整证明它，可引用该证据保留 passed，但不能把待复验任务算作已验收。
+- 每个功能批次写清 `earliest_real_path`：实际入口、观测点、可替换的外部边界、安排在哪项任务。纯文档/基础批次可说明不适用原因。
+- 继承前端先 mock 的 lane，但在同一功能批次尽早进入一条小的 SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRATION 路径，再扩展更多界面和能力；不能以 lane 为由延后真实读写到全局末尾。
+- 任务不过大：一个自测能覆盖的责任范围；共享身份、预算、生命周期和异步租约若各自规则复杂，应分清所有者和先后依赖，不堆成一个大修复任务。
+- 最后单列 `kind: final` 批次，核对完整差异与验收覆盖。最后一片负责收口，不承担第一次真实链路验证；不默认等于发布 slice。
 
-## 核心原则
+字段模板见 `templates/goal/slices.yaml` 和 `status.yaml`。snapshot 是包含代码与相关需求/契约内容哈希的清单路径；仅记 HEAD 不能识别未提交改动。批次正式验证与 CR 引用同一份清单。
 
-- `.goal/status.yaml` 是执行阶段唯一状态源；不要同时维护 `execution-progress.md`、`tasks.md` 状态表和自然语言 goal 三本账。
-- Codex app goal 进度条可以作为 UI 可视化镜像，但不是第二状态源；生成 Goal 包时应在 `status.yaml.codex_app_goal` 写明是否启用，非 Codex 环境可忽略该字段。
-- `tasks.md` 是设计阶段的任务来源，Goal Handoff 后执行进度只回写 `status.yaml`。
-- Goal slice 必须继承 `tasks.md` 的 lane、依赖和 mock ledger；不得在 Handoff 阶段重新按独立功能点拆成“每片前后端混做”的顺序。
-- Goal slice 必须继承 `tasks.md` 的界面基线、证据等级、证据门禁和关键状态；多个任务共享页面证据时，必须保留集中验收任务和逐任务映射。
-- Goal slice 必须通过 `tooling_prerequisite_ids` 继承 `tasks.md` 工具前置清单，并在 `.goal/tooling-prerequisites.yaml` 持久化所选方式、安装来源/版本、认证状态、验证时间、最小探测和用户动作。工具准备与认证优先在 Goal 开始前集中完成，不得每片重复。
-- 工具准备属于 Goal Gate 前置阶段：主线程在 Gate 前完成自动安装、版本/能力边界和最小认证检查，提前请求必要的用户动作；首个业务切片引用的条目达到 `ready` 后才标记 Gate Ready。Goal Execute 不负责首次安装。
-- 无第三方工具依赖时，工具台账必须是空映射，切片使用 `tooling_prerequisite_ids: []`，不得保留幽灵 pending 条目。
-- 工具台账只记录脱敏状态，不得写入密码、验证码、令牌、Cookie、私钥、二维码内容、完整账号标识或敏感响应正文。
-- 切片按用户路径和 task lane 拆，不按纯技术层拆；涉及前端 + API 的 P0 路径必须先有 `CONTRACT` 和 `FE_MOCK_LOOP` 可见闭环，再逐步进入服务端真实化和 mock replacement。
-- Goal 包只写执行契约，不把业务事实从业务项目搬到 playbook。
-- Goal Handoff 不能绕过 Design CR；如果生成 Goal 包时发现方案缺口，回到方案阶段。
-- Goal 不主动新开替代线程；上下文压缩后仍在当前线程按 `status.yaml` 恢复。允许主 agent 在同一 Goal 内调度受控子 agent、worker session 或 worktree worker，但它们不能替代主线程权威状态。
-- Goal 默认 run mode 是 `continuous`：每个 slice 达到安全边界后自动进入下一 slice，直到 Goal 完成、真正阻塞、需要人工介入、用户打断或工具上限。只有用户明确要求只跑一片时，才使用 `single_slice`。
-- 主 agent 是技术负责人 / final integrator：负责读取契约、判定实现所有者、派发 worker / validator / reviewer、审计证据、更新 `status.yaml`、合并和提交。实现可以是 `main_thread`、`worker` 或 `hybrid`；核心领域、状态、migration、provider、并发和用户最新口径同步优先由主线程或混合模式承担。
-- 子 agent 输出必须文件化到 `runs/`、`validation/` 或 `cr/`；聊天回复、子线程摘要或 worker 自述不能替代 `status.yaml`。
-- CR 阻塞项必须关闭；普通开发 slice 的 P2/Nit 可登记为 non-blocking follow-up，release gate 或用户明确要求“零 Nit”时才强制全部关闭。
+非最终批次显式声明 `snapshot_scope.paths`（仓库相对文件/目录前缀，不用 glob）及 `contracts`（相关需求/原型等契约），检查新增/修改/删除并纳入前置输入；无关任务追加不使已验收范围失效。最终批次不能限定 paths，仍覆盖全部差异。采集命令及限制见 `evals/workflow-v2/checker.md`；范围与真实业务依赖仍需主线程核对。
 
-## Goal Gate
+## Gate Ready 判断
 
-`gate.md` 为 Ready 前，禁止进入 `goal-execute`。
+1. 成功标准能从真实入口观察，不是只写“build/test通过”；影响当前启动任务的高影响未知已解决或有经核实的隔离边界，后续回收与真实集成仍在计划中。
+2. 所有任务均有可执行自测与唯一批次，任务与批次等待均无环；同一基础批次内不设置互相等待验收的依赖，可合并任务或拆批次。基础依赖前审范围明确。
+3. 最早真实路径已排入功能批次，mock 清理与验收责任明确。
+4. 当前必要工具已 ready；未来认证、用户动作及最晚准备点已登记，无工具依赖时映射为空。工具台账仅记录脱敏状态。
+5. 所有者/并行文件归属明确，审查输入可冻结；独立验证/CR 能力和例外有依据。
+6. `status.yaml` 初始化未完成状态，基线真实可解析；最终覆盖与代码交付/发布边界明确。
 
-Ready 条件：
+可以运行 `ruby <playbook-root>/scripts/check-goal.rb <goal-dir>` 检查 v2 结构与证据引用。脚本不证明 Gate 的业务结论；必须读实际需求、代码和验证策略。
 
-- P0 acceptance 每条都写清入口、写动作、读接口、用户可见结果、关键失败态。
-- 涉及前端项目 + API 交互时，`tasks.md` 必须包含 `CONTRACT → FE_MOCK_LOOP → SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRATION / QA` 或等价 lane；若缺失，`gate.md` 必须为 `Not Ready`。
-- 每个 slice 都有明确 `scope`、`non_goals`、`workers`、`validators`、`cr.reviewer_roles`、`tests`、`exit` 和 CR 要求。
-- 每个 slice 都有 `lane` / `task_type` 标记，并能追溯到 `tasks.md` 的任务 ID；Goal 不得把未完成的 `FE_MOCK_LOOP` 和真实化服务端实现合并成同一个大 slice，除非任务本身是 1 到 3 步轻量需求且无需 Goal。
-- 每个 slice 都有 `implementation_owner` 默认建议：`main_thread` / `worker` / `hybrid`，并说明主线程可编辑范围、worker scope、独立验证和独立 CR。
-- 每个 slice 的 Exit 至少包含：实现报告存在、验证报告存在或有理由、验证绿、CR 文件存在、阻塞 findings 已关闭、P2/Nit follow-up 已登记、状态已更新、无新增未登记 mock。
-- `review-policy.md` 明确 CR 循环和预算：验证 -> CR -> 修复阻塞项 -> 复验 -> 复审；同一 finding 默认最多 2 轮 worker fixer，超过后升级主线程收口，再不行转人工、方案同步或 non-blocking follow-up。
-- 切片通过 Slice Size Gate 与 Throughput Gate：不过大、开发 slice 不强制零 Nit、UI Drift / 验证轮次有上限、高风险 slice 默认 main_thread/hybrid。
-- `mock-ledger.md` 已初始化；所有 mock / pending API 都有创建 slice、清理 slice、用户可见影响和状态。
-- `TODO ledger` 已初始化或指定位置；CR / 实现发现的局部待确认默认登记后继续推进，除非它破坏当前 P0/P1 验收、数据/权限/状态正确性，或后续 slice 无法通过 mock / adapter 隔离。
-- `worktree-plan.md` 已说明哪些任务允许并行、ownership、merge order 和共享契约冲突处理；共享 DTO / Entity / migration / 状态机默认不并行改。
-- `human-intervention.md` 初始为空；如允许人为介入，必须写清触发条件、代码 TODO 规则和最终状态 `needs_human_intervention`。
-- `resume.md` 明确上下文压缩后不新开线程、不做半成品 checkpoint commit。
-- `status.yaml.codex_app_goal` 已写明 Codex app UI 镜像策略；启用时仍声明 `.goal/status.yaml` 为 source of truth。
-- 最后一片有 global exit：`open_deferred=0`、`open_cr_findings=0`、HTTP mock 白名单为空或计数为 0、P0 acceptance 全绿或有书面 waiver、smoke A/B 状态明确。
-- 开发 slice 与 release gate 已拆开：生产 SSH、线上系统包、真实 provider、日志/ACL/SELinux、回滚和发布后验证只能放入 release slice / R10 / `release_gate`，不得默认拖入早期开发 slice。
-- Deferred 默认禁止；若允许，必须写入 `risks-deferred.md`，包含 `expires_at_slice`、`user_visible_impact`、`code_stub` 和处理责任。
-- `status.yaml` 初始化为 `next_slice` 指向第一片，`open_blocker=0`，`open_cr_findings=0`，`open_deferred=0`。
+## 旧包迁移与执行
 
-## 切片设计规则
+旧包继续遵守原项目契约，不能自动取消每片 CR、零 Nit 或发布要求。采用 v2 时在 gate 记录原策略、改后策略、授权依据、任务映射和尚未审查/验证的工作，再逐项核对历史证据的实际版本。缺失字段从已确认事实推导，不能用模板默认值伪造验证通过。
 
-切片应该能独立实现、独立验证、独立 CR、独立提交。
-
-每个切片必须回答：
-
-- 本切片继承 `tasks.md` 的哪个 lane：`CONTRACT` / `FE_MOCK_LOOP` / `SERVER_CAPABILITY` / `MOCK_REPLACEMENT` / `INTEGRATION` / `QA`。
-- 本切片服务哪条用户路径。
-- 本切片的最小可见闭环是什么。
-- 哪些 API / DTO / Job / 页面状态会被创建或改变。
-- 哪些 worker 可以实现，哪些 validator 必须验证，哪些 reviewer 必须 CR。
-- 当前 slice 的 implementation owner 是谁；主线程是否需要先写核心骨架 / 状态转移 / 伪代码，再交给 worker 补测试或局部实现。
-- 哪些测试证明本切片完成。
-- 哪些 mock 必须删除，哪些例外被允许到哪一片。
-- 哪些 TODO / 局部待确认可以不阻塞下一 slice，最晚何时集中对齐。
-- 是否允许 worktree 并行；如果允许，ownership 和 merge order 是什么。
-- CR 应对照哪些方案、任务、决策和验收文档，以及每轮 findings 如何关闭。
-- 若 CR 问题无法由 agent 独立解决，如何登记 Human Intervention TODO。
-- 本切片的吞吐预算：`max_pre_cr_validation_rounds`、`max_fix_rounds_per_finding`、UI Drift 时机、是否 `gate_level: release_gate`。
-- 本切片的证据预算：证据等级、界面基线、证据门禁、关键角色/状态/端、是否与其他任务共享证据、最终证据制作时机。
-
-### Slice Size Gate
-
-Goal Handoff 必须主动控制切片大小；过大的 slice 是后续无限 CR/fixer 的主要来源。
-
-默认：
-
-- 一个开发 slice 只交付一条主用户路径的最小闭环。
-- `task_ids` 建议 ≤ 2；并发关键子系统建议 ≤ 1。
-- `required_docs` 只列本片 delta 必需文档，不要默认塞入整包 Goal 文档。
-- `FE_MOCK_LOOP` slice 默认只负责前端可见闭环、接口 mock / 接口壳、浏览器 smoke 和 UI Drift；后端 DB / service / job 真实化应进入后续 `SERVER_CAPABILITY` 或 `MOCK_REPLACEMENT` slice。
-
-命中以下任意两项，必须拆成多个 slice，不得合并：
-
-- 新的异步 Job / lease / 锁
-- 多维度 embedding / 生命周期写路径
-- 预算 / provider 结算与审计
-- identity 失效或级联重算
-- 未冻结契约下的前后端同改
-
-高风险 slice（状态机、migration、provider、并发）默认 `implementation_owner: main_thread|hybrid`，不要默认纯 worker。
-
-### Throughput Gate
-
-`review-policy.md` 与每个 slice 必须声明：
-
-- 开发 slice：阻塞 findings = 0 才能过；P2/Nit 允许 non-blocking follow-up。
-- `max_fix_rounds_per_finding: 2`；超过后升级主线程或分流，禁止 silent fixer 空转。
-- `max_pre_cr_validation_rounds: 1`（实现后完整验证一轮；失败修复后再一轮即可进 CR）。
-- 首次代码审查前只做轻量界面检查；完成阻塞修复、准备复审前做最终界面偏差与证据留存，由复审同时确认。后续运行时代码变化必须重开限定范围代码审查。
-- 首轮代码审查零阻塞时，立即制作最终证据，优先由原审查者限定范围确认；不可恢复时由同职责且独立于实现者的审查者接替并记录原因。输出 `.goal/cr/<slice>-evidence-confirmation-<n>.md`。
-- 开发 slice 与 `release_gate` 分离。
-
-禁止：
-
-- 把“读路径真实化”“smoke”“Deferred 清零”默认留给最后一片。
-- 跳过 `FE_MOCK_LOOP`，直接按后端功能点或 DB/service slice 开工，导致用户路径到后期才可见。
-- Goal Handoff 重新按独立功能点拆 slice，覆盖 `tasks.md` 中已经确认的 Frontend-first Mock Lane。
-- 用 build 绿替代用户路径验收。
-- 用 worker report、validator report 或聊天摘要替代文件化 CR 和 `status.yaml`。
-- 让子 agent 直接推进 `status.yaml`、合并 worktree、提交 commit 或决定下一片。
-- 在契约未冻结时并行修改 DTO / Entity / migration / 状态枚举 / 核心 service。
-- 把 Blocker 改写成 Deferred 而没有到期切片和用户可见影响。
-- 遗留 P0/P1/Blocker/Should-Fix 或其他影响当前 slice 正确性的 agent 可解决问题。
-- 为上下文压缩主动新开线程，或为了压缩提交未通过测试/CR 的半成品 checkpoint commit。
-- 生成只有自然语言流程、没有结构化状态和 Exit 的 goal。
-- 把 Job + embedding 生命周期 + 预算结算 + identity 失效塞进同一开发 slice。
-- 在开发 slice 强制 `nit: 0` / 全部 findings 清零，除非用户明确要求。
-- 因 CR 里的局部需求建议、交互优化或未来扩展默认停住 Goal；这类项应进入 TODO ledger，开发完成或阶段 checkpoint 时集中对齐。
-
-## 与实现阶段关系
-
-普通实现继续使用 `references/stages/implementation.md`。
-
-当 feature 存在 `.goal/status.yaml` 且用户要求按 Goal 续跑时，进入 `skills/goal-execute/SKILL.md`：
-
-```text
-Goal Handoff Ready
-→ goal-execute 只读 status.yaml + slices.yaml[next]
-→ 主 agent 判定 run_mode 和 implementation_owner
-→ 当前 slice 实现 / 验证 / CR / 修复 / 复验 / 复审 / 状态更新 / commit
-→ continuous 默认继续下一切片；single_slice 才停下汇报
-```
-
-如果执行中发现方案不成立，必须把 `status.yaml.execution.state` 写为 `blocked`，说明原因，并回到方案阶段。
+Gate Ready 后按 `skills/goal-execute/SKILL.md`：实现→自测→到基础/功能批次边界独立验证和 CR→主线程裁决/修复→验收→继续。普通任务可以先到 implemented；没有审查和验收不能到 accepted。项目发布另按明确授权执行。
