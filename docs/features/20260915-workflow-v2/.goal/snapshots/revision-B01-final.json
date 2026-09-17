@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "repo_root": "/Users/xiaohong.zhxh/projectInfo/luseek/ai-coding-playbook-workflow-v2",
+  "baseline_commit": "8b59b6a2bfa41686128480fde3873cf122dee81b",
+  "excluded_paths": [
+    "docs/features/20260915-workflow-v2/.goal/cr",
+    "docs/features/20260915-workflow-v2/.goal/execution-log.md",
+    "docs/features/20260915-workflow-v2/.goal/resume.md",
+    "docs/features/20260915-workflow-v2/.goal/runs",
+    "docs/features/20260915-workflow-v2/.goal/snapshots",
+    "docs/features/20260915-workflow-v2/.goal/status.yaml",
+    "docs/features/20260915-workflow-v2/.goal/validation"
+  ],
+  "contract_paths": [
+    "docs/features/20260915-workflow-v2/.goal/acceptance.md",
+    "docs/features/20260915-workflow-v2/.goal/review-policy.md",
+    "docs/features/20260915-workflow-v2/plan.md"
+  ],
+  "files": {
+    "docs/features/20260915-workflow-v2/.goal/acceptance.md": "c86d731d4478a1e7ce619a1ff78eb7502183051fbb8887e3adb5d80ed0a1f840",
+    "docs/features/20260915-workflow-v2/.goal/review-policy.md": "5948a24f74122c3f7a2ddc4465d32f8ff2f1036c0dfd38dfe1577505839488f8",
+    "docs/features/20260915-workflow-v2/plan.md": "9cec6f314116b788355cf641b0b14c3060e96ae896d49818a9642643338fbba3",
+    "evals/workflow-v2/checker.md": "826d0a53c81baf2ca50270beb5448c4df37679eb0a112fca53cc35b096dc9fe8",
+    "scripts/check-goal.rb": "de890f4544471f58ee7bbdefe3a2d9d3f890ca55b559e86ccf41e9d466f54d91",
+    "scripts/test-check-goal.rb": "548e93344081fc5eeb22e3ed9a490bc5d0fa9068d82c3f4ac75331adf828b97f",
+    "templates/goal/slices.yaml": "25a0a848089f7e6359c4e5b4232ffbd1898d0cd867d48d3fccddc1bceab71660",
+    "templates/goal/status.yaml": "ce58253ef538433ac18cc2a38adb863fc334ec941b1d18a55efef1fc1ab9d065"
+  },
+  "batch_id": "B01",
+  "snapshot_kind": "batch",
+  "scope_paths": [
+    "evals/workflow-v2/checker.md",
+    "scripts/check-goal.rb",
+    "scripts/test-check-goal.rb",
+    "templates/goal/slices.yaml",
+    "templates/goal/status.yaml"
+  ],
+  "contract_projection": "8578171db20418f30970a716e23405e4e968f78ed68d9e4f0abd49f5c0828dbb"
+}

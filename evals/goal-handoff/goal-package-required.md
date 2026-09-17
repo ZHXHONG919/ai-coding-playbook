@@ -11,12 +11,12 @@
 - 触发 `ai-coding-playbook`。
 - 进入 Goal Handoff 阶段。
 - 读取或引用 `references/stages/goal-handoff.md`。
-- 使用 `templates/goal/*` 生成 `.goal/` 包。
+- 按 Goal Handoff 选择六个核心模板和实际需要的可选模板，生成 `.goal/` 包；不读取整套模板凑齐文件。
 
 ## Must Include
 
-- `.goal/GOAL.md`、`.goal/acceptance.md`、`.goal/slices.yaml`、`.goal/status.yaml`、`.goal/risks-deferred.md`、`.goal/design-handoff.md`、`.goal/gate.md`。
-- P0 acceptance 必须按用户路径写清写 API、读 API、用户可见结果。
+- 核心文件 `.goal/GOAL.md`、`.goal/acceptance.md`、`.goal/slices.yaml`、`.goal/status.yaml`、`.goal/gate.md`、`.goal/resume.md`；风险、mock、工具、并行和集中索引台账按实际需要生成。
+- 验收按真实用户路径写清入口、动作和可观测结果；写入类功能须验证真实写后读，纯读/文档不虚构写API。
 - `status.yaml` 是唯一执行状态源。
 - Goal Gate Ready / Not Ready 结论。
 
@@ -32,4 +32,4 @@
 
 - `AGENTS.md` 是否有 Goal Handoff 路由。
 - `references/stages/goal-handoff.md` 是否被读取。
-- `templates/goal/*` 是否纳入检查脚本。
+- 六个核心模板是否存在且契约一致；可选模板是否因实际需要才使用。

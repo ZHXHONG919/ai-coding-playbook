@@ -1,0 +1,20 @@
+{
+  "case_id": "08-ordinary-vs-foundation",
+  "expected_route": [
+    "ai-coding-playbook",
+    "goal-execute"
+  ],
+  "must_include": [
+    "A可implemented后继续，不因调用权限服务就逐任务CR。",
+    "B/C在依赖使用前安排独立foundation批次专项验证和CR。",
+    "基础批次不能替代整个功能验收；功能可验后固定同一快照独立验证和CR，可并行，主线程裁决。",
+    "最终所有改动覆盖且验收成立才accepted；checkpoint不等于accepted。",
+    "run_mode控制推进，review_strategy控制审查频率。"
+  ],
+  "must_not": [
+    "所有任务默认反复独立CR才继续。",
+    "把共享状态/计费错误留到依赖实现以后。",
+    "把implemented或checkpoint当已验收完成。"
+  ],
+  "review_method": "依据隔离运行的实际输出与动作逐条判定；结构检查不等于行为通过。"
+}

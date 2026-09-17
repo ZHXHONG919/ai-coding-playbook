@@ -14,6 +14,8 @@
 
 ## 流程
 
+当前执行与审查时机以 `references/delivery/agent-delivery-flow.md` 和 `references/stages/review.md` 为准：任务自测、基础依赖前审、功能批次验证/CR、最终差异验收。以下阶段概览不是额外门禁。
+
 ```text
 需求输入
 → 读取项目上下文
@@ -113,6 +115,6 @@
 | Controller / API contract | e2e 或 supertest |
 | React 页面 | build + component test + browser smoke |
 | DB schema | migration replay + lint/migration sync |
-| AI provider | mock smoke + real provider minimal smoke |
+| AI provider | 实际装配到可替换供应方边界；本次要求且已授权时才做真实调用 |
 | Chrome Extension | build + 手动加载检查 + API 上报 smoke |
 | release script | shellcheck + bash -n + dry-run |

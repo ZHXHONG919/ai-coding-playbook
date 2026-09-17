@@ -108,3 +108,9 @@ cp agents/CLAUDE.template.md /path/to/project/CLAUDE.md
 - 项目事实改业务项目。
 - 两个以上项目反复出现的规则，才考虑从业务项目上提到 playbook。
 - 规则疑似不生效时，先按 `references/stages/rule-diagnostics.md` 定位断点，再决定是否改规则。
+
+## 候选工作流与旧 Goal
+
+新 Goal 使用 v2：任务自测后 implemented，按功能批次独立验证/CR 后 accepted；基础共享规则在依赖前单独验收，最终批次核对完整差异。执行模式 continuous 与审查策略 functional_batch/per_slice 分开。详见 `references/delivery/agent-delivery-flow.md`。
+
+旧包按原项目契约恢复；采用新策略前在 gate 记录依据、任务映射和实际证据，不能把历史 done 直接改成 accepted。用户要求暂不应用规则时，在独立工作树验证，保持全局 skills 软链接及其源目录不变，不运行安装脚本。

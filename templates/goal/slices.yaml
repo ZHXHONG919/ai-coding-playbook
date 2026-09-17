@@ -1,150 +1,103 @@
-schema_version: 1
+schema_version: 2
 feature: "<feature-id>"
 
+# 示例：一个用户功能批次 + 最终覆盖批次。按实际 tasks 替换，不复制幽灵任务。
 slices:
   - id: R01
-    task_ids:
-      - T01
-    user_path: "<this slice's user-visible path>"
-    scope:
-      - "<minimal implementation scope>"
-    non_goals:
-      - "<explicitly out of this slice>"
+    task_ids: [T01]
+    lane: CONTRACT
+    review_batch: B01
+    review_boundary: batch # batch | before_dependents | task
     dependencies: []
-    parallel_group: null
-    worktree:
-      allowed: false
-      ownership:
-        - "<files or modules this slice may edit>"
-      merge_order: null
-      conflict_policy: "shared contracts must return to main agent"
-    workers:
-      implementer:
-        required: true
-        output_pattern: ".goal/runs/R01-implementer-{n}.md"
-        scope_guard:
-          - "only edit files listed in ownership or slice scope"
-          - "do not update .goal/status.yaml"
-      fixer:
-        required_when: "CR or validation finds agent-solvable issues"
-        output_pattern: ".goal/runs/R01-fixer-{n}.md"
-    validators:
-      - kind: contract
-        required: true
-        command: "<contract or API validation command>"
-        output_pattern: ".goal/validation/R01-contract-{n}.md"
-      - kind: smoke
-        required: false
-        command: "<UI or integration smoke command>"
-        output_pattern: ".goal/validation/R01-smoke-{n}.md"
-      - kind: ui-drift
-        required_when: "slice touches frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state"
-        command: "compare implementation with ui-flow.md / prototype; if .agents/skills/impeccable exists, run the mapped impeccable command"
-        output_pattern: ".goal/validation/R01-ui-drift-{n}.md"
-    mock_ledger:
-      creates: []
-      closes: []
-      ledger_path: ".goal/mock-ledger.md"
-    required_docs:
-      - ".goal/GOAL.md"
-      - ".goal/acceptance.md"
-      - ".goal/mock-ledger.md"
-      - ".goal/worktree-plan.md"
-      - "tasks.md"
-    tests:
-      - command: "<test command>"
-        required: true
-        purpose: "<what this proves>"
-    exit:
-      - worker_reports_present
-      - validation_reports_present_or_waived
-      - ui_drift_passed_or_skipped_when_frontend
-      - spec_green
-      - cr_files_open_findings_zero
-      - no_new_unregistered_mock
-      - mock_ledger_updated
-      - worktree_merged_or_not_used
-      - no_unresolved_nit_or_should_fix
-      - status_updated
-    cr:
-      required: true
-      reviewer_kind: subagent
-      reviewer_roles:
-        - Backend
-        - Delivery
-      output_pattern: ".goal/cr/R01-round-{n}.md"
-      pass_condition:
-        open_findings: 0
-        human_intervention_allowed: true
+    scope: ["沿真实上游类型实现本功能映射，复用既有共享规则"]
+    non_goals: ["不改变共享权限、身份或状态规则"]
+    implementation_owner:
+      mode: main_thread # main_thread | worker | hybrid
+      reason: "先核实契约和用户约束"
+      ownership: ["<文件或模块>"]
+    min_self_check:
+      - behavior: "真实标识经过映射后保持原值和类型"
+        risk: "数字 mock 掩盖 UUID 被错误转换"
+        method: "用实际上游样例运行真实转换函数与消费者"
+        expected: "值、类型和可空规则符合已确认契约"
+    required_docs: ["<需求决定与实际契约位置>"]
+    tooling_prerequisite_ids: []
+    evidence:
+      level: E1
+      gate: api_data
+      expected_baseline: "<实际生产者类型与已确认契约>"
+      required_states: ["正常值", "允许的空值"]
+
+  - id: R02
+    task_ids: [T02]
+    lane: INTEGRATION
+    review_batch: B01
+    review_boundary: batch
+    dependencies: [R01]
+    scope: ["完成最小真实入口、写入、读回及结果展示，再扩展本批次状态"]
+    non_goals: ["不执行生产部署或真实供应方付费调用"]
+    implementation_owner:
+      mode: hybrid
+      reason: "主线程负责真实装配，独立模块可委派"
+      ownership: ["<文件或模块>"]
+    min_self_check:
+      - behavior: "用户输入进入实际请求并能从真实读路径观察"
+        risk: "手造请求或持久化记录导致假集成通过"
+        method: "从实际应用入口写入，再通过实际查询读取同一状态"
+        expected: "请求与读回结果包含预期用户输入；关键失败态可观察"
+    required_docs: ["<成功场景和真实入口位置>"]
+    tooling_prerequisite_ids: []
+    evidence:
+      level: E1 # 若含需视觉验收的页面，从 tasks 继承 E2/E3，不能照抄降级
+      gate: api_data
+      expected_baseline: "<已确认成功场景；有界面时补 ui-flow / 原型>"
+      required_states: ["成功", "关键失败态"]
 
   - id: R99
-    task_ids:
-      - QA
-    user_path: "global exit"
-    scope:
-      - "run final acceptance and smoke"
-      - "clear deferred items"
-      - "verify no unregistered HTTP mock remains"
-    non_goals: []
-    dependencies:
-      - R01
-    parallel_group: null
-    worktree:
-      allowed: false
-      ownership: []
-      merge_order: final
-      conflict_policy: "main agent owns final integration"
-    workers:
-      implementer:
-        required: false
-        output_pattern: ".goal/runs/R99-implementer-{n}.md"
-      fixer:
-        required_when: "global exit finds agent-solvable issues"
-        output_pattern: ".goal/runs/R99-fixer-{n}.md"
-    validators:
-      - kind: global-exit
-        required: true
-        command: "<global acceptance and smoke command>"
-        output_pattern: ".goal/validation/R99-global-exit-{n}.md"
-      - kind: mock-ledger
-        required: true
-        command: "<mock cleanup check command>"
-        output_pattern: ".goal/validation/R99-mock-ledger-{n}.md"
-    mock_ledger:
-      creates: []
-      closes:
-        - "*"
-      ledger_path: ".goal/mock-ledger.md"
-    required_docs:
-      - ".goal/GOAL.md"
-      - ".goal/acceptance.md"
-      - ".goal/risks-deferred.md"
-      - ".goal/mock-ledger.md"
-      - ".goal/worktree-plan.md"
-    tests:
-      - command: "<smoke or build command>"
-        required: true
-        purpose: "global exit"
-    exit:
-      - worker_reports_present_if_any
-      - validation_reports_present_or_waived
-      - p0_acceptance_green_or_waived
-      - open_deferred_zero
-      - open_blocker_zero
-      - open_cr_findings_zero
-      - human_intervention_zero_or_state_needs_human_intervention
-      - http_mock_zero_or_waived
-      - mock_ledger_zero_or_waived
-      - all_worktrees_merged_or_blocked
-      - smoke_status_recorded
-      - status_complete_or_needs_human_intervention
-    cr:
-      required: true
-      reviewer_kind: subagent
-      reviewer_roles:
-        - Delivery
-        - Release
-      output_pattern: ".goal/cr/R99-round-{n}.md"
-      pass_condition:
-        open_findings: 0
-        human_intervention_allowed: true
+    task_ids: [QA]
+    lane: QA
+    review_batch: B99
+    review_boundary: batch
+    dependencies: [R02]
+    scope: ["核对 Goal 基线到最终版本的完整差异、所有验收与剩余风险"]
+    non_goals: ["不重复审查无变化且仍有效的证据", "未授权不发布"]
+    implementation_owner:
+      mode: main_thread
+      reason: "主线程对实际交付结果负责"
+      ownership: [".goal/**", "<必要的最终修复范围>"]
+    min_self_check:
+      - behavior: "最终交付没有遗漏未审/未验收变更"
+        risk: "CR 后修复或新文件未进入已有报告"
+        method: "核对基线到当前差异、内容快照、验收索引及未完成项"
+        expected: "受影响版本与证据一致；未验证项不冒充通过"
+    required_docs: [".goal/acceptance.md", ".goal/status.yaml"]
+    tooling_prerequisite_ids: []
+    evidence:
+      level: E1 # 按实际最高验收要求替换
+      gate: api_data
+      expected_baseline: ".goal/acceptance.md 与各批次相关契约"
+      required_states: []
+
+review_batches:
+  - id: B01
+    kind: functional # functional | foundation | final
+    snapshot_scope:
+      paths: ["<仓库相对源码目录或文件>"] # 目录前缀，不用 glob；自动纳入前置批次范围
+      contracts: ["<本批次相关需求或原型文件>"] # 不变文件也会取摘要；不得遗漏已确认约束
+    slice_ids: [R01, R02]
+    acceptance_ids: [A01]
+    earliest_real_path: "R02 开始先走通实际入口→请求装配→写入→读回；只替换外部供应方边界，之后扩展"
+  - id: B99
+    kind: final
+    snapshot_scope:
+      contracts: [] # 可补外部于差异的相关契约；最终总是全仓差异 + Goal 核心契约
+    slice_ids: [R99]
+    acceptance_ids: [A01]
+    earliest_real_path: "不适用：复用 B01 已验证路径，核对后续改动与集成结果"
+
+# 共享规则变化时：将其有限范围拆成 before_dependents 任务与独立 foundation 批次。
+# 依赖任务在该批次 accepted 后开始；不要把整片大功能部分标 accepted。
+# per_slice 策略下每任务独立批次；基础任务仍保留 before_dependents 边界。
+
+# 路径基于 Git 仓库根目录。非 final 自动投影本批次及前置批次的任务定义，
+# 不把整份 slices.yaml 当失效源；新增无关任务不会使已验收批次失效。

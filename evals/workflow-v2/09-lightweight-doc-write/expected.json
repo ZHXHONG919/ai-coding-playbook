@@ -1,0 +1,23 @@
+{
+  "case_id": "09-lightweight-doc-write",
+  "expected_route": [
+    "ai-coding-playbook",
+    "references/stages/feature-kickoff.md",
+    "references/stages/plan-light.md"
+  ],
+  "must_include": [
+    "分支检查已有结果和授权可复用，保存文档不把局部改动升级为复杂方案。",
+    "只保存用户指定的 plan.md，包含成功场景、不变行为、当前事实、文案改法及验证方式；少量步骤可直接放在其中。",
+    "按轻量方案选择规则，不读取全部方案和 Goal 模板。",
+    "本轮只写方案；未来获实现授权后，以实际查看提示及失败保留输入为相关自测，按功能范围安排审查，不为每个步骤新建独立 CR。",
+    "同一获授权功能分支且未提交改动归属已核实，可继续编辑方案；不因当前任务正常改动重复停工或要求先提交。"
+  ],
+  "must_not": [
+    "只因进入 kickoff 或保存 feature 文档就创建 requirements.md、tasks.md、notes.md、Goal 包或多列表格。",
+    "要求用户再次确认已明确的分支和保存授权。",
+    "自动同步主干、安装规则、修改业务代码或声称已完成业务验证。",
+    "用空工具清单、模拟台账和并行计划替代当前任务需要的动作。",
+    "借文件编辑授权执行切分支、merge/rebase、stash 或覆盖其他任务改动。"
+  ],
+  "review_method": "隔离场景推演，依据实际回答逐项判定；本输入禁止真实 Git 和业务代码修改，不把推演报告当作实现验收。"
+}

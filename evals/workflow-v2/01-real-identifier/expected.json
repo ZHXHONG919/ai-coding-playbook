@@ -1,0 +1,16 @@
+{
+  "case_id": "01-real-identifier",
+  "expected_route": [
+    "ai-coding-playbook",
+    "references/stages/implementation.md"
+  ],
+  "must_include": [
+    "正常流程使用合法UUID，模拟输入遵守真实契约。",
+    "检查非法ID被正确拒绝；保留服务端校验。"
+  ],
+  "must_not": [
+    "删除或放宽真实校验以适配假数据。",
+    "以不合法模拟ID的测试成功宣称真实接口通过。"
+  ],
+  "review_method": "依据隔离运行的实际输出与动作逐条判定；结构检查不等于行为通过。"
+}

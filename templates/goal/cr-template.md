@@ -1,77 +1,25 @@
-# CR <slice-id> Round <n>
+# 代码审查：<批次 ID> / <轮次>
 
-Reviewer kind: subagent / external / self
-Reviewer role: Domain / Architecture / FE / Backend / DB / AI Pipeline / Delivery / Release
-Slice: <slice-id>
-Task IDs: <task-ids>
-Date: <YYYY-MM-DD>
+- 审查者 / 方式：subagent / external / self（例外依据）。
+- 范围：<任务、完整批次 diff、相关消费者>。
+- 基线与代码/契约快照：
+- 用户约束与验收来源：
+- 独立检查后核对的验证证据 / 未验证项：
 
-## Inputs
-
-- Goal: `.goal/GOAL.md`
-- Slice: `.goal/slices.yaml#<slice-id>`
-- Acceptance: `.goal/acceptance.md`
-- Design handoff: `.goal/design-handoff.md`
-- Worker report: `.goal/runs/<slice>-<role>-<n>.md`
-- Validation report: `.goal/validation/<slice>-<kind>-<n>.md`
-- Mock ledger: `.goal/mock-ledger.md`
-- Worktree plan: `.goal/worktree-plan.md`
-- Diff / commit:
-
-## Scope Audit
-
-| Check | Result | Evidence |
-| --- | --- | --- |
-| Worker stayed inside slice scope | pending | |
-| No unauthorized shared contract changes | pending | |
-| Mock ledger updated | pending | |
-| Worktree merge policy followed | pending / n/a | |
-| UI Drift Gate reviewed when frontend changed | pending / passed / skipped / blocking | |
-
-## Tests Run
-
-| Command | Result | Notes |
-| --- | --- | --- |
-| | pending | |
-
-## Validation Reports
-
-| Report | Kind | Result | Notes |
-| --- | --- | --- | --- |
-| | contract / smoke / ui-drift / mock-ledger / global-exit | pending | |
-
-## UI Drift Review
-
-Required when the slice or CR fix touches frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state.
-
-| Item | Result | Evidence |
-| --- | --- | --- |
-| Impeccable command or skipped reason recorded | pending / passed / skipped | |
-| `UI Drift: Passed / Fixed / Blocking / Skipped` recorded | pending / passed / blocking | |
-| No change to confirmed main path, review object, permissions, state flow, or API/ViewModel contract | pending / passed / blocking | |
-
-## Acceptance Coverage
-
-| Acceptance ID | Status | Evidence |
-| --- | --- | --- |
-| | pending | |
-
-## Findings
-
-| ID | Severity | Finding | Required action | Status | Evidence |
+| ID | 触发条件与问题 | 影响及依据 | 问题族 / 影响域 | 严重级别与是否阻塞 | 处理状态 / 复核证据 |
 | --- | --- | --- | --- | --- | --- |
-| | Blocker / Should-fix / Nit | | describe required fix / rejection evidence / human action | open / fixed / rejected_false_positive / human_intervention | |
+| | | | | | |
 
-## Human Intervention Candidates
+处理状态：open / fixed / rejected_false_positive / non_blocking_follow_up / later_slice_gate / release_gate / human_intervention。标签不是放行依据；任何当前范围内的正确性、数据、权限、状态或承诺验收缺陷都要处理。
 
-Only list findings that agent cannot resolve independently.
+## 主线程裁决与复核
 
-| ID | Reason agent cannot resolve | Required human action | Code TODO | Status |
-| --- | --- | --- | --- | --- |
+- 采纳 / 误报 / 后续建议及依据：
+- 修复涉及的共同规则、消费者、状态和重试/恢复入口：
+- 受影响测试/证据、复用证据及理由：
+- 尚未覆盖的差异、未验证项和阻塞数：
+- 后续项的 owner、影响与最晚处理点：
 
-## Summary
+## 结论
 
-- Blocker count: 0
-- Open findings: 0
-- Human intervention count: 0
-- Merge recommendation: yes / no
+<可验收 / 需修复 / 证据不足>。代码和契约变化时更新影响范围及快照；不能把报告中的零问题复制到新版本。

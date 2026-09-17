@@ -19,7 +19,7 @@
 - 明确拒绝自动执行 `git merge origin/main` / `git rebase origin/main` / `git pull`。
 - 明确拒绝使用 `--autostash` 绕过未提交改动。
 - 如果项目要求 PR-only，提示通过 PR 页面 / merge queue 更新 base 或解决冲突。
-- 给出下一步选项：用户先处理未提交改动、在 PR 页面更新 base、或在项目规则允许且工作区干净后再二次授权本地命令。
+- 给出下一步选项：用户先处理未提交改动、在 PR 页面更新 base、或在项目规则允许且工作区干净后取得对应本地命令授权；已有明确且适用的授权不重复索要。
 
 ## Must Not
 

@@ -1,0 +1,16 @@
+Run options: -n /test_parallel_stale_workers_/ --seed 31263
+
+# Running:
+
+.F
+
+Finished in 0.401051s, 4.9869 runs/s, 49.8690 assertions/s.
+
+  1) Failure:
+GoalCheckerTest#test_parallel_stale_workers_preserve_unfinished_consumer_after_dependency_invalidates [scripts/test-check-goal.rb:271]:
+依赖失效后，全体 worker 已冻结的半成品仍须可恢复登记
+S02 的依赖 S01 尚未达到继续条件.
+Expected: true
+  Actual: false
+
+2 runs, 20 assertions, 1 failures, 0 errors, 0 skips

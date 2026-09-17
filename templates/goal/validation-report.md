@@ -1,57 +1,18 @@
-# Validation Report <slice-id> <kind> <n>
+# 独立验证：<批次 ID>
 
-Kind: contract / unit / service / ui-smoke / ui-drift / integration-smoke / mock-ledger / global-exit
-Slice: <slice-id>
-Validator id: <id>
-Date: <YYYY-MM-DD>
+- 验证者 / 与实现者关系：
+- 输入代码与契约快照：
+- 成功场景及独立推导的预期：
+- 真实入口、环境、可替换边界：
 
-## Inputs
+| 验收 ID / 反例 | 输入与动作 | 预期 | 实际观测 | 命令 / 证据 | 结论 |
+| --- | --- | --- | --- | --- | --- |
+| | | | | | passed / failed / 未验证 |
 
-- Slice: `.goal/slices.yaml#<slice-id>`
-- Worker report:
-- Acceptance: `.goal/acceptance.md`
-- Mock ledger: `.goal/mock-ledger.md`
-- Worktree plan: `.goal/worktree-plan.md`
+- 是否经过实际装配、写入、读回/展示；mock 覆盖边界：
+- 界面采用稿编号、比较条件与证据（涉及时）：视觉还原 / 交互一致 / 业务正确分别写结论；源码 Fixed 不代替还原验收，用户计划手动验证仍属待验。
+- 复用证据及本轮变化影响：
+- 未验证项及其交付影响：
+- 快照结束时是否一致：
 
-## Commands / Steps
-
-| Command or Manual Step | Result | Evidence |
-| --- | --- | --- |
-| | pending | |
-
-## Acceptance Coverage
-
-| Acceptance ID | Status | Evidence |
-| --- | --- | --- |
-| | pending | |
-
-## UI Drift Gate
-
-Required when this validation touches a frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state.
-
-| Check | Result | Evidence |
-| --- | --- | --- |
-| Compared against `ui-flow.md` / `prototype/` | pending / passed / skipped | |
-| Impeccable installed | yes / no | |
-| Impeccable command | shape / critique / audit / polish / bolder / quieter / colorize / layout / clarify / skipped | |
-| UI Drift result | Passed / Fixed / Blocking / Skipped | |
-| Main path / operation matrix unchanged | pending / passed / blocking | |
-| Permission / state / API ViewModel contract unchanged | pending / passed / blocking | |
-
-## Mock / Pending API Check
-
-| Mock ID | Expected State | Actual State | Evidence |
-| --- | --- | --- | --- |
-| | open / closed / waived | | |
-
-## Findings
-
-| ID | Severity | Finding | Suggested owner | Status |
-| --- | --- | --- | --- | --- |
-| | Blocker / Should-fix / Note | | implementer / validator / main / human | open |
-
-## Summary
-
-- Result: pass / fail / blocked
-- Can proceed to CR: yes / no
-- Notes:
+不能用实现报告替代观测、用供应方假返回构造期望业务结果、或以脚本 exit 0 代替成功场景证据。

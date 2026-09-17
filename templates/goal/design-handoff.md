@@ -1,63 +1,15 @@
-# Design Handoff
+# 方案执行索引（按需）
 
-> 目标：把已通过 Design CR 的方案结论交给执行阶段。执行期不得静默改变范围；发现方案不成立时，回到方案阶段。
+> 决定只在来源文档维护。这里列执行者需要的索引、必要约束原文和允许取舍，不另写近似规则。
 
-## Design Verdict
+| 决定 / 契约 | 来源与版本 | 必须保留的约束 | 相关生产者/消费者 | 所属任务/批次 |
+| --- | --- | --- | --- | --- |
+| | | | | |
 
-- Design CR: Ready / Not Ready
-- Ready 条件：
-- 未关闭 P0：
-- 可接受 P1：
+- design CR 结论与实际阻塞：
+- 已确认 UI / 原型基线（涉及时）：引用现有 ui-flow / 原型说明的采用稿编号及位置；版本、页面状态、视口、视觉/交互保留项与允许差异只在该来源维护。实现及修复者须实际打开，不能仅收到功能摘要。
+- 已收口的业务选择、执行时可补足的细节及不可变结果：
+- 依赖输入：哪些任务只依赖已验证协议，哪些必须等待真实能力；隔离项及回收位置（存在时引用）：
+- 最新变更影响的任务、证据与同步位置：
 
-## Key Decisions
-
-| ID | 决策 | 来源 | 执行影响 |
-| --- | --- | --- | --- |
-| D-01 | | `plan.md` | |
-
-## Contract Pointers
-
-| 契约 | 路径 | 执行期用途 |
-| --- | --- | --- |
-| API | | |
-| DTO / ViewModel | | |
-| State machine | | |
-| Data flow / Job | | |
-| UI flow / prototype | | |
-| Release / smoke | | |
-
-## UI / Impeccable Baseline
-
-Required when execution includes frontend page, admin tool, workflow UI, form, table, review flow, or complex UI state.
-
-| Item | Value |
-| --- | --- |
-| UI baseline docs | `ui-flow.md` / `prototype/` / n/a |
-| Target project has `.agents/skills/impeccable` | yes / no |
-| Product Flow Gate status | confirmed / skipped / n/a |
-| Required UI Drift validation | yes / no |
-| Default impeccable commands | `shape` before new structure, `critique` after prototype, `audit` after implementation, `polish` after CR fix |
-
-Execution must block and return to UI Flow / plan Change Sync if a slice needs to change confirmed main path, review object, operation matrix, permission, state flow, or API/ViewModel contract.
-
-## Execution Boundaries
-
-- 执行期不得新增范围：
-- 执行期允许的实现取舍：
-- 发现以下情况必须 blocked 并回到方案阶段：
-
-## Orchestration Boundaries
-
-| Boundary | Rule | Owner |
-| --- | --- | --- |
-| Status source | Only main agent updates `.goal/status.yaml` | Main agent |
-| Shared contracts | DTO / Entity / migration / status enum changes return to main agent | Main agent |
-| Worker scope | Worker may only edit assigned ownership | Worker + Main agent audit |
-| Validation | Validator report is required before CR when slice has runnable checks | Validator |
-| CR | Reviewer report is required before commit | Reviewer |
-| Mock cleanup | Mock ledger must be updated when mock is created or closed | Main agent |
-
-## Change Sync
-
-| 来源 | 影响 | 已同步文件 | 状态 |
-| --- | --- | --- | --- |
+实现与自测按任务记录；正式验证和 CR 按 `slices.yaml` 的批次安排，可在同一固定版本并行。主线程负责范围、裁决、状态和最终集成，检查点提交不代表验收。项目默认规则不在本文件重复。

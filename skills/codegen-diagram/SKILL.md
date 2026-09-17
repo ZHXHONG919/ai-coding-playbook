@@ -1,6 +1,6 @@
 ---
 name: codegen-diagram
-description: Generate maintainable engineering diagrams from project code or documents. Use for architecture diagrams, module maps, data flow diagrams, state diagrams, ER diagrams, API flow diagrams, or Mermaid/Draw.io diagram drafts based on repository facts.
+description: 根据项目代码或文档生成可维护的工程图。适用于架构图、模块图、数据流图、状态图、实体关系图、接口流程图，以及基于仓库事实生成 Mermaid 或 Draw.io 草稿。
 ---
 
 # Codegen Diagram

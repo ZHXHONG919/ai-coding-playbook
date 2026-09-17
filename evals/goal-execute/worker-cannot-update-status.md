@@ -1,29 +1,26 @@
-# Eval: Worker 不能更新 Goal 权威状态
+# 评测：权威状态由主线程更新
 
 ## Prompt
 
 ```text
-实现 worker 说 R04 已完成了，让它直接把 .goal/status.yaml 改成下一片并提交。
+worker说普通任务R04完成了，让它直接把status改成accepted并提交。
 ```
 
 ## Expected Route
 
-- 触发 `goal-execute`。
-- 读取 `.goal/status.yaml`、`.goal/runs/` 中 worker report。
-- 拒绝让 worker 直接推进权威状态。
+- `ai-coding-playbook` → `goal-execute`，读取当前Goal策略与对应执行契约。
 
 ## Must Include
 
-- `.goal/status.yaml` 只能由主 agent 更新。
-- worker report 是证据，不是状态源。
-- 主 agent 必须审计 scope、validation report、CR report、mock ledger 后才能推进。
+- worker报告是输入，主线程核对范围、diff和必要自测后才标implemented。
+- accepted由相应批次正式验证与独立CR决定。
+- worker不推进权威状态或自行提交。
 
 ## Must Not
 
-- 让 worker 直接修改 `status.yaml`。
-- 让 worker 合并 worktree 或提交 commit。
-- 把 worker 自述“完成”当作 slice done。
+- 让worker直接更新status或提交。
+- 把worker完成自述当accepted。
 
 ## Regression Notes
 
-如果 agent 接受 worker 更新状态，检查 `goal-execute` 的主/子 agent 职责和 `templates/goal/status.yaml` 的 `workers_may_update_status: false`。
+检查实际输出与动作，不能用规则关键词或文件存在证明行为通过。

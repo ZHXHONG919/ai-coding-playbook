@@ -1,93 +1,40 @@
-# Goal：<feature-name>
+# Goal：<功能名称>
 
-> Feature：`<feature-id>`
-> 分支：`<branch-name>`
-> Goal 包状态：Draft / Gate Ready / In Progress / Complete / Blocked / Needs Human Intervention
-> 权威状态：`.goal/status.yaml`
+> 执行进度见 `status.yaml`；业务决定以来源文档为准，代码与证据用于核实状态。
 
-## 1. 范围
+## 目标与边界
 
-### In Scope
+- 交付结果：<用户成功场景>。
+- 必须保留：<约束编号及必要原文>。
+- 非目标：<本次不做什么>。
+- 必需主路径 / 可延期边界：<引用已有约定，未约定不擅自削减范围>。
+- 交付时间（用户提供时）：<时间及来源，用于安排主路径、集成和缺口回收>。
+- 发布是否属于本次目标：<否 / 是，范围与授权来源>。
 
-- <本 Goal 必须交付的能力>
+## 来源
 
-### Non-goals
+| 内容 | 位置 / 版本 |
+| --- | --- |
+| 已确认需求与业务决定 | |
+| 方案与 design CR | |
+| 任务与批次 | |
+| UI / API / 数据事实 | |
 
-- <本 Goal 明确不做的能力>
+## 执行约定
 
-## 2. 来源文档
+新包默认 continuous + functional_batch；具体映射见 `slices.yaml`，项目例外写 `review-policy.md`，默认规则见 `skills/goal-execute/SKILL.md`。
 
-| 类型 | 路径 | 版本 / 结论 |
-| --- | --- | --- |
-| Requirements | `requirements.md` | |
-| Plan | `plan.md` | |
-| Tasks | `tasks.md` | |
-| Design CR | `design-review.md` | Ready / Not Ready |
-| API / UI / Release | | |
+主线程负责技术判断、委派、证据裁决和状态；任务有效自测后可 implemented，批次独立验证/CR和验收后才 accepted。检查点提交不是验收，也不包含发布授权。
 
-## 3. 执行原则
+节点交接、自主推进与局部缺口处理引用 `references/delivery/agent-delivery-flow.md`。接口可用、实际能力可用、真实验收通过分别据实判断；按已验证协议推进消费端开发，保留真实集成及缺口回收责任。
 
-- 执行阶段只认 `.goal/status.yaml` 和 `.goal/slices.yaml`，聊天历史不是权威来源。
-- 主 agent 是 orchestrator / final integrator，只负责读取契约、派发 worker / validator / reviewer、审计证据、更新状态、合并和提交。
-- 子 agent、worker session 或 worktree worker 负责局部实现、验证、CR 和修复，输出必须文件化，不能替代 `.goal/status.yaml`。
-- 主 agent 默认不得直接编辑业务代码；只有本文件或 `gate.md` 明确允许 `self_run_allowed: true`，或用户当前轮明确授权 self-run，才可临时承担 implementer / fixer。
-- Codex app goal 如可用，只作为 UI 进度条镜像；详细执行进度仍以 `.goal/status.yaml` 为准。
-- 每个 slice 必须实现、验证、CR、修复、更新状态后才能 commit。
-- 可验功能应尽早验证；validator report 必须进入 CR 输入。
-- 代码改动默认必须生成 `.goal/cr/<slice>-round-<n>.md`；所有 CR findings 必须关闭，包括 Nit/P2。
-- 只有 `.goal/human-intervention.md` 登记的人为介入项可以遗留；存在遗留时 Goal 不能标 `Complete`。
-- 所有 mock、pending API、fixture-only 读路径必须登记到 `.goal/mock-ledger.md`，并有清理 slice 或书面 waiver。
-- worktree 并行必须先写入 `.goal/worktree-plan.md`，说明 ownership、merge order 和冲突策略。
-- Deferred 默认禁止；例外必须写入 `.goal/risks-deferred.md`。
-- 不主动新开替代线程；上下文压缩后按 `.goal/status.yaml`、`.goal/resume.md` 和文件化 worker / validation / CR 报告恢复。
-- 不为了上下文压缩提交半成品 checkpoint commit。
-- 最后一片必须满足 global exit，不能只用 build 绿替代验收。
+## 完成标准
 
-## 3.1 Orchestration Boundary
+- 所有任务与批次 accepted，最终版本差异和验收已覆盖。
+- 本次范围没有未解决的阻塞、未验证的必需行为或待人工动作。
+- mock/真实路径、工作树集成、后续项的实际状态可追踪。
+- 代码验收与发布准备度分别报告；未请求发布不自动部署。
 
-| 角色 | 允许做什么 | 禁止做什么 | 输出 |
-| --- | --- | --- | --- |
-| Main agent | 派发任务、审计报告、更新 status、合并、commit | 直接编辑业务代码、长期携带所有实现细节、跳过文件化证据 | `.goal/status.yaml`、commit、最终总结 |
-| Implementer / Fixer | 当前 slice scope 内实现和修复 | 扩大 scope、推进 status、提交 commit | `.goal/runs/<slice>-<role>-<n>.md` |
-| Validator | 运行测试、contract、smoke、mock 清理检查 | 用验证报告代替 CR、擅自改业务逻辑 | `.goal/validation/<slice>-<kind>-<n>.md` |
-| Reviewer | scoped CR、多角色风险检查 | 继续开发、替代 validator | `.goal/cr/<slice>-round-<n>.md` |
-| Worktree worker | 在授权 ownership 内并行开发 | 修改共享契约、绕过 merge order | worker report + worktree plan 更新 |
+## 暂停与恢复
 
-## 4. 允许停止条件
-
-- `status.yaml.execution.next_slice: null` 且 global exit 全绿或有书面 waiver。
-- `status.yaml.execution.state: blocked`，且写明不可恢复原因和下一步责任人。
-- `status.yaml.execution.state: needs_human_intervention`，且所有 agent 可处理事项已关闭。
-- 用户明确要求停止。
-- 工具或上下文硬上限；停止前必须更新 `status.yaml` 和 `.goal/resume.md` 到可恢复状态，不新开替代线程。
-
-## 5. Global Exit
-
-| 项 | 要求 | 状态 | 证据 |
-| --- | --- | --- | --- |
-| P0 acceptance | 全部通过或书面 waiver | pending | `.goal/acceptance.md` |
-| Deferred | `open_deferred = 0` | pending | `.goal/status.yaml` |
-| Blocker | `open_blocker = 0` | pending | `.goal/cr/` |
-| CR findings | `open_cr_findings = 0` | pending | `.goal/cr/` |
-| Human Intervention | `open_human_intervention = 0` 或最终状态为 `needs_human_intervention` | pending | `.goal/human-intervention.md` |
-| Mock ledger | 无未登记 mock / pending API，open 项为 0 或有 waiver | pending | `.goal/mock-ledger.md` |
-| Worktree merge | 所有 worker worktree 已合并或登记阻塞 | pending | `.goal/worktree-plan.md` |
-| Smoke A | 本地或手点 smoke | pending | |
-| Smoke B | 预发或发布前 smoke | pending | |
-
-## 6. Self-run / Self Review 例外
-
-默认不允许主 agent 直接实现，也不允许主 agent 自评代替 CR。
-
-如当前环境没有子 agent / worker 能力，是否允许主 agent self-run：
-
-- self_run_allowed: false
-- Allowed slices:
-- Allowed files:
-- Reason:
-- Required report: `.goal/runs/<slice>-self-run-<n>.md`
-
-如当前环境没有子 agent / 外部 CR 能力，是否允许 self review：
-
-- self_review_allowed: false
-- Reason:
+只在用户要求，或确无可执行/可隔离工作且真正阻塞、必需人工动作或工具硬限制时停止连续执行；停止前更新 status 和 resume。上下文压缩后同线程恢复，不创建替代线程。

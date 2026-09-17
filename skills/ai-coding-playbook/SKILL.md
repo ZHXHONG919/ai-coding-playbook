@@ -1,69 +1,30 @@
 ---
 name: ai-coding-playbook
 description: >
-  Shared AI coding playbook for natural-language engineering commands such as 梳理需求,
-  确认需求, 做方案, 写方案, 做 UI Flow, 做原型, 拆任务, 执行任务, 开始实现,
-  继续 Goal, 续跑, 做 CR, review, 测试范围, Git 分支, 同步主干,
-  merge main, rebase main, 发布检查, 上线, 发版, 发测试, 发生产,
-  已 merge 后部署下, and 排查问题.
-  Covers requirement analysis, feature planning, technical design, implementation breakdown,
-  code review, test scope, Git safety, release safety, bug investigation,
-  and NestJS/React/PostgreSQL/Chrome Extension/AI provider guidance.
-  Use when the user is doing engineering planning, implementation, tests, review, explicit release, or troubleshooting.
-  Do not treat local/service-target deployment questions as release requests unless staging,
-  production, merge main, release/hotfix, or concrete apply context is present.
-  Do not use for simple command output, pure factual Q&A, casual chat, or ordinary translation unless
-  the content itself is about engineering rules, plans, or review.
+  共享的 AI 研发工作流入口。用户说“梳理需求、确认需求、做方案、写方案、做 UI Flow、做原型、拆任务、执行任务、开始实现、继续 Goal、续跑、做 CR、review、测试范围、Git 分支、同步主干、merge main、rebase main、发布检查、上线、发版、发测试、发生产、已 merge 后部署下、排查问题”时使用。覆盖需求分析、功能方案、技术设计、任务拆解、代码审查、测试范围、Git 安全、发布安全、问题排查，以及 NestJS、React、PostgreSQL、Chrome 扩展和 AI 提供方场景。简单命令输出、纯事实问答、闲聊和普通翻译默认不触发；只询问本地服务或部署目标时，不自动升级为测试或生产发布。
 ---
 
-# AI Coding Playbook
+# AI 研发工作流入口
 
-This is a thin routing skill. Rule bodies live in the playbook repository, not in this file.
+这是按需读取规则的入口，完整阶段路由只维护在仓库 `AGENTS.md`。
 
-## Playbook Root
+## 定位规则仓库
 
-Resolve the live rules directory before reading files:
+解析当前 SKILL.md 的真实路径，向上查找同时包含 `AGENTS.md` 与 `skills/` 的目录，作为规则根目录。直接软链接和 `platforms/.build/` 安装都使用这一步。用户明确指定候选规则目录时读取指定目录，不悄悄改全局链接。
 
-1. Resolve the real path of this `SKILL.md`.
-2. Walk up parent directories until you find a directory that contains both `AGENTS.md` and a `skills/` subdirectory.
-3. That directory is `<playbook-root>`.
-4. Entry routing table: `<playbook-root>/AGENTS.md`.
+## 使用步骤
 
-This works for direct symlinks to `skills/ai-coding-playbook/` and for platform build installs under `platforms/.build/`.
+1. 识别用户要讨论、设计、实现、审查还是发布；用一句中文说明当前阶段。
+2. 先读目标项目自己的 README、AGENTS、CLAUDE 和相关事实，再按规则根目录 AGENTS 的路由只加载当前需要的规则。
+3. 项目事实和用户已确认约束优先。已有授权和清楚输入时直接完成工作，不为了换节点反复确认、安装或初始化。
+4. 流程/节点设计见 `references/delivery/agent-delivery-flow.md`；具体阶段继续按 AGENTS 路由。
 
-## Do Not Use For
+## 阶段边界
 
-- Simple command output.
-- Pure factual Q&A.
-- Casual chat or non-engineering questions.
-- Ordinary translation, polishing, or formatting, unless the content itself is an engineering rule, plan, review, or skill.
+- “写方案 / 先讨论 / 先别写代码”：停在需求或方案。
+- “按这个落地 / 开始实现 / 执行”：进入已授权实现；按中央节点规则交接与自主处理缺口，局部隔离不自动全局停工。
+- 普通任务按范围自测；正式审查按功能批次或基础依赖边界执行，细则读实现/Review规则，不在入口复制门禁。
+- 单纯命令输出、事实问答、闲聊、普通翻译不触发完整研发流程。
+- 只问本地服务或部署参数，不自动升级为发布或排障。
 
-## Default Flow
-
-1. Resolve playbook root and read `<playbook-root>/AGENTS.md`.
-2. Identify the target business project, if any.
-3. If there is a target project, read its `README.md`, `AGENTS.md`, `CLAUDE.md`, and relevant docs first.
-4. Follow the stage routing table in `AGENTS.md`; read only the referenced `references/*` or `skills/*` files needed for this request.
-5. Prefer target project facts over playbook defaults. If they conflict, follow the project docs and briefly state the conflict.
-6. Produce the requested output directly. Do not ask the user to install skills, copy templates, or initialize unless they explicitly ask.
-
-## Observable Behavior
-
-After triggering, say one short line naming the phase, for example:
-
-- "我按 ai-coding-playbook 进入方案阶段，先不改代码。"
-- "我按 ai-coding-playbook 做测试范围分析。"
-- "我按 ai-coding-playbook 做 Review，先列风险。"
-
-## Phase Control
-
-Technical plans and feature designs are plan-phase work by default. Do not edit code in plan phase.
-
-- "写方案 / 设计一下 / 先讨论 / 先别写代码": stay in exploration or planning.
-- "同意方案 / 按这个落地 / 开始实现 / 执行": enter implementation.
-- Complex requirements must pass requirement confirmation before planning.
-- If implementation reveals a design problem, pause and return to plan phase.
-
-## Routing Source
-
-Do not rely on a partial route list in this file. Always use the full routing table in `<playbook-root>/AGENTS.md`.
+面向用户的设计、提示词、说明和示例使用中文；字段、命令、路径等稳定机器标识保留原值。

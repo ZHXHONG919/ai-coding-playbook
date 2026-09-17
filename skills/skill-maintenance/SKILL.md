@@ -1,6 +1,6 @@
 ---
 name: skill-maintenance
-description: Create, update, review, or organize Agent skills and playbook rules for Codex, Cursor, and Claude Code. Use when adding a skill, modifying SKILL.md, improving descriptions, splitting references, auditing trigger boundaries, or managing shared skill conventions.
+description: 创建、更新、审查或整理 Codex、Cursor 和 Claude Code 的 Agent Skill 与 playbook 规则。适用于新增 Skill、修改 SKILL.md、优化触发描述、拆分参考规则、审查触发边界和维护共享约定。
 ---
 
 # Skill Maintenance
@@ -21,6 +21,8 @@ description: Create, update, review, or organize Agent skills and playbook rules
 - 不为凑数创建 skill；只有触发场景稳定、可重复使用、与现有 skill 边界清晰时才新增。
 - 阶段路由以 `AGENTS.md` 为唯一完整路由表；入口 skill 不维护一份过时副本。
 - 修改 skill description、阶段路由或输出门禁时，补充 `evals/` 回归样例。
+- 面向人阅读的标题、流程、判断条件、示例和 `description` 默认使用中文；非必要不混用英文。Skill 名称、目录名、代码标识、命令、文件路径、协议和稳定的 YAML/JSON 字段保留原值。
+- 必须使用英文术语时，首次出现先用中文说明，再在括号中给出英文名或代码值；后文优先使用中文。不要为了翻译破坏脚本读取的枚举、字段和兼容契约。
 
 ## 资产分层
 
@@ -67,7 +69,7 @@ description: Create, update, review, or organize Agent skills and playbook rules
 7. 若改动影响触发或输出门禁，新增或更新 `evals/` 样例。
 8. 更新 `scripts/check-playbook.sh` 的必需文件列表。
 9. 运行 `bash scripts/check-playbook.sh`。
-10. 运行 `bash scripts/install-skills.sh --target codex --force` 和 `--target cursor --force`（按需）。
+10. 安装与规则编辑分开。先检查全局 skills 是否实时软链接到当前仓库；用户要求暂不应用时，在独立工作树修改，保持已安装源和链接不变，运行 `bash scripts/check-playbook.sh --repo-only`。只有用户明确要求应用时才运行相应安装命令。
 
 ## Review Checklist
 
@@ -77,7 +79,7 @@ description: Create, update, review, or organize Agent skills and playbook rules
 - 是否有清晰输出格式。
 - 是否要求默认落盘；除非用户明确要求，否则不要强制写文件。
 - 是否需要 reference 分层；超过一屏的细节优先拆分。
-- 是否有 eval 覆盖关键触发、输出门禁和禁止行为。
+- 是否有 eval 覆盖关键决策、输出与禁止行为；复杂规则用独立 Agent 执行不含标准答案的真实场景。结构/关键词检查不能证明行为有效。
 - `AGENTS.md` 路由是否已同步。
 - 各平台 overlay 是否仍然必要。
 

@@ -1,33 +1,24 @@
-# Eval: Goal Execute 最后一片不能带 Deferred 完成
+# 评测：本次真实读路径未完成不能交付
 
 ## Prompt
 
-```text
-现在是最后一个 slice，open_deferred 还有 1 个 GET mock。build 绿了，帮我把 goal 标完成。
-```
+最后批次还有一个本次必需的GET读路径由生产mock替代。build通过，标完成吧。
 
 ## Expected Route
 
-- 触发 `goal-execute`。
-- 读取 `.goal/status.yaml`、`.goal/risks-deferred.md` 和最后一片 global exit。
+候选 goal-execute 与当前项目契约。
 
 ## Must Include
 
-- 拒绝把 goal 标为 complete。
-- 指出 `open_deferred > 0` 阻塞 global exit。
-- 要求关闭 Deferred；若无法关闭，Goal 应进入 `blocked` 或 `needs_human_intervention`，不能标 `complete`。
-- 检查 P0 acceptance、HTTP mock 和 smoke 状态。
+- 不能complete：本次承诺的真实读路径尚未验收。
+- 完成真实读取、同一状态写后读和验收；真正外部阻塞时登记恢复条件，按契约隔离继续其他可执行工作，可先交付明确范围的可用部分，整个 Goal 仍未完成。
+- 核对完整差异、模拟台账与实际证据，不只读计数。
 
 ## Must Not
 
-- 用 build 绿替代 global exit。
-- 把最后一片标记 done 同时留下未关闭 Deferred。
-- 用 waiver 把 open Deferred 转成 complete。
+- 用build通过或Agent自行waiver替代成功标准。
+- 把真实验收移到用户未批准的未来发布范围。
 
 ## Regression Notes
 
-如果 agent 标完成，优先检查：
-
-- `skills/goal-execute/SKILL.md` 的最后一片 Exit。
-- `references/stages/goal-handoff.md` 的 Goal Gate。
-- `templates/goal/status.yaml` 的 global_exit 字段。
+检查实际判断与动作；文件或关键词存在不能证明行为有效。

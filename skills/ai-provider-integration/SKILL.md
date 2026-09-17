@@ -1,6 +1,6 @@
 ---
 name: ai-provider-integration
-description: Design or review AI provider integrations, fallback chains, cost guards, retries, and smoke tests.
+description: 设计或审查 AI 提供方集成、降级链、成本保护、重试和冒烟验证。
 ---
 
 # AI Provider Integration
@@ -30,14 +30,14 @@ description: Design or review AI provider integrations, fallback chains, cost gu
 
 ## 配套规则
 
-- 做方案或链路设计时，先读取 `references/stages/plan.md`、`references/plan/*`。
+- 做方案或链路设计时，先读取 `references/stages/plan.md`，按实际风险选择相关方案规则。
 - 涉及生图、生文、生视频、笔记草稿、媒体产物或审核发布链路时，必须读取 `references/scenarios/ai-media-pipeline.md`。
 - 涉及 LLM 分析、样本学习、批量归纳或结构化输出时，必须读取 `references/scenarios/llm-analysis.md`。
 - 方案必须区分需求、任务、产物、审核和发布/同步；任务状态和产物状态不要混为一个字段。
 
-## 验证顺序
+## 按本次行为选择验证
 
-1. 单元测试 provider client 的参数组装和错误分类。
-2. mock smoke 跑完整 workflow。
-3. 真实 provider 最小 case，说明成本风险。
-4. 检查日志、DB 状态、产物存储。
+- 参数组装、错误分类或降级变更，先通过真实应用入口观察请求和最终状态，复用相关测试；外部供应方可按固定输入/输出替换，不在替身里重写业务判断。
+- 验证本地或跳过模式的合法结束路径，不因没有模型调用就误判失败；也不能以降级成功证明真实模型效果。
+- 只有本次验收要求且已有授权时才做真实 provider 最小调用，明确成本与证明范围；不自动调用付费模型，不因暂未调用就伪称生成质量通过。
+- 从被测应用写入的数据读回结果和产物。若真实检索/模型生成属于本次承诺而未验证，保留未验收状态，不能移到未来发布。

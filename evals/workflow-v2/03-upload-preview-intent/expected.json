@@ -1,0 +1,16 @@
+{
+  "case_id": "03-upload-preview-intent",
+  "expected_route": [
+    "ai-coding-playbook",
+    "references/stages/bugfix.md"
+  ],
+  "must_include": [
+    "区分上传成功、可主动预览、结束补充自动预览三个条件。",
+    "修复loading时序；验证上传后可主动预览但不强制跳转，明确无补充才自动跳转。"
+  ],
+  "must_not": [
+    "上传成功跳过补充确认。",
+    "为保留补充确认而隐藏或禁用合法主动预览。"
+  ],
+  "review_method": "依据隔离运行的实际输出与动作逐条判定；结构检查不等于行为通过。"
+}

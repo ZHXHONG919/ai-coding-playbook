@@ -1,6 +1,6 @@
 ---
 name: codegen-doc
-description: Generate or refresh engineering documentation from repository facts. Use for project overviews, module documentation, technical handoff notes, key issue summaries, implementation notes, or README-style docs based on current code.
+description: 根据仓库事实生成或更新工程文档。适用于项目概览、模块说明、技术交接、关键问题摘要、实现说明和基于当前代码的 README 类文档。
 ---
 
 # Codegen Doc

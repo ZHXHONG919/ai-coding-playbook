@@ -1,95 +1,50 @@
 ---
 name: ts-code-review
-description: Review TypeScript, NestJS, and React changes for correctness, security, compatibility, and release risk. Use for code review, CR, 代码审查, PR review, diff review, or bug risk analysis.
+description: 审查 TypeScript、NestJS 和 React 变更的正确性、安全性、兼容性与测试可信度。适用于代码审查、code review、CR、PR review、diff review 和风险分析；遵循功能批次策略，不因普通任务完成自动启动逐片 CR。
 ---
 
-# TypeScript Code Review
+# TypeScript 代码审查
 
-## Review 姿态
+## 入口与范围
 
-默认站在 Staff Reviewer、专项 Reviewer 和发布风险负责人视角：
+1. 读取目标项目约束、相关已确认行为及 `references/stages/review.md`；审查时机、并行验证、发现裁决和复审范围以该文件为准。
+2. 优先使用用户指定的提交、文件或批次范围。未指定时检查 `git diff HEAD`，并纳入本次新增未跟踪文件；该命令已含 staged 改动，不重复审查两份相同差异。
+3. 记录基线和待审版本，读取实际调用方及匹配的 `references/review-kit/*`。不要把所有专项检查或所有包测试作为固定前置。
+4. 审查者保持独立判断；实现报告和测试结果是输入，不能作为正确性的唯一来源。
 
-- Staff Reviewer：优先找正确性、契约破坏、数据破坏、安全漏洞和发布阻断问题。
-- 专项 Reviewer：按变更类型检查 NestJS、React、TypeORM、异步任务、AI provider、发布脚本等专项风险。
-- 发布风险负责人：判断 migration、env、兼容性、回滚、smoke 和观测是否足够。
+## 按改变的规则审查
 
-不要只评价代码风格。问题必须说明风险、触发条件和建议修复；风格偏好不能当成必须修改。
+| 范围 | 重点问题 |
+| --- | --- |
+| 输入输出与类型 | DTO、共享类型、运行校验、持久化和前端模型是否一致；类型断言是否掩盖非法值；收紧校验是否误拒绝已有合法输入 |
+| 状态与异步 | 状态转换、重复请求、重试、并发、取消和恢复是否共享同一规则；副作用是否可能丢失或重复 |
+| 数据与身份 | 字段属于业务状态还是展示投影；裁剪/归一化/散列后，引用相等性、存储读回、幂等键和恢复是否仍成立 |
+| NestJS / 后端 | 权限在真实服务入口是否执行；请求校验是否符合项目机制；事务、查询范围和错误转换是否正确 |
+| React / 前端 | 用户主路径、请求失败、状态切换、表单与权限入口是否正确；effect 依赖和异步响应是否会产生旧状态；界面批次按统一流程核对原型 |
+| AI / 外部服务 | 模型、本地替代、跳过和失败回退的合法组合是否仍可完成；不能把“节点执行”推断成“必有模型调用” |
+| 安全与发布 | 权限、敏感信息、旧数据/客户端/任务兼容性；仅对实际涉及的迁移、配置或发布变更补专项检查 |
 
-## 必读材料
+结构、命名和重复代码可以提出建议；只有说明具体正确性或当前交付影响后，才成为阻塞发现。不要因为某个函数很长就要求无关重构。
 
-1. `references/stages/review.md`。
-2. `references/review-kit/review-flow.md` 和匹配的 `references/review-kit/*`。
-3. 目标业务项目 `AGENTS.md` 与相关测试/发布说明。
+## 审查测试能否证明行为
 
-## 输入
+按 `references/delivery/evidence-driven-delivery.md` 检查：
 
-- 用户指定文件、代码片段，或当前 git diff。
-- 未指定时，优先检查 `git diff HEAD`，再检查 staged diff。
+- 关键场景从真实应用入口经过被测业务编排，观测最终响应、持久化、读取或副作用；局部单测不冒充跨模块验收。
+- 期望值独立于被测实现；测试不得自己计算业务决策、手造最终数据再宣称应用写入正确。
+- 测试覆盖本次改变的合法路径和关键反例；只检查“拒绝非法”会漏掉过度校验回归。
+- 已有可信结果可复用；仅当发现覆盖疑点、结果版本不符或具体反例时补跑。测试通过数量不替代行为覆盖。
 
-## 审查维度
+## 输出与修复
 
-### 1. 正确性
+每条发现写：位置、触发条件、违反的已确认规则、影响、证据及最小修复方向。优先级和主线程裁决遵循 `references/stages/review.md`；缺少一个测试文件、个人风格偏好或没有具体依据的设想不能自动阻塞。
 
-- 输入输出是否符合现有契约。
-- 空值、空数组、异常分支、状态迁移是否完整。
-- 异步逻辑是否 await / return 正确。
-- 并发、幂等、重复提交是否处理。
+修复复审检查原发现和影响范围。同类缺陷再发时先审共享规则、所有受影响消费者和状态转换，再决定统一修复；不连续派发只修眼前反例的 fixer。
 
-### 2. TypeScript 类型
+输出保持简短：
 
-- 是否滥用 `any`、类型断言或非空断言。
-- DTO、Entity、前端 model 是否一致。
-- union / enum 变更是否兼容旧数据。
+- 已审范围与版本。
+- 阻塞发现及非阻塞建议，去重同根因问题。
+- 验证缺口、主线程待裁决项和复审范围。
 
-### 3. NestJS / 后端
-
-- Controller 是否有合适 Guard / Auth。
-- DTO 是否有 class-validator。
-- Service 是否承担过多职责。
-- TypeORM 查询是否有 N+1、全表扫描、事务边界问题。
-- 错误是否转成清晰业务异常。
-
-### 4. React / 前端
-
-- loading / empty / error 是否完整。
-- useEffect 依赖是否正确。
-- 表单校验、权限入口、移动端布局是否考虑。
-- API 错误是否可见，不吞错。
-- 涉及前端页面、后台工具、审核流、任务流、表单、表格或复杂 UI 状态时，必须按 `references/stages/review.md` 执行 UI Drift Review：对照已确认的 `ui-flow.md` / `prototype/`，记录 `UI Drift: Passed / Fixed / Blocking / Skipped`。
-- 如果目标项目安装 `.agents/skills/impeccable`，默认使用 `impeccable audit`；偏离原型的信息架构、主次操作、视觉层级或清晰度风险高时补 `impeccable critique`。未安装时不阻塞 Review。
-- 不得用 impeccable 的视觉建议覆盖已确认的主用户路径、审核对象、权限、状态流或 API/ViewModel 契约；发现这类变化必须标为 Blocking 并回到 UI Flow / 方案阶段。
-
-### 5. 安全与运维
-
-- 是否泄露凭据、token、真实用户数据。
-- 是否引入危险日志。
-- 是否需要 env example、文档、migration、release notes。
-
-### 6. 发布与验证
-
-- 是否有破坏旧数据、旧客户端或旧任务状态的风险。
-- 是否需要灰度、开关、回滚或补偿脚本。
-- 是否已有足够的 unit / e2e / smoke / manual 验证。
-- 无法运行验证时，是否明确剩余风险。
-
-## 严重程度示例
-
-- **P0**：数据损坏、权限绕过、错误发布路径、不可回滚 migration、核心链路必现故障。
-- **P1**：边界遗漏、错误契约、缺失关键测试、观测不足但可在发布前补上。
-- **P2**：可维护性、命名、重复逻辑、非阻断风格问题。
-
-## 输出格式
-
-```markdown
-## Findings
-
-- [P0] ...
-- [P1] ...
-- [P2] ...
-
-## Open Questions
-
-## Verification Gaps
-```
-
-没有问题时明确说没有发现阻塞问题，并列出剩余风险。
+没有发现时说明“在已审范围内未发现阻塞问题”，列实质验证缺口；不要承诺零缺陷。

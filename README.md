@@ -12,7 +12,7 @@
 
 - 让 AI 先理解、计划、验证，再改代码。
 - 让 feature 设计、测试、发布和回滚有固定检查点。
-- 让新需求从分支、方案文档、任务列表到单任务 CR 都可追踪。
+- 让新需求从分支、方案文档、任务列表到功能验收与审查都可追踪。
 - 让 Git 分支操作保持可控：默认只做只读检查和 `git fetch`，不擅自本地 merge / rebase 主干或绕过 PR 保护。
 - 让不同项目共享同一套基础 Skills，而项目细节仍留在业务仓库自己的 `AGENTS.md` 中。
 - 避免把历史公司的业务、平台、Java 技术栈、内部工具绑定到新项目。
@@ -59,13 +59,25 @@ AI 应该自动读取目标业务项目自己的 README / AGENTS / CLAUDE / docs
 
 更详细的对话用法见 [`docs/conversation-usage.md`](docs/conversation-usage.md)。
 
+## 候选规则验证与隔离
+
+用户要求暂不应用时，先检查已安装目录是否软链接到当前仓库；在独立工作树/副本修改与验证，保留安装源和链接。`--repo-only` 只检查候选仓库，不检查或建议同步全局安装。安装必须等用户明确通知。
+
+## 候选交付主线
+
+按“明确结果 → 组织工作 → 实现 → 核验 → 交付”组织职责。各节点共用结果、约束、事实、范围、验证与返回信息，按当前需要加载；主线程负责整体判断。局部能力缺失时依据稳定契约隔离依赖，让可执行部分继续，并保留真实能力和集成验收。详见[节点职责与交接](references/delivery/agent-delivery-flow.md)。
+
+## 用证据优化执行策略
+
+执行 Goal 或试用新策略时，在已有任务边界留下选择理由、实际结果和证据引用。复用原记录或一份[执行记录模板](templates/execution-log.md)，通过[记录方法](references/delivery/execution-evidence.md)区分需求变化、实现缺陷、验证遗漏和重复检查。时间/token 缺失如实标注，不增加逐工具报告，不以单次模拟宣称效率提高。
+
 ## Clone 后快速开始
 
 别人下载这个仓库后，先做一次自检：
 
 ```bash
 cd ai-coding-playbook
-bash scripts/check-playbook.sh
+bash scripts/check-playbook.sh --repo-only
 ```
 
 然后按需要选择一种用法。
@@ -187,26 +199,42 @@ AI_CODING_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh --target cur
 5. 修改工作流或模板后，优先用一个真实小需求回放验证。
 6. 修改 skill description、阶段路由或门禁后，补充 `evals/` 样例，确保能复查“规则是否真生效”。
 
+## 证据驱动交付
+
+`references/delivery/evidence-driven-delivery.md` 统一正常开发和问题修复的验证口径：问题可以来自对话、工单、截图、日志、监控、测试或代码审查；任务按风险选择证据等级，界面任务在 `tasks.md` 声明界面基线和证据门禁。截图用于证明用户可见结果，不作为所有任务的固定动作；批量问题按用户路径和共享根因聚类。最终视觉证据与 CR 可在同一固定版本并行完成，合并到批次验收；修复后只复核受影响状态，全量回归按实际影响与项目要求决定。
+
+`references/delivery/tooling-prerequisites.md` 统一第三方工具准备：任务开始前列出所需 CLI、连接器/API、安装和认证状态；优先使用已有 CLI 和结构化接口，缺失的必要 CLI 从可信来源安装到项目或用户范围。浏览器和桌面控制只用于无法结构化完成的授权与视觉验证，避免与用户正在进行的操作冲突。
+
 ## 当前通用 Skills
 
 | Skill | 用途 |
 | --- | --- |
-| `ai-coding-playbook` | 入口路由 skill，触发后读取本仓库 `AGENTS.md` 与活规则 |
-| `design-review` | 方案 / 需求 / UI flow 设计 CR，进入实现前门禁 |
-| `goal-execute` | 按 `.goal/status.yaml` 编排复杂 feature 的 worker / validator / reviewer 切片执行 |
-| `ts-code-review` | TypeScript / NestJS / React 代码 Review |
-| `test-scope-analysis` | 从 diff 或方案推导测试范围 |
-| `release-safety-review` | 发布前安全检查、回滚和 smoke 计划 |
+| `ai-coding-playbook` | 入口路由 Skill，触发后读取本仓库 `AGENTS.md` 与活规则 |
+| `design-review` | 方案、需求和界面流程设计审查，作为进入实现前的门禁 |
+| `goal-execute` | 按 `.goal/status.yaml` 协调复杂功能的实现者、验证者和审查者分片执行 |
+| `ts-code-review` | TypeScript、NestJS 和 React 代码审查 |
+| `test-scope-analysis` | 从代码差异或方案推导测试范围 |
+| `release-safety-review` | 发布前安全检查、回滚和冒烟计划 |
 | `nest-api-design` | NestJS API、DTO、Guard、Swagger 设计与评审 |
 | `react-vite-feature` | React + Vite 页面、状态、表单和 API 集成 |
-| `fullstack-ui-prototype` | 全栈功能的 UI flow、页面原型和静态流程验证 |
-| `typeorm-postgres-migration` | TypeORM Entity 与 PostgreSQL migration 设计/评审 |
-| `ai-provider-integration` | AI provider、fallback、成本保护和 smoke |
-| `browser-extension-development` | Chrome 插件、content script、background 和采集链路 |
-| `skill-maintenance` | 创建、维护、评审和沉淀多工具 Agent skill |
-| `skill-prompt-convert` | Prompt / AGENTS / SKILL.md 互转 |
+| `fullstack-ui-prototype` | 全栈功能的界面流程、页面原型和静态流程验证 |
+| `typeorm-postgres-migration` | TypeORM 实体与 PostgreSQL 迁移设计/评审 |
+| `ai-provider-integration` | AI 提供方、降级、成本保护和冒烟验证 |
+| `browser-extension-development` | Chrome 插件、内容脚本、后台脚本和采集流程 |
+| `skill-maintenance` | 创建、维护、评审和沉淀多工具 Agent Skill |
+| `skill-prompt-convert` | 提示词、AGENTS/CLAUDE 规则与 SKILL.md 互转 |
 | `codegen-diagram` | 基于项目事实生成 Mermaid 架构图、ER 图、状态图、数据流图 |
 | `codegen-doc` | 基于项目事实生成项目文档、模块说明和交接材料 |
+
+## Open Design 接入
+
+Open Design 是可选的设计探索工作台，不是所有前端任务的必经步骤。推荐在这些场景使用：新页面或大改版、多版视觉方向比较、复杂后台/运营/审核/批量操作交互路径、用户明确要求先看设计稿或使用 Open Design。
+
+不推荐在这些场景使用：单字段、单按钮、文案、间距、颜色、局部组件状态、已有确认设计稿后的代码实现。
+
+Open Design 产物进入工作流后，应记录到 `ui-flow.md`、`prototype/` 说明或 Goal design handoff：projectId、studioUrl/previewUrl、entry file 或 artifact bundle、采用版本、拒绝版本、待确认问题和跳过原因。它只提供设计输入；主用户路径、审核对象、权限、状态流和 API/ViewModel 契约仍以需求确认和方案文档为准。
+
+实际使用 Open Design 时，按 `references/scenarios/open-design.md` 执行：先定位或创建项目，再通过 `start_run` 委托 Open Design 生成/细化设计，轮询 `get_run` 到终态，最后用 `get_artifact` 拉取源文件作为实现和 UI Drift Gate 的证据。
 
 ## Impeccable 接入
 
@@ -248,6 +276,6 @@ references/
 
 需求到方案的核心原则：复杂需求进入方案前必须先做需求确认，把多轮讨论里的已确认口径、非目标、待确认阻塞项和文档冲突收口；需求阶段提出的问题必须在需求阶段处理，方案阶段只基于已确认需求做论证、建模和工程设计。涉及复杂后台、运营、审核或批量操作时，按“需求分析 -> 需求确认 -> 页面流/审核对象草图 -> 技术方案草案 -> 静态原型/UI Flow -> 方案回写 -> 设计 CR -> 方案定稿 -> 任务拆解 -> 实现”的顺序推进。
 
-方案阶段的核心原则：先用业务、领域、架构、交付和 Review 视角补齐盲区，再做轻量领域抽象，不套完整 DDD；复杂方案在任务拆解或实现前做 scoped design CR；涉及复杂后台页面、运营流程、审核流或批量操作时先补 UI flow，必要时用静态原型验证页面风格和业务流程；最后用图表和细节把方案落到可编码、可测试、可评审。复杂长链路方案通过 Design CR 后，必须进入 Goal Handoff，把方案和 `tasks.md` 转成 `.goal/` 执行契约，并通过 Goal Gate 后才能实现。
+方案阶段的核心原则：先用业务、领域、架构、交付和 Review 视角补齐盲区，再做轻量领域抽象，不套完整 DDD；复杂方案在任务拆解或实现前做 scoped design CR；涉及复杂后台页面、运营流程、审核流或批量操作时先补 UI flow，必要时用静态原型验证页面风格和业务流程；最后用图表和细节把方案落到可编码、可测试、可评审。涉及前端项目和 API 交互时，`tasks.md` 默认采用 Frontend-first Mock Lane：先冻结交互契约，再以前端功能和 mock 数据跑通用户路径，随后实现服务端能力并逐步替换 mock。用户要求 Goal 或实际需要结构化跨上下文恢复时，通过 Goal Handoff 将方案和任务转为执行契约；轻量改动无需 Goal。
 
-实现阶段的核心原则：按 `tasks.md` 小步推进；每个任务完成前先补必要测试并运行最小有效验证，再做 scoped CR，主 agent 吸收 CR 结论后才能继续后续任务。若 feature 已有 `.goal/status.yaml`，执行阶段以 `goal-execute` 续跑，状态只认 `.goal/status.yaml`。复杂 Goal 默认采用主 agent 编排模型：主 agent 派发 worker / validator / reviewer，子 agent 输出文件化报告，主 agent 审计证据、更新状态、合并和提交。在 Codex app 中，app goal 进度条只作为 UI 镜像；详细切片进度仍以项目 `.goal/status.yaml` 为准。
+实现阶段默认按功能批次审查：普通任务最小有效自测后继续，共享规则的变更在依赖方开始前审查；批次独立验证与 CR 可在同一固定版本并行，主线程裁决并按影响范围修复复核。`implemented` 表示实现和自测通过，`accepted` 表示已审查并验收。最终核对完整差异和用户结果，代码交付与发布分别报告。详见 [流程与节点图](references/delivery/agent-delivery-flow.md) 和 [Goal 执行规则](skills/goal-execute/SKILL.md)。旧 Goal 按原契约恢复，切换策略须记录依据。

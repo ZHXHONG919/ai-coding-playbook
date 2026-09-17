@@ -1,0 +1,18 @@
+{
+  "case_id": "06-fix-family-and-impact",
+  "expected_route": [
+    "ai-coding-playbook",
+    "references/stages/bugfix.md"
+  ],
+  "must_include": [
+    "检查两个解析入口及同类调用点，按同一问题家族修复。",
+    "覆盖同名不同坐标反例、正常路径、预览与生成一致性。",
+    "定向复验影响域并记录新快照；颜色建议不打断修复。"
+  ],
+  "must_not": [
+    "只修首次报错入口而放过同族错误。",
+    "局部修复默认重跑整库全测和全范围CR。",
+    "达到轮数直接关闭仍存在的缺陷。"
+  ],
+  "review_method": "依据隔离运行的实际输出与动作逐条判定；结构检查不等于行为通过。"
+}

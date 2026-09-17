@@ -1,0 +1,9 @@
+Run options: -n /test_parallel_/ --seed 43052
+
+# Running:
+
+...................
+
+Finished in 2.302543s, 8.2517 runs/s, 39.9558 assertions/s.
+
+19 runs, 92 assertions, 0 failures, 0 errors, 0 skips

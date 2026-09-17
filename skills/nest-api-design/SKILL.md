@@ -1,6 +1,6 @@
 ---
 name: nest-api-design
-description: Design or review NestJS APIs, DTOs, Guards, Swagger docs, and service boundaries.
+description: 设计或审查 NestJS 接口、数据传输对象、守卫、Swagger 文档和服务边界。
 ---
 
 # NestJS API Design

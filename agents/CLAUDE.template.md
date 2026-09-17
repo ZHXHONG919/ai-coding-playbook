@@ -8,6 +8,8 @@
 - 需求有多种解释时，先列出备选理解和取舍。
 - 如果更简单的方案能满足目标，优先选择简单方案。
 - 如果问题本身可能不值得改代码，先指出。
+- 回答问题时先用自然语言讲清结论、背景和理由，不要先甩一串抽象词、方法论词或内部黑话。
+- 必须使用术语、英文名、缩写或代码名时，先用一句白话解释它是什么、为什么此处需要。
 
 ## 2. Smallest Useful Change
 
@@ -38,7 +40,7 @@
 - 相关测试是否通过。
 - 文档、env example、migration 是否同步。
 - 是否留下了调试日志、临时代码、真实凭据。
-- 前端页面、后台工具、审核流、表单、表格或复杂 UI 状态改动是否对照 `ui-flow.md` / `prototype/` 做过 UI Drift 检查；若项目安装 `.agents/skills/impeccable`，记录使用的 `shape / critique / audit / polish` 命令或 skipped 原因。
+- 前端页面、后台工具、审核流、表单、表格或复杂 UI 状态改动是否对照 `ui-flow.md` / `prototype/` / Open Design artifact 做过 UI Drift 检查；若使用 Open Design，记录 projectId、studioUrl/previewUrl、entry file 或 artifact bundle；若项目安装 `.agents/skills/impeccable`，记录使用的 `shape / critique / audit / polish` 命令或 skipped 原因。
 
 ## 5. Stop Conditions
 

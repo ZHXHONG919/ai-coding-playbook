@@ -1,69 +1,28 @@
-# Review Policy
+# 本 Goal 审查策略
 
-> 目标：每个 slice 的关键环节和代码改动必须经过文件化 CR，并修到没有未关闭 findings。Nit/P2 也必须处理。
+- 策略：`functional_batch`；逐片审查仅在用户/项目明确要求时设置 `per_slice`。
+- 来源/例外：<用户要求、项目规则及必要说明>。
+- 默认细则：`references/stages/review.md`；执行状态：`skills/goal-execute/SKILL.md`。
 
-## Default Policy
+## 本项目需要补充的内容
 
-```yaml
-default_required: true
-default_reviewer: ts-code-review-subagent
-self_review_allowed: false
-validation_report_required: true
-worker_report_required_for_code_changes: true
-pass_condition:
-  open_findings: 0
-  blocker: 0
-  should_fix: 0
-  nit: 0
-human_intervention_allowed: true
-```
+| 项 | 当前约定 |
+| --- | --- |
+| 基础提前审范围 | <共享规则变更与直接依赖；没有则写无> |
+| 功能批次 | 见 `slices.yaml.review_batches` |
+| 独立验证/审查方式 | <独立 Agent / 外部 reviewer；不是每个任务各建两个 Agent> |
+| Self review 例外 | 默认无；若项目允许，写依据与局限 |
+| 快照 | <代码与相关需求/契约清单路径，包含未提交与新文件> |
+| 当前范围内阻塞 | 正确性、数据、权限、状态、接口契约或承诺验收不成立 |
+| 非阻塞后续项 | 记录影响、owner、触发条件和最晚处理点；不靠改严重级别规避缺陷 |
+| 发布额外条件 | <仅写实际项目要求；未请求发布写不适用> |
 
-## Review Matrix
+## 操作约定
 
-| 环节 | 触发 | 推荐 Reviewer | 输入 | 输出 |
-| --- | --- | --- | --- | --- |
-| Contract CR | API / DTO / ViewModel / 状态 / mock policy 冻结 | Architecture / Backend / FE | `plan.md`、`slices.yaml`、契约草案 | `.goal/cr/<slice>-contract-round-<n>.md` |
-| UI / Flow CR | UI flow、mock 可见闭环、操作矩阵、UI Drift Gate | FE / Product Flow / Delivery | `ui-flow.md`、prototype、UI Drift validation report、impeccable 命令记录 | `.goal/cr/<slice>-ui-round-<n>.md` |
-| Foundation CR | migration、Entity、共享抽象、状态机 | DB / Backend / Architecture | worker report、diff、tests | `.goal/cr/<slice>-foundation-round-<n>.md` |
-| Slice CR | 当前 slice 代码实现 | Backend / FE / AI Pipeline / Delivery | worker report、validation report、diff | `.goal/cr/<slice>-round-<n>.md` |
-| Integration CR | mock 清理、worktree 合并、真实链路 | Delivery / Release | validation report、mock ledger、worktree plan | `.goal/cr/<slice>-integration-round-<n>.md` |
-| Release CR | smoke、回滚、Deferred / Human Intervention | Release / SRE / Delivery | acceptance、status、risk files | `.goal/cr/<slice>-release-round-<n>.md` |
+1. 普通任务有效自测后记 implemented；基础依赖前或功能批次闭合时固定输入，独立验证与 CR 可并行。
+2. 主线程裁决并合并同类问题，不能照单采纳 reviewer 的新产品要求。
+3. 修复后复验受影响路径、共同规则和消费者；同类再次出现先查共同原因，不以轮数到限作为通过或停止依据。
+4. 修复/新增差异影响原结论时回退相关批次并补覆盖；未改变的有效证据可复用。
+5. 最终批次核对全部差异和验收；无待审批次且证据对应交付版本才能完成。
 
-不要求每个 slice 都跑全矩阵；`slices.yaml` 必须声明当前 slice 需要哪些 reviewer roles。高风险环节可以多 reviewer 并行审，主 agent 负责汇总和裁决。
-
-## Review Loop
-
-```text
-run validation
-→ write .goal/validation/<slice>-<kind>-<n>.md
-→ run CR subagent with worker + validation reports
-→ write .goal/cr/<slice>-round-<n>.md
-→ fix all Blocker / Should-fix / Nit
-→ reject false positives with evidence
-→ rerun affected validation
-→ rerun CR
-→ repeat until open_findings = 0
-```
-
-## Evidence Rules
-
-- Worker report does not replace validation.
-- Validation report does not replace CR.
-- Test/build green does not replace acceptance coverage.
-- Only main agent can update `.goal/status.yaml`, merge worktrees, commit, or advance the next slice.
-- CR input must include the relevant worker report, validation report, slice contract, acceptance items, and diff.
-
-## Finding Closure
-
-| Status | Meaning | Allowed for final pass |
-| --- | --- | --- |
-| `fixed` | Code/docs/tests updated and verified | yes |
-| `rejected_false_positive` | Finding is wrong; CR file explains evidence | yes |
-| `human_intervention` | Agent cannot resolve without human action | only if registered |
-| `open` | Not resolved | no |
-
-## Human Intervention Boundary
-
-Human Intervention is the only allowed unresolved outcome. It is allowed only when the issue requires a person, external environment, credential, production/preprod action, product decision, DBA, or third-party support.
-
-It must be registered in `.goal/human-intervention.md`; otherwise it remains an open finding and blocks commit.
+旧包迁移时，在 gate 中记录旧策略、新策略、授权依据、任务映射和证据复用。未经授权不覆盖原项目的逐片 CR、零 Nit 或发布门禁。
