@@ -340,7 +340,7 @@ class GoalV3Test < Minitest::Test
 
   def test_v2_is_not_implicitly_migrated
     @doc['schema_version'] = 2
-    rejects(/不自动迁移旧包/) { check }
+    rejects(/不支持该 Goal schema/) { check }
   end
 
   def test_public_template_matches_contract_schema
@@ -353,7 +353,7 @@ class GoalV3Test < Minitest::Test
     Open3.capture3(RbConfig.ruby, File.expand_path('check-goal.rb', __dir__), *args)
   end
 
-  def test_cli_auto_dispatch_and_complete_check
+  def test_cli_check_and_complete_check
     out, err, process = cli(@goal)
     assert process.success?, err
     assert_includes out, 'pending_results'
@@ -361,6 +361,79 @@ class GoalV3Test < Minitest::Test
     out, err, process = cli('--complete', @goal)
     assert process.success?, err
     assert_match(/"complete": true/, out)
+  end
+
+  def goal_contents
+    Dir.glob(File.join(@goal, '**', '*'), File::FNM_DOTMATCH).sort.to_h do |path|
+      [path, File.directory?(path) ? :directory : File.binread(path)]
+    end
+  end
+
+  def rejects_cli_without_writes(pattern, *args)
+    before = goal_contents
+    out, err, process = cli(*args)
+    refute process.success?, out
+    assert_empty out
+    assert_match pattern, err
+    assert_equal before, goal_contents
+  end
+
+  def test_cli_rejects_old_or_unknown_contract_schemas_without_writes
+    [nil, 1, 2, 4].each do |schema|
+      @doc['schema_version'] = schema
+      save
+      [[@goal], ['--complete', @goal], ['--template', @goal],
+       ['--capture-v3', @goal, 'unsupported'], ['--delta-v3', @goal, 'unsupported']].each do |args|
+        rejects_cli_without_writes(/不支持该 Goal schema/, *args)
+      end
+    end
+  end
+
+  def test_cli_rejects_old_status_schema_before_snapshot_writes
+    @status['schema_version'] = 2
+    save
+    [[@goal], ['--complete', @goal], ['--capture-v3', @goal, 'unsupported'],
+     ['--delta-v3', @goal, 'unsupported']].each do |args|
+      rejects_cli_without_writes(/不支持该 status.yaml schema/, *args)
+    end
+  end
+
+  def test_cli_rejects_slices_only_packages_without_writes
+    File.unlink(File.join(@goal, 'goal.yaml'))
+    write('.goal/slices.yaml', YAML.dump('schema_version' => 2, 'slices' => []))
+    [[@goal], ['--complete', @goal], ['--template', @goal],
+     ['--capture-v3', @goal, 'unsupported'], ['--delta-v3', @goal, 'unsupported']].each do |args|
+      rejects_cli_without_writes(/不支持仅含 slices.yaml 的旧 Goal 包/, *args)
+    end
+  end
+
+  def test_cli_rejects_old_snapshot_options_without_writes
+    rejects_cli_without_writes(/不支持旧快照参数/, '--snapshot', @repo, @doc['baseline_commit'],
+                              File.join(@goal, 'snapshots/old.json'), '--exclude', '.goal/runs', '--contract', '.goal/goal.yaml')
+    rejects_cli_without_writes(/不支持旧快照参数/, '--snapshot-batch', @goal, 'B01', File.join(@goal, 'snapshots/old.json'))
+  end
+
+  def test_cli_template_checks_only_contract_and_rejects_incomplete_template
+    template_dir = File.expand_path('../templates/goal-v3', __dir__)
+    out, err, process = cli('--template', template_dir)
+    assert process.success?, err
+    assert_match(/v3 模板契约结构检查通过/, out)
+    @doc['results']['U']['expected'].delete('context')
+    save
+    rejects_cli_without_writes(/expected.context/, '--template', @goal)
+  end
+
+  def test_cli_invalid_arguments_do_not_start_execution
+    [[], ['--complete'], ['--template'], ['--capture-v3', @goal], ['--unknown', @goal]].each do |args|
+      rejects_cli_without_writes(/用法/, *args)
+    end
+  end
+
+  def test_resume_file_is_reviewed_like_other_undeclared_files
+    record
+    write('.goal/resume.md', '额外文件不能隐藏在执行记录排除项中')
+    assert_includes check['unreviewed_changes'], '.goal/resume.md'
+    rejects(/审查后仍有未覆盖改动/) { check(complete: true) }
   end
 
   def test_cli_capture_and_delta_include_added_and_deleted_files

@@ -109,8 +109,28 @@ cp agents/CLAUDE.template.md /path/to/project/CLAUDE.md
 - 两个以上项目反复出现的规则，才考虑从业务项目上提到 playbook。
 - 规则疑似不生效时，先按 `references/stages/rule-diagnostics.md` 定位断点，再决定是否改规则。
 
-## 候选工作流与旧 Goal
+## 8. 当前 Goal 执行方式
 
-新 Goal 使用 v2：任务自测后 implemented，按功能批次独立验证/CR 后 accepted；基础共享规则在依赖前单独验收，最终批次核对完整差异。执行模式 continuous 与审查策略 functional_batch/per_slice 分开。详见 `references/delivery/agent-delivery-flow.md`。
+需要连续执行和跨上下文恢复时，只使用 Goal v3。轻量修改无需建包。先列完整用户结果和共享基础，再滚动展开近期工程任务；每条用户路径由一个 owner 负责贯通。
 
-旧包按原项目契约恢复；采用新策略前在 gate 记录依据、任务映射和实际证据，不能把历史 done 直接改成 accepted。用户要求暂不应用规则时，在独立工作树验证，保持全局 skills 软链接及其源目录不变，不运行安装脚本。
+最小包有两份常驻文件：
+
+- `.goal/goal.yaml`：结果预期、用户决定、可定位来源、结果依赖与工程任务。任务只引用结果，不重复写产品预期。
+- `.goal/status.yaml`：任务的 `todo / in_progress / done` 状态及有序核验记录。恢复时按需保存 `next_action`、`constraints`、`active_workers` 和 `open_gaps`。
+
+普通任务完成必要自测后记 `done` 并继续就绪工作；共享基础在被消费前取得当前有效的独立核验。完整用户结果可运行时，独立核验者先根据当前约定形成判错样本并运行验证，再读实现报告审查完整差异。一份 `runs/*.yaml` 可以同时记录行为结论和代码发现，引用实际证据，不要求每种角色各建报告。
+
+用户改变要求时更新决定及受影响结果，递增 revision；新改动按真实影响使相关结果和依赖待核验，保留未受影响的有效证据与历史 run。任务全 done 不代表 Goal 已通过；全部必需结果有当前有效证据、完整差异没有遗漏且无活动写入者或必需缺口，才可完成。开发交付和生产发布分别记录。
+
+模板与执行说明见 [最小模板](../templates/goal-v3/goal.yaml)、[Goal Handoff](../references/stages/goal-handoff.md) 和 [按结果交付](../references/delivery/goal-v3.md)。结构检查示例：
+
+```bash
+ruby scripts/check-goal.rb --template templates/goal-v3
+ruby /path/to/ai-coding-playbook/scripts/check-goal.rb /path/to/project/docs/features/example/.goal
+```
+
+检查器不执行真实验收，也不能证明预期或证据正确。旧格式执行器、模板和兼容模式不再提供；不能仅修改版本号、补空字段或沿用旧通过状态伪造当前执行包。
+
+## 9. 隔离验证规则变更
+
+用户要求暂不应用时，在独立工作树修改和验证，保持已安装 skills 的软链接及源目录不变，不运行安装脚本。使用 `bash scripts/check-playbook.sh --repo-only` 做仓库检查；行为评测按 [evals 说明](../evals/README.md) 实际执行并保留原始记录，不能把历史成绩改写成新规则的成绩。

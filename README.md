@@ -280,4 +280,4 @@ references/
 
 方案阶段的核心原则：先用业务、领域、架构、交付和 Review 视角补齐盲区，再做轻量领域抽象，不套完整 DDD；复杂方案在任务拆解或实现前做 scoped design CR；涉及复杂后台页面、运营流程、审核流或批量操作时先补 UI flow，必要时用静态原型验证页面风格和业务流程；最后用图表和细节把方案落到可编码、可测试、可评审。涉及前端项目和 API 交互时，`tasks.md` 默认采用 Frontend-first Mock Lane：先冻结交互契约，再以前端功能和 mock 数据跑通用户路径，随后实现服务端能力并逐步替换 mock。用户要求 Goal 或实际需要结构化跨上下文恢复时，通过 Goal Handoff 将方案和任务转为执行契约；轻量改动无需 Goal。
 
-v3 围绕完整用户结果交付：先列全结果与共享风险，滚动展开工程任务；一个 owner 贯通路径，工程任务自测后记 `done`，正式验收只挂结果。独立验证从当前约定构造能区分错误实现的样本，再看实现说明做 CR。新改动只使受影响结果及其依赖证据过期，历史记录不重写。新包使用 [v3 执行说明](references/delivery/goal-v3.md) 与 [最小模板](templates/goal-v3/goal.yaml)；旧包仍用 [v2 兼容规则](references/delivery/goal-v2.md)，不自动迁移。流程见 [节点图](references/delivery/agent-delivery-flow.md)。代码交付与发布分别报告。
+v3 围绕完整用户结果交付：先列全结果与共享风险，滚动展开工程任务；一个 owner 贯通路径，工程任务自测后记 `done`，正式验收只挂结果。独立验证从当前约定构造能区分错误实现的样本，再看实现说明做 CR。新改动只使受影响结果及其依赖证据过期，历史记录不重写。创建和恢复统一使用 [v3 执行说明](references/delivery/goal-v3.md) 与 [最小模板](templates/goal-v3/goal.yaml)，仅支持 schema 3。流程见 [节点图](references/delivery/agent-delivery-flow.md)。代码交付与发布分别报告。

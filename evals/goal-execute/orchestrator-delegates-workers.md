@@ -1,27 +1,25 @@
-# 评测：实现职责与独立审查分开
+# 评测：路径负责人和独立核验分开
 
 ## Prompt
 
-```text
-继续复杂Goal，R03是普通接口集成任务，本批次尚未可完整验收。按新版流程推进。
-```
+继续复杂 Goal，T3 是普通接口集成任务，所属结果 R2 尚未能完整验收。按当前流程推进。
 
 ## Expected Route
 
-- `ai-coding-playbook` → `goal-execute`，读取当前Goal策略与对应执行契约。
+`ai-coding-playbook` → `goal-execute`；读取 `references/delivery/goal-v3.md` 与项目约定。
 
 ## Must Include
 
-- 先判implementation_owner；主线程可承担核心实现。
-- 记录必要自测、未审范围及批次归属，完成后标implemented继续。
-- 基础/功能批次正式验证与CR保持独立，主线程裁决。
+- 核对 R2 的 owner、任务责任和可改范围；主线程可以承担核心实现。
+- 记录实际自测及未审差异，主线程核实后将任务记 done 并继续就绪工作。
+- 一个 owner 负责贯通该用户路径；结果独立核验者不得是该次实现者，主线程裁决。
 
 ## Must Not
 
-- 所有任务都派同一套worker/validator/reviewer。
-- 无owner与范围判断直接改代码。
-- 让实现自述替代批次独立验证或CR。
+- 所有任务都机械派同一套 worker、validator、reviewer。
+- 无 owner 与范围判断直接改代码。
+- 让实现自述替代结果独立核验。
 
 ## Regression Notes
 
-检查实际输出与动作，不能用规则关键词或文件存在证明行为通过。
+检查实际判断、操作和证据；结构检查或字段存在不能证明行为通过。

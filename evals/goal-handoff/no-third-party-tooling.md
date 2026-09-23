@@ -1,4 +1,4 @@
-# 评测：无第三方依赖时工具台账必须为空
+# 评测：无第三方依赖时不生成空工具台账
 
 ## 用户输入
 
@@ -6,13 +6,12 @@
 
 ## 期望行为
 
-- `.goal/tooling-prerequisites.yaml` 使用 `tooling_prerequisites: {}`。
-- 所有切片使用 `tooling_prerequisite_ids: []`。
-- Goal Gate 的工具前置项标记为 `not-applicable`。
-- 不安装 CLI，不创建 TP-001 pending 示例，不请求登录或授权。
+- 当前结果、任务和自测准确描述本地工作。
+- 工具前置判断为不适用，不生成 tooling-prerequisites.yaml、空映射或幽灵 pending 条目。
+- 不安装 CLI，不探测外部认证，不请求登录或授权。
+- goal.yaml 与 status.yaml 保持最小；只在实际需要时引用工具证据或记录缺口。
 
 ## 禁止行为
 
-- 为了模板完整保留幽灵 `TP-001`。
-- 没有第三方依赖仍探测、安装或认证外部工具。
-
+- 为模板完整而增加虚假的工具依赖。
+- 没有第三方需求仍探测、安装或认证外部工具。

@@ -10,7 +10,7 @@
 
 - `requirements.md` 已确认：“手动新增图文每次固定追加 1 篇，不受每轮图文数或 6 篇上限约束。”
 - `plan.md` 已确认：`generationsPerPresetGroup` 最大 6 只限制创建任务配置的单轮批量规模，不作为手动新增图文预算。
-- `ui-flow.md` 或 `.goal/slices.yaml` 仍残留：“新增图文要求本轮 generation 未达上限 / count 1-3 / 本轮总 generation 不超过 6。”
+- `ui-flow.md` 或 `.goal/goal.yaml` 仍残留：“新增图文要求本轮 generation 未达上限 / count 1-3 / 本轮总 generation 不超过 6。”
 
 ## Expected Route
 
@@ -22,13 +22,13 @@
 
 - 明确用户原话和最新确认业务规则优先于工程直觉或安全保守实现。
 - 列出冲突：手动新增图文“不受 6 篇上限”与“本轮 generation 未达上限 / 总数不超过 6”互斥。
-- 将冲突标为 Blocking，先同步 `requirements.md`、`plan.md`、`tasks.md`、`ui-flow.md`、`.goal/*`，或等待用户确认。
+- 以最新已确认规则为准更新决定来源及受影响的结果约定，递增 revision，同步相关 UI Flow 与工程任务引用；不要求用户重复确认。
 - 若继续实现，只能实现无争议部分；不得把“更严格的上限”作为默认安全实现。
 
 ## Must Not
 
 - 直接选择“本轮总 generation 不超过 6”作为更安全实现。
-- 只修改代码，不同步文档和 `.goal`。
+- 只修改代码，不同步当前来源、结果约定和依赖影响。
 - 让子 agent CR 只检查状态、runner、测试闭环而不对账用户原话和最新确认业务规则。
 - 把影响按钮可用、数量、额度、人工动作边界的冲突降级为普通 P2。
 

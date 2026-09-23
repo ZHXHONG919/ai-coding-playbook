@@ -1,28 +1,26 @@
-# 评测：连续推进与审查策略分离
+# 评测：任务完成后连续推进，结果独立核验
 
 ## Prompt
 
-```text
-用goal开工，当前schema2，functional_batch，任务R01是普通任务，必要自测已过，同批次还有R02。
-```
+用 Goal 开工。schema_version 为 3；普通任务 T1 必要自测已过，T2 只依赖 T1。共享基础结果 RF 尚无有效核验，另有消费者 T3 依赖它。
 
 ## Expected Route
 
-- `ai-coding-playbook` → `goal-execute`，读取当前Goal策略与对应执行契约。
+`ai-coding-playbook` → `goal-execute`；读取 `references/delivery/goal-v3.md` 与项目约定。
 
 ## Must Include
 
-- 读取status和批次契约，默认continuous。
-- R01标implemented后继续R02；正式批次验收后才accepted。
-- before_dependents基础批次在被依赖前验证与CR，普通任务不逐片卡CR。
-- 仅阻塞当前推进条件、用户暂停或硬限制时停止。
+- 读取 goal.yaml、status.yaml 和当前来源，默认连续执行。
+- 主线程核实 T1 后记 `done` 并继续就绪的 T2；任务完成不表示对应用户结果已通过。
+- RF 使用 `kind: shared_foundation`；有当前有效的独立核验后才解锁 T3。
+- 只暂停缺失推进条件的工作；其他无依赖工作继续。
 
 ## Must Not
 
-- 普通R01自测通过后等待每片CR才继续。
-- 把implemented当accepted。
-- 绕过未通过基础批次依赖。
+- 普通 T1 自测通过后仍为每个任务强制独立 CR 才继续。
+- 把 `tasks.T1: done` 当作结果已通过。
+- 绕过共享基础的结果依赖。
 
 ## Regression Notes
 
-检查实际输出与动作，不能用规则关键词或文件存在证明行为通过。
+检查实际判断、操作和证据；结构检查或字段存在不能证明行为通过。

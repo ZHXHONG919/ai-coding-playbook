@@ -2,7 +2,7 @@
 
 > 让 Agent 高效、准确地完成用户任务：先明确全部结果，沿完整路径实现，用独立证据判断完成。节点是职责，不要求分别开 Agent、建报告或等待用户。
 
-以下为新任务和 schema 3 Goal 的工作方式；机器字段与恢复规则见 `references/delivery/goal-v3.md`。已有 v2 Goal 按原 schema 和执行契约运行，不用新状态覆盖旧包。
+Goal 创建和恢复统一采用 schema 3；机器字段与恢复规则见 `references/delivery/goal-v3.md`。轻量任务直接使用所需节点，不强制建 Goal。
 
 ## 工作单元：结果与技术任务
 

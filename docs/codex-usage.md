@@ -45,7 +45,7 @@ bash scripts/check-playbook.sh
 按项目 .goal 执行，并创建 app goal 进度条跟踪。
 ```
 
-上面这句仍可作为显式强调；先读取项目 `.goal` 包，再根据用户请求和当前工具契约判断是否创建或复用 Codex app goal。每个 slice 的详细状态仍写回 `.goal/status.yaml`，完成或阻塞终态按 app 工具契约同步。`codex_app_goal.enabled: false`、已有不匹配 active app goal 或工具契约不允许时跳过或说明冲突。
+上面这句仍可作为显式强调；先读取项目 `.goal` 包，再根据用户请求和当前工具契约判断是否创建或复用 Codex app goal。工程任务进度与核验记录指针写回 `.goal/status.yaml`，完成或阻塞终态按 app 工具契约同步。用户未要求创建、已有不匹配 active app goal 或工具契约不允许时跳过或说明冲突。
 
 ## 维护
 

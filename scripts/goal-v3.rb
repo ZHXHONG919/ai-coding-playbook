@@ -14,7 +14,7 @@ module GoalV3
   class Invalid < StandardError; end
   EXPECTED_KEYS = %w[entry action object context outcome counterexample].freeze
   RUNTIME_DIRS = %w[runs snapshots blobs].freeze
-  RUNTIME_FILES = %w[status.yaml resume.md].freeze
+  RUNTIME_FILES = %w[status.yaml].freeze
 
   def self.require!(condition, message)
     raise Invalid, message unless condition
@@ -105,7 +105,7 @@ module GoalV3
   # 只检查模板结构，不把模板视为执行/验收证据。
   def self.validate_contract(doc)
     mapping(doc, 'goal.yaml')
-    require!(doc['schema_version'] == 3, 'v3 只接受 schema_version: 3；不自动迁移旧包')
+    require!(doc['schema_version'] == 3, '不支持该 Goal schema；只接受 schema_version: 3，不迁移或回退旧包')
     require!((doc.keys - %w[schema_version baseline_commit decisions results tasks inputs]).empty?, 'goal.yaml 含不支持的字段；v3 不允许自定义范围或排除路径')
     string(doc['baseline_commit'], 'baseline_commit')
     decisions = mapping(doc['decisions'], 'decisions')
@@ -144,15 +144,26 @@ module GoalV3
     doc
   end
 
+  def self.load_contract(goal_dir)
+    path = safe_file(goal_dir, 'goal.yaml', required: false)
+    require!(File.file?(path) || !File.file?(File.join(goal_dir, 'slices.yaml')), '不支持仅含 slices.yaml 的旧 Goal 包；必须使用 schema_version: 3 的 goal.yaml，不迁移或回退')
+    validate_contract(yaml_bytes(File.binread(safe_file(goal_dir, 'goal.yaml')), 'goal.yaml'))
+  end
+
   class Workspace
     attr_reader :goal, :repo, :prefix, :doc, :base
 
     def initialize(goal_dir)
       @goal = File.realpath(goal_dir)
+      @doc = GoalV3.load_contract(@goal)
+      status_path = GoalV3.safe_file(@goal, 'status.yaml', required: false)
+      if File.file?(status_path)
+        status = GoalV3.yaml_bytes(File.binread(status_path), 'status.yaml')
+        GoalV3.require!(status['schema_version'] == 3, '不支持该 status.yaml schema；只接受 schema_version: 3，不迁移或回退旧包')
+      end
       @repo = File.realpath(GoalV3.git(@goal, 'rev-parse', '--show-toplevel').strip)
       @prefix = Pathname.new(@goal).relative_path_from(Pathname.new(@repo)).to_s
       GoalV3.require!(@prefix != '..' && !@prefix.start_with?('../'), 'Goal 必须位于当前 Git 仓库内')
-      @doc = GoalV3.validate_contract(GoalV3.yaml_bytes(File.binread(GoalV3.safe_file(@goal, 'goal.yaml')), 'goal.yaml'))
       @base = GoalV3.git(@repo, 'rev-parse', '--verify', "#{@doc['baseline_commit']}^{commit}").strip
       GoalV3.require!(@doc['baseline_commit'] == @base, 'baseline_commit 必须固定为完整 commit ID')
       @object_format = GoalV3.git(@repo, 'rev-parse', '--show-object-format').strip
@@ -386,7 +397,6 @@ module GoalV3
   def self.check(goal_dir, complete: false)
     workspace = Workspace.new(goal_dir)
     status = yaml_bytes(File.binread(safe_file(workspace.goal, 'status.yaml')), 'status.yaml')
-    require!(status['schema_version'] == 3, 'status.yaml 必须为 schema_version: 3')
     require!((status.keys - %w[schema_version state tasks runs next_action constraints active_workers open_gaps]).empty?, 'status.yaml 只保存进度、恢复索引和有序 runs；不允许人工 results 状态')
     require!(%w[active complete].include?(status['state']), 'status.state 必须为 active 或 complete')
     tasks = mapping(status['tasks'], 'status.tasks')
@@ -476,5 +486,43 @@ module GoalV3
       'evidence_at_snapshot' => previous_ref, 'needs_impact_review' => !unreviewed.empty? }
   rescue KeyError, Errno::ENOENT, Errno::ENOTDIR => e
     raise Invalid, "v3 记录不完整：#{e.message}"
+  end
+  # 保留已发布的 v3 命令；旧格式不再有执行引擎或自动回退。
+  def self.cli(argv)
+    command, *args = argv
+    case command
+    when '--capture-v3'
+      require!(args.length == 2, '用法：check-goal.rb --capture-v3 Goal目录 快照ID')
+      puts JSON.pretty_generate(capture(*args))
+    when '--delta-v3'
+      require!(args.length == 2, '用法：check-goal.rb --delta-v3 Goal目录 已捕获快照ID')
+      goal, id = args
+      require!(id.match?(/\A[A-Za-z0-9][A-Za-z0-9_-]*\z/), '无效快照 ID')
+      workspace = Workspace.new(goal)
+      status = yaml_bytes(File.binread(safe_file(workspace.goal, 'status.yaml')), 'status.yaml')
+      last_run = list(status['runs'], 'status.runs').last
+      from = last_run && yaml_bytes(workspace.ref_bytes(last_run, 'runs'), 'run').fetch('to')
+      path = "snapshots/#{id}.json"
+      target = { 'path' => path, 'sha256' => Digest::SHA256.file(safe_file(workspace.goal, path)).hexdigest }
+      changes = diff(goal, from, target).map do |name|
+        { 'path' => name, 'results' => [], 'disposition' => 'pending', 'reason' => '待独立核对影响，不能直接用于通过记录' }
+      end
+      puts JSON.pretty_generate('from' => from, 'to' => target, 'changes' => changes)
+    when '--template'
+      require!(args.length == 1, '用法：check-goal.rb --template v3模板目录')
+      load_contract(File.realpath(args.first))
+      puts 'v3 模板契约结构检查通过；未检查运行状态或验收证据。'
+    when '--snapshot', '--snapshot-batch', '--exclude', '--contract'
+      raise Invalid, "不支持旧快照参数 #{command}；只支持 v3 的 --capture-v3 和 --delta-v3，不迁移或回退"
+    else
+      complete = command == '--complete'
+      require!(complete ? args.length == 1 : argv.length == 1 && !command.start_with?('-'), '用法：check-goal.rb [--complete] Goal目录；或 --template v3模板目录、--capture-v3 Goal目录 快照ID、--delta-v3 Goal目录 快照ID')
+      puts JSON.pretty_generate(check(complete ? args.first : command, complete: complete))
+      puts 'v3 结构、差异与证据一致性检查通过；这不证明业务判断或审查语义正确。'
+    end
+    0
+  rescue Invalid, SystemCallError, KeyError, TypeError => e
+    warn e.message
+    1
   end
 end

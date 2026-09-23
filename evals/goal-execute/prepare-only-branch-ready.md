@@ -1,36 +1,24 @@
-# Eval: 当前分支是否可开发只做 prepare_only
+# 评测：询问可开工状态只做准备检查
 
 ## Prompt
 
-```text
-当前分支可以进入开发了么
-```
-
-上下文假设：目标项目存在 `.goal/status.yaml`，当前分支是 feature 分支，可能有未跟踪 feature 文档。
+当前分支可以进入开发了么？项目已有 v3 Goal 包，当前为 feature 分支，可能有未跟踪的需求文档。
 
 ## Expected Route
 
-- 触发 `ai-coding-playbook` 的 Git / Goal 准备检查。
-- 判定 `run_mode: prepare_only`。
-- 读取项目规则、`git status`、分支/upstream、`.goal/status.yaml` 和 `gate.md`。
+`ai-coding-playbook` 的 Git / Goal 准备检查；读取 `references/stages/implementation.md` 和 `references/stages/goal-handoff.md`。
 
 ## Must Include
 
-- 只回答是否达到可开工状态。
-- 列出阻塞项或建议收口动作，例如提交文档基线、设置 upstream、确认 Goal Gate。
-- 如可开工，只说明下一步应从哪个 slice 开始。
+- 只核对项目规则、分支、实际差异、goal/status、结果来源及工具依赖准备情况，给 Ready / Not Ready 判断。
+- 说明具体缺口或下一动作；新需求文档未提交或未配置 upstream 本身不自动成为实现阻塞，按项目规则判断。
+- 如果已就绪，只指出下一项就绪任务，不把询问当成实施授权。
 
 ## Must Not
 
-- 修改业务代码。
-- 自动进入 Goal Execute。
-- 创建 app goal 或派发 worker。
-- 把“可以开发”理解成“开始实现”。
+- 修改业务代码、派发 worker 或自动创建 App Goal。
+- 把“可以开发吗”理解成“开始实现”。
 
 ## Regression Notes
 
-如果 agent 在该 prompt 下进入实现，检查：
-
-- `skills/goal-execute/SKILL.md` 的 `prepare_only` 模式。
-- `references/stages/implementation.md` 的实现进入条件。
-- `AGENTS.md` 的 Goal Execute 默认单切片和开工状态边界。
+检查实际判断、操作和证据；结构检查或字段存在不能证明行为通过。
