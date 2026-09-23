@@ -29,11 +29,13 @@ evals/
 
 本目录先提供人工可执行的基线样例。后续可以增加脚本，把 `Must Include` / `Must Not` 转成自动检查。
 
-## v2 可执行检查与独立行为回放
+## 当前结构检查与独立行为回放
 
-- `ruby scripts/test-check-goal.rb`：临时Git仓库中的状态、依赖、报告引用与内容快照正/负例。
-- `ruby scripts/check-goal.rb --template templates/goal`：模板结构一致性，不能代替真实Goal Ready。
-- `evals/workflow-v2/*/input.md`：独立 Agent 只读输入和候选规则，先实际回答，再由另一方使用 expected.json 评分；不把答案泄漏给执行者。
-- `evals/workflow-v2/execution/upload-preview/`：复制到隔离目录实际修复控制器，用未提供给实现者的用户行为检查复核；明确这不是浏览器或真实项目验收。
+- `ruby scripts/test-goal-v3.rb`：临时 Git 仓库中的 v3 结果、任务、依赖、增量证据及非法格式正反例。
+- `ruby scripts/check-goal.rb --template templates/goal-v3`：当前模板结构一致性，不能代替真实 Goal 的开工条件。
+- [共用交付行为场景](delivery-behavior/README.md)：01–14 的 `input.md` 提供给独立执行者；运行后才由评价者读取 `expected.json` 评分，不把预期答案泄漏给执行者。
+- `delivery-behavior/execution/upload-preview/`：复制到隔离目录实际修复控制器，用未给实现者的用户行为检查复核；不能称为浏览器或真实项目验收。
+- [Goal v3 专用盲测](workflow-v3/README.md)：验证实际入口、界面层级和用户变更后的证据恢复；历史原始结果保存在 `workflow-v3/results/`，保持原样。
+- `goal-execute/unsupported-goal-format.md`：旧格式明确不支持，不能替换版本号或把旧状态伪装成当前核验证据。
 
-仓库自检、结构检查、行为回放和真实项目交付质量是不同层次。一次回放结果不能外推耗时/token收益。
+仓库自检、结构检查、行为回放和真实项目交付质量是不同层次。现行样例的修改不会自动使历史结果代表新版本通过，一次回放也不能外推耗时或 token 收益。

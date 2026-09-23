@@ -2,7 +2,7 @@
 
 ## Prompt
 
-最后批次还有一个本次必需的GET读路径由生产mock替代。build通过，标完成吧。
+最终收口时还有一个本次必需的GET读路径由生产mock替代。build通过，标完成吧。
 
 ## Expected Route
 

@@ -1,20 +1,19 @@
 ---
 name: goal-execute
-description: 执行或恢复已准备好的复杂功能 Goal。按版本加载契约，以完整用户结果组织实现、独立验证和代码审查，持续推进并检查证据有效性；不用于尚未确认的方案或轻量单步修改。
+description: 执行或恢复已准备好的复杂功能 Goal。使用统一执行契约，以完整用户结果组织实现、独立验证和代码审查，持续推进并检查证据有效性；不用于尚未确认的方案或轻量单步修改。
 ---
 
 # Goal 连续执行
 
-主线程对完整用户结果负责。先识别包的版本，只加载对应执行规则，不同时读两套状态机。
+主线程对完整用户结果负责。创建和恢复统一使用 schema 3 执行契约。
 
 ## 入口与恢复
 
 1. 首次读取目标项目的 README、AGENTS、CLAUDE，以及最新用户约束；Git 写操作按 `references/git-safety.md`。
-2. 新包用 `schema_version: 3`：读 `.goal/goal.yaml`、`status.yaml`，再读 `references/delivery/goal-v3.md`。运行 `ruby <playbook-root>/scripts/check-goal.rb <goal-dir>` 核对真实改动、证据有效性与下一工作；只补读当前结果的来源、代码和必要依赖。
-3. 既有 `slices.yaml` / `schema_version: 2` 包读 `references/delivery/goal-v2.md`，保持原状态、报告和策略；更旧包按项目原契约核实恢复。不得把历史 done 改写为新通过，不自动迁移，也不因新规则发布重做旧包。
-4. 文件与代码不一致时先查实，不能仅凭 status 宣布完成。用户最新修正优先，同步受影响约定后继续，不重新索取已有实施授权。
+2. 使用 `schema_version: 3`：读 `.goal/goal.yaml`、`status.yaml`，再读 `references/delivery/goal-v3.md`。运行 `ruby <playbook-root>/scripts/check-goal.rb <goal-dir>` 核对真实改动、证据有效性与下一工作；只补读当前结果的来源、代码和必要依赖。
+3. 文件与代码不一致时先查实，不能仅凭 status 宣布完成。用户最新修正优先，同步受影响约定后继续，不重新索取已有实施授权。
 
-用户只要求检查时只检查，明确只跑一项时只执行该项；默认连续推进至请求完成。轻量改动不建 Goal，读 `references/stages/implementation.md`。新 Goal 开工条件见 `references/stages/goal-handoff.md`。
+用户只要求检查时只检查，明确只跑一项时只执行该项；默认连续推进至请求完成。不支持的格式由检查器直接报错，不切换旧执行器或伪造迁移。轻量改动不建 Goal，读 `references/stages/implementation.md`。Goal 开工条件见 `references/stages/goal-handoff.md`。
 
 ## 派发与恢复纪律
 

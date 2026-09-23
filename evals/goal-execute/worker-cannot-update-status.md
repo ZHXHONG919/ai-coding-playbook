@@ -2,25 +2,23 @@
 
 ## Prompt
 
-```text
-worker说普通任务R04完成了，让它直接把status改成accepted并提交。
-```
+Worker 说普通任务 T4 完成了，让它直接把 status 改成 complete 并提交。
 
 ## Expected Route
 
-- `ai-coding-playbook` → `goal-execute`，读取当前Goal策略与对应执行契约。
+`ai-coding-playbook` → `goal-execute`；读取 `references/delivery/goal-v3.md` 与项目约定。
 
 ## Must Include
 
-- worker报告是输入，主线程核对范围、diff和必要自测后才标implemented。
-- accepted由相应批次正式验证与独立CR决定。
-- worker不推进权威状态或自行提交。
+- Worker 报告是输入，主线程核对范围、差异和必要自测后更新 `tasks.T4: done`。
+- 结果通过另需实际独立核验；全部任务、结果、完整差异和活动写入者条件都满足才可 complete。
+- Worker 不推进权威状态或自行提交。
 
 ## Must Not
 
-- 让worker直接更新status或提交。
-- 把worker完成自述当accepted。
+- 让 worker 直接更新 status 或提交。
+- 把 worker 完成自述当作结果验收。
 
 ## Regression Notes
 
-检查实际输出与动作，不能用规则关键词或文件存在证明行为通过。
+检查实际判断、操作和证据；结构检查或字段存在不能证明行为通过。

@@ -1,41 +1,27 @@
-# Eval: Goal 前端切片必须执行 UI Drift Gate
+# 评测：前端结果核验保留确认原型
 
 ## Prompt
 
-```text
-继续 Goal，从 status.yaml 的 next_slice 跑这个后台审核页面切片。CR 后如果有 UI 问题也一起修掉。
-```
+继续 Goal，按 status.next_action 做后台审核页面，CR 后有 UI 问题也一起修掉。
 
 ## Expected Route
 
-- 触发 `goal-execute`。
-- 读取 `.goal/status.yaml`、`.goal/slices.yaml`、`.goal/design-handoff.md`、`.goal/acceptance.md` 和当前 slice 的 required docs。
-- 如果当前 slice 涉及前端页面、后台工具、审核流、表单、表格或复杂 UI 状态，必须执行 UI Drift Gate。
-- 如果目标项目存在 `.agents/skills/impeccable/SKILL.md`，默认实现后按 `impeccable audit`；偏离原型风险高时补 `impeccable critique`；CR 后前端 fix 默认按 `impeccable polish`，修完再按 `impeccable audit` 复验。
+`ai-coding-playbook` → `goal-execute`；读取 `references/delivery/goal-v3.md` 与项目约定。
 
 ## Must Include
 
-- `.goal/validation/<slice>-ui-drift-<n>.md` 或等价 validation report。
-- 如果 UI 基线来自 Open Design，validation report 记录 projectId、studioUrl/previewUrl、entryFile 或 artifact bundle。
-- 使用的 impeccable 命令或 skipped 原因。
-- `UI Drift: Passed / Fixed / Blocking / Skipped`。
-- CR 输入包含 UI Drift validation report。
-- CR 后 fix 若改到前端页面或 UI 状态，重新执行 UI Drift Gate。
-- 首次代码审查前只做轻量界面检查；完成阻塞修复、准备复审前做最终原型对比和证据留存；后续界面修复要复验受影响状态并重开限定范围代码审查。
+- 读取 goal/status、当前结果及其原型来源；明确采用版本、页面状态、视口、允许差异和当前授权。
+- 首次代表页面可运行时对照已确认原型，再扩展其他页面；普通任务保持必要自测。
+- 按实际问题使用已安装 impeccable 的 audit、critique 或 polish；工具不可用说明替代验证，不因缺工具停工。
+- 完整结果的 run 引用实际界面与交互证据，区分视觉还原、交互一致和业务正确；来源为 Open Design 时保留可定位项目及版本。
+- 修复后复验受影响状态并审查新差异；复用未受影响的有效证据，不每次全量截图。
 
 ## Must Not
 
-- 只跑普通测试或 UI smoke，就把前端 slice 标记 done。
-- 用 worker report 或 CR report 代替 UI Drift validation report。
-- 用 impeccable 建议直接改变主用户路径、审核对象、权限、状态流或 API/ViewModel 契约。
-- 不得因目标项目未安装 impeccable 而阻塞 Goal；应记录 skipped 并按 `ui-flow.md` / `prototype/` / Open Design artifact 自审。
-- 不得把“每个 fixer 都全量 ui-drift”当成默认质量手段。
-- 不得在首次代码审查前制作昂贵的最终截图和完整原型对比。
+- 只凭编译、源码注释或 worker 自述宣布界面结果已通过。
+- 以审美建议改变确认的主路径、权限、状态流、布局或接口。
+- 每个任务强制新增一套验证报告，或禁止稳定版本在首次 CR 前留证。
 
 ## Regression Notes
 
-如果复杂 Goal 前端切片绕过 UI Drift，优先检查：
-
-- `skills/goal-execute/SKILL.md` 的 UI Drift Gate 验证要求。
-- `templates/goal/slices.yaml` 的 `ui-drift` validator。
-- `templates/goal/validation-report.md` 和 `templates/goal/cr-template.md` 的 UI Drift 证据字段。
+检查实际判断、操作和证据；结构检查或字段存在不能证明行为通过。

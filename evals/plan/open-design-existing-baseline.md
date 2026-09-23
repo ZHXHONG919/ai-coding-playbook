@@ -33,4 +33,4 @@
 
 - `references/scenarios/open-design.md` 的 `existing-baseline` decision。
 - `skills/fullstack-ui-prototype/SKILL.md` 的 Open Design decision 表。
-- `templates/goal/design-handoff.md` 是否记录 Open Design baseline。
+- 当前 Goal 结果来源是否能定位已采用的 Open Design 基线、版本和允许差异。

@@ -21,14 +21,11 @@ required=(
   "scripts/goal-v3.rb"
   "scripts/test-goal-v3.rb"
   "references/delivery/goal-v3.md"
-  "references/delivery/goal-v2.md"
   "templates/goal-v3/goal.yaml"
   "templates/goal-v3/status.yaml"
   "templates/goal-v3/run.yaml"
   "evals/workflow-v3/README.md"
-  "scripts/test-check-goal.rb"
-  "evals/workflow-v2/README.md"
-  "evals/workflow-v2/checker.md"
+  "evals/delivery-behavior/README.md"
   "README.md"
   "AGENTS.md"
   "docs/conversation-usage.md"
@@ -89,24 +86,6 @@ required=(
   "workflows/release-workflow.md"
   "templates/feature-design.md"
   "templates/plan-light.md"
-  "templates/goal/GOAL.md"
-  "templates/goal/acceptance.md"
-  "templates/goal/slices.yaml"
-  "templates/goal/status.yaml"
-  "templates/goal/review-policy.md"
-  "templates/goal/worker-report.md"
-  "templates/goal/validation-report.md"
-  "templates/goal/evidence-confirmation.md"
-  "templates/goal/tooling-prerequisites.yaml"
-  "templates/goal/mock-ledger.md"
-  "templates/goal/todo-ledger.md"
-  "templates/goal/worktree-plan.md"
-  "templates/goal/human-intervention.md"
-  "templates/goal/resume.md"
-  "templates/goal/risks-deferred.md"
-  "templates/goal/design-handoff.md"
-  "templates/goal/gate.md"
-  "templates/goal/cr-template.md"
   "evals/README.md"
   "evals/ai-coding-playbook-routing.md"
   "evals/usage/simple-stage-commands.md"
@@ -115,7 +94,7 @@ required=(
   "evals/usage/chinese-first-skill-language.md"
   "evals/bugfix/source-agnostic-evidence-budget.md"
   "evals/plan/task-evidence-gate.md"
-  "evals/goal-execute/legacy-evidence-migration.md"
+  "evals/goal-execute/unsupported-goal-format.md"
   "evals/goal-execute/final-evidence-confirmation-code-gate.md"
   "evals/delivery/cli-first-third-party-tools.md"
   "evals/goal-execute/tooling-prerequisite-resume.md"
@@ -141,7 +120,7 @@ required=(
   "evals/goal-execute/no-new-thread-on-context.md"
   "evals/goal-execute/all-cr-findings-closed.md"
   "evals/goal-execute/continuous-default.md"
-  "evals/goal-execute/release-gate-not-in-dev-slice.md"
+  "evals/goal-execute/release-gate-not-in-dev-task.md"
   "evals/goal-execute/prepare-only-branch-ready.md"
   "evals/goal-execute/orchestrator-delegates-workers.md"
   "evals/goal-execute/no-main-thread-implementation.md"
@@ -151,11 +130,11 @@ required=(
   "evals/goal-execute/worktree-parallel-boundary.md"
   "evals/goal-execute/ui-drift-gate-impeccable.md"
   "evals/goal-execute/fixer-round-cap-escalates.md"
-  "evals/goal-execute/requirement-delta-mid-slice.md"
-  "evals/goal-execute/legacy-nit-zero-override.md"
+  "evals/goal-execute/requirement-delta-during-task.md"
+  "evals/goal-execute/explicit-quality-constraint.md"
   "evals/goal-execute/pre-cr-validation-cap.md"
-  "evals/goal-execute/ui-drift-once-per-slice.md"
-  "evals/goal-execute/local-todo-does-not-block-next-slice.md"
+  "evals/goal-execute/ui-evidence-by-result.md"
+  "evals/goal-execute/local-todo-does-not-block-next-task.md"
   "evals/review/ui-drift-gate-impeccable.md"
   "profiles/nest-react-postgres.md"
   "skills/ai-coding-playbook/SKILL.md"
@@ -182,6 +161,19 @@ for path in "${required[@]}"; do
     exit 1
   fi
 done
+
+# v3 是唯一执行契约；旧执行器资产和现行规则入口不能重新出现。
+for retired in references/delivery/goal-v2.md templates/goal scripts/test-check-goal.rb evals/workflow-v2; do
+  if [ -e "$ROOT_DIR/$retired" ] || [ -L "$ROOT_DIR/$retired" ]; then
+    echo "已移除的 Goal 资产不应存在：$retired" >&2
+    exit 1
+  fi
+done
+if grep -REn 'references/delivery/goal-v2\.md|templates/goal/|scripts/test-check-goal\.rb|evals/workflow-v2/' \
+  "$ROOT_DIR/AGENTS.md" "$ROOT_DIR/README.md" "$ROOT_DIR/skills" "$ROOT_DIR/references" "$ROOT_DIR/templates" "$ROOT_DIR/agents"; then
+  echo "现行规则仍引用已移除的 Goal 资产。" >&2
+  exit 1
+fi
 
 # Skill frontmatter must stay routable and lightweight.
 while IFS= read -r skill_file; do
@@ -429,7 +421,7 @@ if ! { grep -q '证据等级、界面基线与证据门禁' "$ROOT_DIR/reference
   exit 1
 fi
 
-if ! { grep -q 'tooling_prerequisite_ids' "$ROOT_DIR/references/plan/task-breakdown.md" && grep -q '工具前置清单' "$ROOT_DIR/references/stages/feature-kickoff.md"; }; then
+if ! { grep -q 'references/delivery/tooling-prerequisites.md' "$ROOT_DIR/references/plan/task-breakdown.md" && grep -q '工具前置清单' "$ROOT_DIR/references/stages/feature-kickoff.md"; }; then
   echo "任务拆解与开工模板缺少共享工具清单引用" >&2
   exit 1
 fi
@@ -494,18 +486,17 @@ if ! { grep -q 'references/stages/goal-handoff.md' "$ROOT_DIR/references/stages/
   exit 1
 fi
 
-# v2 兼容与 v3 增量机制分别验证；结构测试不等同于 Agent 行为评测。
+# 验证唯一受支持的 v3 契约；结构测试不等同于 Agent 行为评测。
 if ! command -v ruby >/dev/null 2>&1; then
   echo "Goal 契约检查需要 Ruby（仅使用标准库），未执行检查。" >&2
   exit 1
 fi
-ruby "$ROOT_DIR/scripts/check-goal.rb" --template "$ROOT_DIR/templates/goal"
-ruby "$ROOT_DIR/scripts/test-check-goal.rb"
+ruby "$ROOT_DIR/scripts/check-goal.rb" --template "$ROOT_DIR/templates/goal-v3"
 ruby "$ROOT_DIR/scripts/test-goal-v3.rb"
 ruby -rjson -e '
   root = ARGV.fetch(0)
   cases = Dir.glob(File.join(root, "[0-9][0-9]-*" )).select { |p| File.directory?(p) }.sort
-  required_ids = %w[01-real-identifier 02-e2e-business-result 03-upload-preview-intent 04-no-invented-legacy-data 05-fallback-is-not-real-mode 06-fix-family-and-impact 07-stale-status 08-ordinary-vs-foundation]
+  required_ids = %w[01-real-identifier 02-e2e-business-result 03-upload-preview-intent 04-no-invented-legacy-data 05-fallback-is-not-real-mode 06-fix-family-and-impact 07-stale-status 08-ordinary-vs-foundation 09-lightweight-doc-write 10-expected-source-conflict 11-prototype-fidelity 12-execution-evidence 13-autonomous-contract-recovery 14-minimal-handoff-retains-intent]
   missing = required_ids - cases.map { |dir| File.basename(dir) }
   abort("缺少既有行为场景：#{missing.join(", ")}") unless missing.empty?
   cases.each do |dir|
@@ -520,7 +511,7 @@ ruby -rjson -e '
     end
   end
   puts "#{cases.length}组行为样例结构通过；未运行Agent，不能声称行为通过。"
-' "$ROOT_DIR/evals/workflow-v2"
+' "$ROOT_DIR/evals/delivery-behavior"
 
 check_install_target() {
   local target_name="$1"

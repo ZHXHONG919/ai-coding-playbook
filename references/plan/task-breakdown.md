@@ -1,6 +1,6 @@
 # 方案规则：完整结果，滚动任务
 
-> 前置确定要交付什么，详细计划只展开到当前路径和近期依赖。新 Goal 使用 schema 3；字段见 `references/delivery/goal-v3.md`。已有 v2 包保留自身任务、批次、状态与审查约定，不自动转换。
+> 前置确定要交付什么，详细计划只展开到当前路径和近期依赖。Goal 统一使用 schema 3；字段见 `references/delivery/goal-v3.md`。
 
 ## 先列全结果和共享基础
 
@@ -69,4 +69,4 @@ CONTRACT → FE_MOCK_LOOP → SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRA
 
 结果通过由正式检查证据判断。schema 3 在运行记录保存版本差异、改动到结果的映射、结果检查及独立 CR；当前有效性由工具结合历史记录推导，不手填一套结果通过状态。检查不能替代未完成的本次必需技术工作。收尾核对全部结果与最终增量，不因全部任务 `done` 或 CR 没有 finding 宣布完成。
 
-证据等级、界面基线与证据门禁按结果和风险选择，方法见 `references/delivery/evidence-driven-delivery.md`。同一路径、角色和状态共享有效证据，不按技术任务重复截图。第三方工具按 `references/delivery/tooling-prerequisites.md` 共用一份能力/安装/认证清单；已有 `tooling_prerequisite_ids` 引用可复用，不给每个任务重复安装、登录或建清单。
+证据等级、界面基线与证据门禁按结果和风险选择，方法见 `references/delivery/evidence-driven-delivery.md`。同一路径、角色和状态共享有效证据，不按技术任务重复截图。第三方工具按 `references/delivery/tooling-prerequisites.md` 共用一份能力/安装/认证清单；引用已有清单位置，不给每个任务重复安装、登录或建清单。

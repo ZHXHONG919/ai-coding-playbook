@@ -1,34 +1,26 @@
-# Eval: 复杂长链路 Design CR Ready 后必须 Goal Handoff
+# 评测：方案 Ready 后仍需完成用户要求的 Goal 交接
 
 ## Prompt
 
-```text
-这个复杂 feature 已经 design-review Ready 了，有 R1-R12 多个切片、前后端联调、异步任务和每片 CR。现在可以直接开始写代码吗？
-```
+这个复杂 feature 已经 Design CR Ready。我明确要求生成 Goal 供跨上下文连续执行，包含前后端联调和异步任务。现在只有 plan.md 与 tasks.md，可以直接开始写代码吗？
 
 ## Expected Route
 
-- 触发 `ai-coding-playbook`。
-- 识别为复杂长链路实现前检查。
+- `ai-coding-playbook` → Goal Handoff 与实现前检查。
 - 读取 `references/stages/goal-handoff.md` 和 `references/stages/implementation.md`。
 
 ## Must Include
 
-- 结论：不能仅凭 Design CR Ready 直接写代码。
-- 必须先进入 Goal Handoff，生成 `.goal/` 执行契约。
-- 必须有 `.goal/status.yaml` 和 `gate.md: Ready` 后，才进入 `goal-execute` 或实现。
-- 说明 Design CR Ready 是方案门禁，不是执行编排门禁。
+- 本次用户明确要求 Goal，先把确认方案转为 v3 goal.yaml 与 status.yaml。
+- 核实结果来源、依赖、授权、分支及必要工具能力，并给可开工结论；就绪后按已有实施授权继续。
+- Design CR Ready 证明方案评审完成，不能替代可恢复的执行约定和当前状态。
 
 ## Must Not
 
-- 说 Goal 包只是可选或建议。
-- 说 `design-review.md Ready` 后即可直接写代码。
-- 用 `tasks.md` 或聊天历史代替 `.goal/status.yaml`。
+- 用 tasks.md 或聊天历史代替用户要求的结构化 Goal。
+- 为每个技术步骤生成旧切片及批次门禁，或要求单独 gate.md 才能开工。
+- 把本例外推为所有轻量改动都必须建 Goal。
 
 ## Regression Notes
 
-如果 agent 认为 Goal 可选，优先检查：
-
-- `AGENTS.md` 的复杂长链路 Goal Handoff 门禁。
-- `references/stages/goal-handoff.md` 的强制场景。
-- `references/stages/implementation.md` 的实现前检查。
+检查是否遵守明确的 Goal 请求，同时保留轻量任务的范围边界。
