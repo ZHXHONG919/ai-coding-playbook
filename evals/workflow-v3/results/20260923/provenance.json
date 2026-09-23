@@ -1,0 +1,17 @@
+{
+  "type": "isolated_agent_behavior_probe",
+  "date": "2026-09-23",
+  "agent": "/root/v3_blind_validation",
+  "fork_turns": "none",
+  "input_root": "/tmp/workflow-v3-blind-20260923-a",
+  "scope": "两个可执行状态模型，非原业务全量回放；未做旧新策略成本对照",
+  "execution_order": "主线程先收到独立预期消息，随后收到含实际命令/输出的结论；子Agent报告先运行再读实现摘要。未另外导出逐工具轨迹。",
+  "usage": "未获取可靠单次token统计",
+  "files_at_archiving": {
+    "scripts/goal-v3.rb": "c9376920af60ebab4ccf6254bcac51e66e711e5fd0936293dcc4021dc5ef56f0",
+    "scripts/check-goal.rb": "eb44e958084896705a0442e5350799b4c4d0bb124b950c3254b89e1e974b2ed4",
+    "references/delivery/goal-v3.md": "e924aa0f8a6570c21b440d52b410080b8a823fff46ed1f14ce99bbede23987a0",
+    "evals/workflow-v3/behavior/prepare.mjs": "3ccbed5fba31a086affd141b89e38a87e63283e97f853079fe94447e51a5738e"
+  },
+  "version_limit": "文件摘要在归档时采集。盲测使用负责人哈希修复前的工具；之后只调整owner元数据参与哈希的范围并独立回归，不能用归档摘要假称盲测全程固定该工具版本。应用夹具未变。"
+}

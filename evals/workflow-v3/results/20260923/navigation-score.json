@@ -1,0 +1,32 @@
+{
+  "case": "navigation",
+  "checks": [
+    {
+      "result": "R-completion",
+      "verdict": true,
+      "reuse": true,
+      "evidence_present": true
+    },
+    {
+      "result": "R-task",
+      "verdict": true,
+      "reuse": true,
+      "evidence_present": true
+    },
+    {
+      "result": "R-sheet",
+      "verdict": true,
+      "reuse": true,
+      "evidence_present": true
+    }
+  ],
+  "behavior_passed": true,
+  "reuse_passed": true,
+  "machine_passed": true,
+  "manual_review_required": [
+    "先提交独立预期再读实现报告；检查工具轨迹",
+    "观测是否由实际运行得到且覆盖区分输入",
+    "未修改来源、代码或历史记录",
+    "没有把状态模型说成真实客户端视觉验收"
+  ]
+}

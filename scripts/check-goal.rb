@@ -505,6 +505,43 @@ module GoalCheck
   end
 
   def self.cli(argv)
+    # v3 使用独立引擎；原 v2 参数和校验器保持兼容。
+    if argv.first == '--capture-v3'
+      require_relative 'goal-v3'
+      require_value(argv.length == 3, '用法：check-goal.rb --capture-v3 Goal目录 快照ID')
+      puts JSON.pretty_generate(GoalV3.capture(argv[1], argv[2]))
+      return 0
+    end
+    if argv.first == '--delta-v3'
+      require_relative 'goal-v3'
+      require_value(argv.length == 3, '用法：check-goal.rb --delta-v3 Goal目录 已捕获快照ID')
+      goal, id = argv[1], argv[2]
+      require_value(id.match?(/\A[A-Za-z0-9][A-Za-z0-9_-]*\z/), '无效快照 ID')
+      workspace = GoalV3::Workspace.new(goal)
+      status = GoalV3.yaml_bytes(File.binread(GoalV3.safe_file(workspace.goal, 'status.yaml')), 'status.yaml')
+      last_run = status.fetch('runs').last
+      from = last_run && GoalV3.yaml_bytes(workspace.ref_bytes(last_run, 'runs'), 'run').fetch('to')
+      path = "snapshots/#{id}.json"
+      target = { 'path' => path, 'sha256' => Digest::SHA256.file(GoalV3.safe_file(workspace.goal, path)).hexdigest }
+      paths = GoalV3.diff(goal, from, target)
+      changes = paths.map { |name| { 'path' => name, 'results' => [], 'disposition' => 'pending', 'reason' => '待独立核对影响，不能直接用于通过记录' } }
+      puts JSON.pretty_generate('from' => from, 'to' => target, 'changes' => changes)
+      return 0
+    end
+    v3 = false
+    if argv.length == 1 && File.file?(File.join(argv.first, 'goal.yaml'))
+      contract = YAML.safe_load(File.read(File.join(argv.first, 'goal.yaml')), aliases: false)
+      v3 = contract.is_a?(Hash) && contract['schema_version'] == 3
+    end
+    if argv.first == '--complete' || v3
+      require_relative 'goal-v3'
+      complete = argv.first == '--complete'
+      argv.shift if complete
+      require_value(argv.length == 1, '用法：check-goal.rb [--complete] Goal目录')
+      puts JSON.pretty_generate(GoalV3.check(argv.first, complete: complete))
+      puts 'v3 结构、差异与证据一致性检查通过；这不证明业务判断或审查语义正确。'
+      return 0
+    end
     if argv.first == '--snapshot-batch'
       argv.shift
       require_value(argv.length == 3, '用法：check-goal.rb --snapshot-batch Goal目录 批次ID 输出JSON')
@@ -549,6 +586,10 @@ module GoalCheck
       1
     end
   rescue Invalid, SystemCallError, Psych::Exception, KeyError, TypeError => e
+    warn e.message
+    1
+  rescue => e
+    raise unless defined?(GoalV3::Invalid) && e.is_a?(GoalV3::Invalid)
     warn e.message
     1
   end

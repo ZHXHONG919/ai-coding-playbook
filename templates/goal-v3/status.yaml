@@ -1,0 +1,10 @@
+schema_version: 3
+state: active
+tasks:
+  T1: todo # todo / in_progress / done；done 只代表工作完成
+runs: [] # 按执行顺序追加 {path: runs/V1.yaml, sha256: 实际摘要}
+# 以下字段按需要保留，不另建恢复文件。
+next_action: <下一具体动作>
+constraints: [] # 适用授权、硬约束与最新决定的定位引用
+active_workers: [] # {id: worker, task: T1, write_scope: [src], state: running或stale}
+open_gaps: [] # {id: G1, results: [R1], detail: 具体缺口, required: true}

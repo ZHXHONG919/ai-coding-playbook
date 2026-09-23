@@ -1,0 +1,39 @@
+{
+  "results": {
+    "R-completion": {
+      "state": "passed",
+      "reused": false,
+      "observed": "点击全局完成条后进入 operations，taskId 和 resultId 均为 null，未限定到某个任务。",
+      "evidence": [
+        "node app.mjs '[{\"type\":\"completion-view\"}]' → page=operations，taskId=null，resultId=null",
+        "审查 app.mjs：completion-view 分支明确清除任务与成品编号。"
+      ]
+    },
+    "R-task": {
+      "state": "failed",
+      "reused": false,
+      "observed": "分别点击 task-amber 和 task-blue，均进入 operations 且丢失任务、成品编号。应分别打开 result-detail/task-amber/amber-1 和 result-detail/task-blue/blue-1。",
+      "evidence": [
+        "node app.mjs '[{\"type\":\"task-view\",\"taskId\":\"task-amber\"},{\"type\":\"task-view\",\"taskId\":\"task-blue\"},{\"type\":\"completion-view\"}]' → 两个任务入口均返回 page=operations，taskId=null，resultId=null",
+        "app.mjs 的 task-view 分支找到任务后直接复用全局入口结果，没有读取 task.results[0]。",
+        "node existing-tests.mjs → 已有自测：3 项通过；其中任务测试错误地把 operations 当作预期，不能证明当前约定成立。"
+      ]
+    },
+    "R-sheet": {
+      "state": "failed",
+      "reused": false,
+      "observed": "从 item-7 详情、滚动位置184打开生成后，page 变为 generation；关闭虽返回 detail，但 scroll 变为0。违反同页弹层及保留滚动位置两项要求。",
+      "evidence": [
+        "node app.mjs '[{\"type\":\"generate\"},{\"type\":\"close\"}]' → 打开：page=generation，sheet=generation，scroll=184；关闭：page=detail，sheet=null，scroll=0",
+        "app.mjs 的 generate 分支改写 page，close 分支显式将 scroll 设为0。",
+        "已有测试只断言 sheet=generation，未检查背景页面及关闭后的滚动位置。"
+      ]
+    }
+  },
+  "limitations": [
+    "核验范围为可执行交互状态模型，不能证明真实客户端视觉效果。",
+    "已先报告独立预期并运行应用，再读取实现报告和已有测试。",
+    "检查器返回全部结果 pending、needs_impact_review=true；它的结构检查通过不等于行为通过。",
+    "遵守只读要求，未修改项目、创建核验记录或更新进度。"
+  ]
+}

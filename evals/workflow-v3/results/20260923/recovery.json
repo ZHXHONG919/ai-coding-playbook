@@ -1,0 +1,33 @@
+{
+  "results": {
+    "R-layout": {
+      "state": "passed",
+      "reused": false,
+      "observed": "当前输出为 cards，task-amber、task-blue、task-coral 各出现一次且 wrapper 均为 card，满足最新决定U2。历史列表证据对应 revision1，不能用于当前 revision2。",
+      "evidence": [
+        "node app.mjs → layout=cards，三个任务各有一个 wrapper=card，completed=2",
+        "node --input-type=module 独立断言：布局为cards、任务编号与输入逐项一致、数量为3、全部wrapper为card → passed",
+        "逐文件比较 snapshots/prior.json 与当前文件：仅 .goal/goal.yaml、docs/layout.md、src/layout.mjs 变化；变化分别为U2及revision2、卡片来源说明、list/row改为cards/card。",
+        "当前 R-layout contract_hash=abe0e49aba1ab4423e6e7e3cb590060b9b0a0f8e4ad6155c761471c0ad694fd7，与历史摘要不同。"
+      ]
+    },
+    "R-count": {
+      "state": "passed",
+      "reused": true,
+      "observed": "历史计数证据在本状态模型范围内仍适用：计数约定、来源、输入数据和统计函数均未变化；完整差异仅改变布局。新增运行仍得到2，单独输入queued任务得到0。",
+      "evidence": [
+        ".goal/runs/prior.yaml 与 prior-observation.txt 记录 completed=2；重新计算的文件SHA256均与登记值一致。",
+        "当前与历史 R-count contract_hash 均为740d659374889a524df46a3f2c5be5f4d03de7fdc63ab2ef399c294a557f9fca。",
+        "按历史快照逐文件比较：app.mjs、docs/count.md、src/count.mjs 均未变化；布局函数未修改任务数据。",
+        "node app.mjs → completed=2",
+        "node --input-type=module 独立断言：两个done加一个queued返回2，仅queued返回0 → passed",
+        "ruby <playbook-root>/scripts/check-goal.rb /tmp/workflow-v3-blind-20260923-a/recovery/.goal → passed_results=[R-count]，pending_results=[R-layout]，needs_impact_review=true"
+      ]
+    }
+  },
+  "limitations": [
+    "只验证状态模型结构及统计，不能证明真实视觉还原。",
+    "历史报告明确属于合成恢复夹具；复用结论限于该模型，不代表真实业务环境验收。",
+    "遵守只读要求，未写入本轮核验记录；持久化Goal仍为active，检查器仍将新布局标为pending，不能宣称Goal已完成。"
+  ]
+}
