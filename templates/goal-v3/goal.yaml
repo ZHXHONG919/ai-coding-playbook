@@ -1,0 +1,30 @@
+# 工作范围与预期的唯一结构化索引；来源文件保留用户决定的依据。
+schema_version: 3
+baseline_commit: <完整基线提交>
+decisions:
+  D1:
+    text: <用户已确认的决定与适用范围>
+results:
+  R1:
+    revision: 1
+    kind: user_result # 改变后续消费者共同规则时用 shared_foundation
+    owner: main
+    expected:
+      entry: <用户或系统实际入口>
+      action: <具体操作>
+      object: <操作对象>
+      context: <角色、状态及必要数据>
+      outcome: <可观测结果>
+      counterexample: <可区分常见误解的反例>
+    sources:
+      - path: docs/requirements.md # 仓库相对路径
+        anchor: R1 # 可定位的标题、编号或代码区块
+    decisions: [D1]
+    depends_on: []
+tasks:
+  T1:
+    owner: main
+    results: [R1] # 只引用，不另写一份预期
+    work: <实际工程工作，如接通入口与数据读取；不重述产品要求>
+    self_check: <按R1运行的最小检查命令或方法>
+    depends_on: []

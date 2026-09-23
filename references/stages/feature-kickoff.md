@@ -58,7 +58,7 @@ docs/features/YYYYMMDD-short-topic/
 | --- | --- | --- |
 | 保存局部、易回退且验收清楚的方案 | 一份 `plan.md` 或用户指定文件，按 `references/stages/plan-light.md` | 少量步骤与验证写在同一份文件内 |
 | 复杂需求的业务决定与工程设计 | `requirements.md` 或等价确认来源，以及 `plan.md` | 按 `references/stages/plan.md` 选择相关设计规则；不复制同一业务决定 |
-| 任务需要多人协作或单独恢复 | `tasks.md`，或已有等价任务来源 | 按 `references/plan/task-breakdown.md` 写依赖、自测、批次和所有者 |
+| 任务需要多人协作或单独恢复 | `tasks.md`，或已有等价任务来源 | 按 `references/plan/task-breakdown.md` 列全结果，展开近期步骤、依赖、自测和所有者 |
 | 页面路径需要确认 | `ui-flow.md` 或已有原型说明 | 复用确认稿；只有需要表达交互时新增原型 |
 | 多批次执行需要跨上下文恢复，或用户要求 Goal | `.goal/` | 由 `references/stages/goal-handoff.md` 选择核心及可选模板 |
 | 出现尚未纳入上述记录的讨论或延期事项 | 在现有记录补一段；量大才建 `notes.md` 或台账 | 不为尚未发生的讨论提前建空文件 |
@@ -69,12 +69,12 @@ docs/features/YYYYMMDD-short-topic/
 
 少量任务可以只在方案末尾写步骤与验证；需要独立任务表时，起点为：
 
-| ID | 任务与范围 | 依赖 | 最小自测 | 所属验收批次 |
+| ID | 任务与范围 | 依赖 | 最小自测 | 关联结果 |
 | --- | --- | --- | --- | --- |
-| T01 |  | 无 / 任务 ID | 输入或操作 → 预期 → 证据 | B01 |
+| T01 |  | 无 / 任务 ID | 输入或操作 → 预期 → 证据 | R01 |
 
 - 状态只在一处维护：已有 Goal 时用 `.goal/status.yaml`，其余记录保存任务定义与证据指针；不同时维护逐任务进度表、CR 状态表和另一份总进度。
-- 普通任务自测通过记 `implemented`；所属批次验收后才记 `accepted`。正式 CR 归属批次，不给每一行重复设置独立 CR 门禁。
+- 新 v3 Goal 的普通任务自测通过记 `done`；正式验证与 CR 证明用户结果，不为每个工程步骤设独立验收。既有 v2 包保留 implemented / accepted 与原批次规则。
 - 按相关性补 lane、文件归属、模拟清理、证据等级、界面基线和证据门禁；共享的基线与工具要求引用一次即可，不在每行抄完整描述。
 - 需要第三方工具时记录工具前置清单或引用已有台账，内容按 `references/delivery/tooling-prerequisites.md`；没有工具依赖就不建空清单。
 - 只有实际并行、模拟或待办事项出现时，记录对应所有者、清理任务或最晚处理点。不因模板有栏目就发明工作。
@@ -84,4 +84,4 @@ docs/features/YYYYMMDD-short-topic/
 - kickoff 只做工作区和产物准备，不替代方案阶段。
 - 需求与方案阶段在选定记录中维护当前决定及实现依据；高影响需求不清时，暂停依赖部分并补齐依据。
 - 采纳新要求时，先更新业务决定的来源，再同步实际受影响的派生任务、页面与验收；不补建无关文件，也不逐字重抄整套文档。
-- 实现阶段按选定的任务记录小步推进；任务有效自测后记 `implemented`，基础依赖前或功能批次闭合时独立验证与 CR，验收后记 `accepted`。参照 `references/stages/implementation.md`，不要把检查点提交当成验收。
+- 实现阶段按选定记录小步推进；任务自测后继续，共享基础在依赖前核验，完整路径独立验证与 CR。状态按对应 Goal 版本记录；参照 `references/stages/implementation.md`，不要把检查点提交当成验收。

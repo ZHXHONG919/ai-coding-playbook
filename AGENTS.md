@@ -54,7 +54,7 @@
 | 新需求开工 / kickoff / 建方案和任务目录 / 开始一个需求 | `references/stages/feature-kickoff.md` + `references/git-safety.md`；落盘不改变复杂度，按实际范围选择轻量或复杂方案规则 |
 | 技术方案 / 功能设计 / 模型设计 / 架构设计 | 先判断轻量或复杂：轻量读 `references/stages/plan-light.md` + `templates/plan-light.md`；复杂先读 `references/stages/requirement-confirmation.md`，再读 `references/stages/plan.md`；按该阶段说明选择相关 `references/plan/` 规则 + 匹配 `references/scenarios/*`，落盘用 `templates/feature-design.md` |
 | 方案评审 / 设计 CR / 设计评审 | `skills/design-review/SKILL.md` + `references/stages/plan.md`；按该阶段说明选择相关 `references/plan/` 规则 |
-| 生成 Goal 包 / Goal Handoff / 执行契约 / 复杂方案转连续执行 | `references/stages/goal-handoff.md` + `references/plan/task-breakdown.md`；按交接要求选择 `templates/goal/` 的核心及相关可选模板 |
+| 生成 Goal 包 / Goal Handoff / 执行契约 / 复杂方案转连续执行 | `references/stages/goal-handoff.md` + `references/plan/task-breakdown.md`；新包选择 `templates/goal-v3/`；既有 v2 包保留 `templates/goal/` 及原执行契约 |
 | 开始实现 / 按方案落地 | `references/stages/implementation.md` + `references/git-safety.md` + `references/plan/task-breakdown.md` |
 | 按 Goal 执行 / 续跑 goal / 从 status.yaml next_slice 继续 | `skills/goal-execute/SKILL.md` + `references/stages/implementation.md` + `references/git-safety.md` |
 | Review / 检查代码 / 看风险 | `references/stages/review.md` + `skills/ts-code-review/SKILL.md`；按风险选择 `references/review-kit/` 对应专项 |
@@ -107,7 +107,7 @@
 - 复杂方案先核实实际入口、上游类型、消费者、数据归属及已有规则，再做领域与工程映射。图用于解释共同概念、状态和跨端流转，不按模板数量凑图；图清楚后才进入依赖这些规则的实现。
 - 复杂方案需要 design CR；复用已有确认与授权，不因换节点重复询问。需要结构化跨上下文恢复或用户要求 Goal 时进入 Goal Handoff，Gate Ready 后执行；轻量改动不强制建 Goal。
 - 写需求/方案文件也要检查分支；主干干净时创建功能分支，不直接写 main/master；脏工作区不自动 stash、merge 或 rebase。保存轻量方案只写所需文件，不因落盘升级为全套需求、方案、任务和日志。
-- 前端与 API 交互保留 Frontend-first Mock Lane：`CONTRACT → FE_MOCK_LOOP → SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRATION / QA`；在一个功能批次内尽早走通小的真实路径再扩展，不等全功能写完才第一次联调。Goal 继承 tasks 的 lane、依赖与批次。
+- 前端与 API 交互保留 Frontend-first Mock Lane：`CONTRACT → FE_MOCK_LOOP → SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRATION / QA`；在一个功能批次内尽早走通小的真实路径再扩展，不等全功能写完才第一次联调。Goal 保留用户路径与共享基础依赖，先列全结果，再滚动展开工程步骤。
 - 涉及主用户路径、审核、批量操作或复杂状态时，任务拆解前给出 UI flow；已有确认基线复用。需要用户选择交互方向时展示后等待确认；已有明确确认与落地授权不重复暂停。
 - Open Design 只在新页面/大改版、多方案视觉探索、复杂路径或用户明确要求时考虑，记录 `skip / existing-baseline / run / blocked` 和依据。已确认稿只作基线；小样式改动不默认新建 run。
 - 已安装 impeccable 时按实际阶段与问题选择 `shape / critique / audit / polish`；界面实现对照确认基线。证据按功能批次合并、修复后复核受影响状态，不每次中间修改重复完整审计。
@@ -116,17 +116,17 @@
 
 - 节点职责与中文交接提示见 `references/delivery/agent-delivery-flow.md`；审查细则只有 `references/stages/review.md` 一处。
 - 需求/原型已确认且获实施授权后，按中央节点规则自主推进；每次交接保留结果、约束、事实、范围、验证与返回要求。局部缺口由主线程判断、约定协议并隔离，保持真实能力与集成验收，除非用户主动介入不重开产品问答。
-- 普通任务最小有效自测通过后可记 `implemented` 并继续；改变后续依赖的共享规则时单列基础批次，在依赖方开始前审查；功能批次闭合后正式独立验证与 CR，验收后才记 `accepted`。新 Goal 默认 `functional_batch`；用户/项目明确逐片审查时用 `per_slice`。
+- 新 Goal 使用 schema 3：完整用户结果与共享基础承载正式验收，工程任务仅 `todo / in_progress / done`；一个 owner 负责贯通一条路径。先列全结果，近期步骤滚动细化。共享规则在依赖方开工前独立核验，普通工作有效自测后继续；既有 v2 按原 `functional_batch / per_slice` 契约恢复。
 - 自测须对应改变的行为、反例、真实入口/观测点与预期；build 绿、手造业务结果或 mock 页面通过不能代替真实功能验收。检查方法见 `skills/test-scope-analysis/SKILL.md`。
-- 主线程负责技术判断和审查裁决；实现可由 `main_thread / worker / hybrid` 承担。正式验证/CR 独立于实现者，可在同一固定版本并行，不为每个节点强制创建一个 Agent 或一份报告。
+- 主线程负责技术判断和审查裁决；子 Agent 默认采用最小显式上下文，传递当前结果、来源、授权与硬约束。正式验证者先依据当前约定形成判错样本、运行验证，再读实现说明和 CR；可由同一独立 Agent 完成，不为每个节点创建报告。
 - 主线程核实 finding 的依据和用户影响，区分缺陷、误报与新建议。修复按问题族和影响范围复核；同类再次出现先查共同原因与所有消费者/状态，不继续机械补丁，也不以轮数上限替代质量判断。
 - 当前正确性、数据、权限、状态、契约或承诺验收缺陷必须解决；P2/Nit 等不影响当前结果的建议记录 owner、影响与处理时点，不无限返工。严重级别标签不能用来规避真实缺陷。
-- 最终核对 Goal 基线到交付版本的全部差异及验收覆盖；未审批次、CR 后新增影响和必需未验证项未关闭不能宣布完成。代码完成与发布准备度分别记录；用户要求真实环境验收时不能擅自移到未来发布。
+- 最终核对 Goal 基线到交付版本的全部差异及验收覆盖；新文件、删除、CR 后改动都须解释影响并核验；脚本按结果约定与版本推导当前有效证据，历史通过不自动代表现在通过。必需未验证项未关闭不能宣布完成。代码完成与发布准备度分别记录；用户要求真实环境验收时不能擅自移到未来发布。
 - 开发默认使用本地或可丢弃环境；真实 provider 调用在属于本次验证范围且已有授权时执行，明确成本与证明边界，不必等到发布。生产 SSH、发布迁移和部署按明确发布范围与项目 SOP 执行。
-- Goal 默认 continuous；普通任务/批次边界继续执行，用户明确只跑一片或只检查时用 `single_slice / prepare_only`。状态以 `.goal/status.yaml` 为索引，实际代码和证据用于核实，用户最新约束不能被旧状态覆盖。
-- 仅在普通任务完成、批次裁决、需求变化、阻塞或停止等可恢复边界更新状态；resume 保存下一动作和指针，不复制多份进度。已有 Git 授权且实现/自测通过的代码可提交检查点，提交不代表验收，不为上下文压力提交破损半成品。
+- Goal 默认 continuous；普通任务/批次边界继续执行，用户明确只跑一项或只检查时遵从该范围；具体状态字段按 Goal 版本读取。状态以 `.goal/status.yaml` 为索引，实际代码和证据用于核实，用户最新约束不能被旧状态覆盖。
+- 仅在普通任务完成、批次裁决、需求变化、阻塞或停止等可恢复边界更新状态；v3 在 status 保存下一动作、约束指针与仍持有写权限的 worker，不再另建 resume；v2 保持原恢复记录。已有 Git 授权且实现/自测通过的代码可提交检查点，提交不代表验收，不为上下文压力提交破损半成品。
 - App Goal 只作 UI 镜像；创建与终态同步遵守用户请求和当前工具契约，不覆盖已有不匹配目标，不替代项目状态，不为进度条突破工具限制。
-- 旧 Goal 不自动覆盖项目要求；改用新策略时记录原策略、授权依据、任务映射与证据版本。历史 done 不能直接转换成新 accepted。
+- 旧 Goal 不自动覆盖项目要求；改用新策略时记录原策略、授权依据、任务映射与证据版本。历史 done 或 accepted 不能直接转换成新格式的有效证据。
 
 ## 轻量领域设计口径
 

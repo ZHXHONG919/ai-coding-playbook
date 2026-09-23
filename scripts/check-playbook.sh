@@ -18,6 +18,14 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 required=(
   "scripts/check-goal.rb"
+  "scripts/goal-v3.rb"
+  "scripts/test-goal-v3.rb"
+  "references/delivery/goal-v3.md"
+  "references/delivery/goal-v2.md"
+  "templates/goal-v3/goal.yaml"
+  "templates/goal-v3/status.yaml"
+  "templates/goal-v3/run.yaml"
+  "evals/workflow-v3/README.md"
   "scripts/test-check-goal.rb"
   "evals/workflow-v2/README.md"
   "evals/workflow-v2/checker.md"
@@ -461,7 +469,7 @@ if ! { grep -q '目标项目已安装 impeccable 时' "$ROOT_DIR/references/stag
   exit 1
 fi
 
-if ! { grep -q '视觉建议不能覆盖已确认产品规则' "$ROOT_DIR/references/stages/review.md"; }; then
+if ! { grep -q '通用审美建议不能覆盖用户认可调整' "$ROOT_DIR/references/stages/review.md"; }; then
   echo "审查阶段缺少视觉建议不能改写产品规则的边界" >&2
   exit 1
 fi
@@ -486,13 +494,14 @@ if ! { grep -q 'references/stages/goal-handoff.md' "$ROOT_DIR/references/stages/
   exit 1
 fi
 
-# Goal 第二版使用结构和状态语义检查，避免英文短语或固定切片数量绑住流程。
+# v2 兼容与 v3 增量机制分别验证；结构测试不等同于 Agent 行为评测。
 if ! command -v ruby >/dev/null 2>&1; then
   echo "Goal 契约检查需要 Ruby（仅使用标准库），未执行检查。" >&2
   exit 1
 fi
 ruby "$ROOT_DIR/scripts/check-goal.rb" --template "$ROOT_DIR/templates/goal"
 ruby "$ROOT_DIR/scripts/test-check-goal.rb"
+ruby "$ROOT_DIR/scripts/test-goal-v3.rb"
 ruby -rjson -e '
   root = ARGV.fetch(0)
   cases = Dir.glob(File.join(root, "[0-9][0-9]-*" )).select { |p| File.directory?(p) }.sort
