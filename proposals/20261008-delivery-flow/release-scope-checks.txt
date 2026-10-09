@@ -1,0 +1,13 @@
+v3 模板契约结构检查通过；未检查运行状态或验收证据。
+Run options: --seed 63145
+
+# Running:
+
+......................................................
+
+Finished in 16.792035s, 3.2158 runs/s, 24.0590 assertions/s.
+
+54 runs, 404 assertions, 0 failures, 0 errors, 0 skips
+20组行为样例结构通过；未运行Agent，不能声称行为通过。
+仓库模式：未读取或修改全局安装链接。
+playbook 结构检查通过

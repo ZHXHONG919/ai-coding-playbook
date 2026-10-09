@@ -17,7 +17,7 @@ description: >
 1. 识别用户要讨论、设计、实现、审查还是发布；用一句中文说明当前阶段。
 2. 先读目标项目自己的 README、AGENTS、CLAUDE 和相关事实，再按规则根目录 AGENTS 的路由只加载当前需要的规则。
 3. 项目事实和用户已确认约束优先。已有授权和清楚输入时直接完成工作，不为了换节点反复确认、安装或初始化。
-4. 流程/节点设计见 `references/delivery/agent-delivery-flow.md`；具体阶段继续按 AGENTS 路由。
+4. 流程、下一动作与中文交接见 `references/delivery/agent-delivery-flow.md`；只加载当前阶段及命中风险的参考，不重复读取完整规则包。时间/token 控制沿用已有计划和记录，按 `references/delivery/execution-evidence.md` 调整方法。
 
 ## 阶段边界
 
