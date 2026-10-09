@@ -8,8 +8,8 @@
 
 1. 读项目入口、用户最新决定及适用授权；默认当前目录与现有环境，核实实际差异和仍有文件/运行资源操作权的参与者。接任与运行核对按 `references/delivery/agent-delivery-flow.md`，不假设旧聊天常驻。
 2. 读 goal、status 和当前结果的来源区块，运行 `ruby <playbook-root>/scripts/check-goal.rb <goal-dir>`。`passed_results` 只表示已审快照上的证据有效；出现未审差异或 `needs_impact_review` 时，主线程先判断影响，不能直接把历史通过套到当前代码。检查器不能判断预期或证据是否正确。
-3. 按结果依赖选就绪任务。普通工作自测后记 `done`，不代表结果已验收。共享规则用 `kind: shared_foundation`；消费它之前，须有当前有效的独立核验。其他无依赖工作继续。
-4. 先贯通最小真实路径，再扩展状态；首次贯通不自动触发 CR。普通结果可继续实现，相关结果按 `references/stages/review.md` 合批正式核验；一个 run 可检查多个结果，不增加批次状态。可隔离缺口不使全局停止，真实能力仍保留待验。
+3. 按结果依赖选就绪任务。普通工作自测后记 `done`，不代表结果已验收。共享规则用 `kind: shared_foundation`；实际依赖其真实能力之前，须有当前有效的独立核验。仅依赖已核验协议语义的模拟开发可按 `references/plan/task-breakdown.md` 继续，不代表基础结果通过。其他无依赖工作继续。
+4. 实施顺序与例外统一按 `references/plan/task-breakdown.md`，恢复时核实本组前端体验、服务端及模拟替换的实际进展，不因恢复跳过或重做已有效完成的阶段。首次真实贯通不自动触发 CR；相关结果按 `references/stages/review.md` 合批正式核验，一个 run 可检查多个结果。可隔离缺口不使全局停止，真实能力仍保留待验。
 5. 检查器在创建/恢复、正式核验与收尾使用，不每步运行、捕获快照或建 run。阶段内已有检查且相关状态未变时复用；成本控制见 `references/delivery/execution-evidence.md`。
 
 ## 预期只写一处

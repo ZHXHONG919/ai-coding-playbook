@@ -1,0 +1,157 @@
+{
+  "baseline_commit": "9446b2033ff0c862a082949f6286a7789b936bcb",
+  "candidate_directory": ".tmp/frontend-first-20261009",
+  "scope": "发布版本：服务端开发态Mock API，前端真实HTTP调用，完整功能组前端先行及领域职责实现",
+  "changed_file_count": 28,
+  "patch_sha256": "26fbac919e20201413b06e91b181d54f4e86ed73d1aa03b992e5183984695265",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "base_sha256": "c4939b79cecddf3ae2e74a8f792af714905ebf6442d3d92f6164ba47ab3f239a",
+      "candidate_sha256": "fd976e1ae56509269c3cd186b39c8fe683e23c26581a65d4b718e26dc0376586"
+    },
+    {
+      "path": "README.md",
+      "base_sha256": "5962c03a62b9a3c412798485344d273cf81ab6763f6f07ace0cc95af20595d1f",
+      "candidate_sha256": "bd6cd3f3373a9c563d73b718e791faf87f68171a29e0f47638ed4ef0ca2ba3fc"
+    },
+    {
+      "path": "evals/delivery-behavior/21-frontend-group-sequence/expected.json",
+      "base_sha256": null,
+      "candidate_sha256": "bee12295dd02bfd5588e73bee7f0cf0a684daf606bab470c0d07942776229b7f"
+    },
+    {
+      "path": "evals/delivery-behavior/21-frontend-group-sequence/input.md",
+      "base_sha256": null,
+      "candidate_sha256": "a4af8df8cddc17217deb10cbc60738ff3f81ae2cecf450bc8fadae0ef8831393"
+    },
+    {
+      "path": "evals/delivery-behavior/22-server-domain-boundaries/expected.json",
+      "base_sha256": null,
+      "candidate_sha256": "23cbd2dd70d9462e8a755058f5827e28079b65c892bc5e4351b4fab54dfc461f"
+    },
+    {
+      "path": "evals/delivery-behavior/22-server-domain-boundaries/input.md",
+      "base_sha256": null,
+      "candidate_sha256": "621cd1f65f33ce32d65a48447e41ccc959afe90c06ee0f73295b5b0bebfa746b"
+    },
+    {
+      "path": "evals/delivery-behavior/23-probe-and-mock-replacement/expected.json",
+      "base_sha256": null,
+      "candidate_sha256": "6ec7a19fe13d7986bb655e61e56429d8ff87c02c33623523b3afe8f3fe739fe1"
+    },
+    {
+      "path": "evals/delivery-behavior/23-probe-and-mock-replacement/input.md",
+      "base_sha256": null,
+      "candidate_sha256": "eacf99832adde5657b451bb7589eee643ac6a9db3c2aa1c4984dd70ffa8ea987"
+    },
+    {
+      "path": "evals/delivery-behavior/24-server-api-mock/expected.json",
+      "base_sha256": null,
+      "candidate_sha256": "4e08bcffa2025c7e1dbf34ad361fbe5ac3f41312c28297e621cc9f9ed7d48109"
+    },
+    {
+      "path": "evals/delivery-behavior/24-server-api-mock/input.md",
+      "base_sha256": null,
+      "candidate_sha256": "50183d28771bc120a4a4960fa006f35078cb2035f5c196a5cd0b6bcbb98dac4f"
+    },
+    {
+      "path": "evals/delivery-behavior/README.md",
+      "base_sha256": "99a423470aa982fc9c7044cfe166c3946ad894490c6cab0d6491753a3bd15204",
+      "candidate_sha256": "b8948550b2294ab13a5352ec1c1c8fdd40187932ac1a74e8bb41d377c060a038"
+    },
+    {
+      "path": "evals/goal-handoff/frontend-first-mock-lane.md",
+      "base_sha256": "9cbc8cb0d91785adca49d2bc88ad6f49d6a6c8659fdefe8cbf5eba8bd1094540",
+      "candidate_sha256": "a5f79a34ee2c0de97919ddd358552ccd33d3d1d681f4758b0aab1413901c9114"
+    },
+    {
+      "path": "references/delivery/agent-delivery-flow.md",
+      "base_sha256": "258fa8d1d3c651e2e50a9b0e5ac71f6e716e92d631a214a3f01bc591734d31fa",
+      "candidate_sha256": "bb87c0312a37a1d247dc7f987a822ced7130c20db46ba7c2ff241cefe0021ca5"
+    },
+    {
+      "path": "references/delivery/goal-v3.md",
+      "base_sha256": "14f2a0672bfcbe8a8dca01739c15831d1987c812dbf25c2247463da023699f9f",
+      "candidate_sha256": "88cf9e7a43e8ae7a30cabcf528222a6fafdaefcefc518058e9c9ec38a1c9dbb5"
+    },
+    {
+      "path": "references/plan/domain-design.md",
+      "base_sha256": "2e53d1ea324ed3b5d72b8408cd09f67d54a12a4702ab4275cfb0e7566fcfd829",
+      "candidate_sha256": "3fa93899c59dffa6476cc9957208f521b97763f703dd5cd5a22f48efb8bd824d"
+    },
+    {
+      "path": "references/plan/task-breakdown.md",
+      "base_sha256": "fb3f26f53c11c6167d9586dee62b6d9b8186e426483ddb6601447bf871f2c3b9",
+      "candidate_sha256": "d7bb2a6e8f2501d77675791a91137783523f2238e7898d14b6951b6e662a9b2c"
+    },
+    {
+      "path": "references/review-kit/architecture.md",
+      "base_sha256": "2504e181e62d09a77c54c9dac7713deafea059b7dab9d52e0cec2ddb1f3a02e4",
+      "candidate_sha256": "55c5d90854cd8eafba17762dbcade76875f8a134fbbdc872b4df7bc2fa0d0533"
+    },
+    {
+      "path": "references/stages/goal-handoff.md",
+      "base_sha256": "990f6054363c3b34ef7a9de3b4e37695c1096cd64576cb550029384393b65381",
+      "candidate_sha256": "526ae3103c2125e44e2482228b6ebb750564d626daa36eaf92083d31606248a1"
+    },
+    {
+      "path": "references/stages/implementation.md",
+      "base_sha256": "ab739bbecc57374830172f87938a4ec359917276caec62cd6cdd26742cfde10c",
+      "candidate_sha256": "65d489a76be3c459b587035ed8384284925186b69b005e061b2d371df76efb36"
+    },
+    {
+      "path": "references/stages/plan.md",
+      "base_sha256": "16a3fe53d2eda38b6734881f29cac3cfe57899a47fada81159fdc9431e7db506",
+      "candidate_sha256": "8bf66fd7e8ea1e42ad35e2c43a188e433cf8faf71f66194e098e4360746efd83"
+    },
+    {
+      "path": "references/stages/review.md",
+      "base_sha256": "8912f1ced0bb22dc77ae91696874b647afc51d670f22554b75e0ceedcfe3abf6",
+      "candidate_sha256": "c4a89af04298c29ef8d87189d3156b2751fe42e38f2c574b81260566c1395339"
+    },
+    {
+      "path": "scripts/check-playbook.sh",
+      "base_sha256": "d25f9f7ece8e696ed20cae54e17df916369096f9dba4e6c3d8b70ef714002c87",
+      "candidate_sha256": "04b011e54166f57924c6f5c6bf1d4bb340d317a4d09dcd311e1a6a098825c21e"
+    },
+    {
+      "path": "skills/design-review/SKILL.md",
+      "base_sha256": "b256c6cb0ee7e30c29d23d654cb12a6c77020558be8de18ca8c72fa89a8b8d63",
+      "candidate_sha256": "ea98c940130a486fd73819cd6ad2e85bbf2127627705fad01de9f2b721ae8116"
+    },
+    {
+      "path": "skills/fullstack-ui-prototype/SKILL.md",
+      "base_sha256": "2daf9e15f06ac6ff5e317b9fcac6ca22bd9bd73a0fce27634543613ea873fd2d",
+      "candidate_sha256": "26378fd9457983d4b4936c6a338fa15fca76628457fa62d11152ba26634e3da2"
+    },
+    {
+      "path": "skills/goal-execute/SKILL.md",
+      "base_sha256": "d01be341ca8f34f26099e47049bdad86179e5cc41b0489d9aeb8111da4de0b9c",
+      "candidate_sha256": "7bb5aa0ea03842573e7e3cbe66fb06289373b7dfdfa43b93598fa3f4def404f2"
+    },
+    {
+      "path": "skills/nest-api-design/SKILL.md",
+      "base_sha256": "d933ad3c94f3a426aecc05dea010b8cb271f33144ffcc2edc88a1265a890fa88",
+      "candidate_sha256": "cea8ca5a5fffdf0806d4ee7c57ba1ce76e21629672e8eb080809b7a821fd15f5"
+    },
+    {
+      "path": "skills/react-vite-feature/SKILL.md",
+      "base_sha256": "d0b0ea67cbb087aa124967e1f145b76d479a6decd12ccc20d366d3cb4b4e7bd1",
+      "candidate_sha256": "5d3f615878d0a69bf74fea9b7624050cdbc7033c102a7b68f1e6df3e17c06bde"
+    },
+    {
+      "path": "templates/feature-design.md",
+      "base_sha256": "844b7294886dc77614cac0bbcbf9e271a5b6e8e35dd94b066a361cf1b8a36700",
+      "candidate_sha256": "c62b1022c78959b4611a56eff9737de74ea2931859e3d8e3a285eb4ebfd8687d"
+    }
+  ],
+  "historical_candidate_manifest": "initial-manifest.json",
+  "historical_candidate_patch": "initial-changes.patch",
+  "validation": {
+    "regression": "release-checks.txt",
+    "initial_scenarios": "scenario-assessment.json",
+    "server_mock_scenario": "scenario-24-output.md",
+    "review": "review.md"
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "baseline_commit": "9446b2033ff0c862a082949f6286a7789b936bcb",
+  "candidate_directory": ".tmp/frontend-first-20261009",
+  "installation": "未应用；已安装源与链接保持发布版本",
+  "changed_file_count": 25,
+  "patch_sha256": "043b57085adae9299ced0a01a3817653153cb12605f33f4433a77d6b8cd9187c",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "base_sha256": "c4939b79cecddf3ae2e74a8f792af714905ebf6442d3d92f6164ba47ab3f239a",
+      "candidate_sha256": "fe51b53e3989ccce6f34aeff59c6f3e3907c05c0f711905e78d8754b3c7685e8"
+    },
+    {
+      "path": "evals/delivery-behavior/21-frontend-group-sequence/expected.json",
+      "base_sha256": null,
+      "candidate_sha256": "bee12295dd02bfd5588e73bee7f0cf0a684daf606bab470c0d07942776229b7f"
+    },
+    {
+      "path": "evals/delivery-behavior/21-frontend-group-sequence/input.md",
+      "base_sha256": null,
+      "candidate_sha256": "a4af8df8cddc17217deb10cbc60738ff3f81ae2cecf450bc8fadae0ef8831393"
+    },
+    {
+      "path": "evals/delivery-behavior/22-server-domain-boundaries/expected.json",
+      "base_sha256": null,
+      "candidate_sha256": "23cbd2dd70d9462e8a755058f5827e28079b65c892bc5e4351b4fab54dfc461f"
+    },
+    {
+      "path": "evals/delivery-behavior/22-server-domain-boundaries/input.md",
+      "base_sha256": null,
+      "candidate_sha256": "621cd1f65f33ce32d65a48447e41ccc959afe90c06ee0f73295b5b0bebfa746b"
+    },
+    {
+      "path": "evals/delivery-behavior/23-probe-and-mock-replacement/expected.json",
+      "base_sha256": null,
+      "candidate_sha256": "6ec7a19fe13d7986bb655e61e56429d8ff87c02c33623523b3afe8f3fe739fe1"
+    },
+    {
+      "path": "evals/delivery-behavior/23-probe-and-mock-replacement/input.md",
+      "base_sha256": null,
+      "candidate_sha256": "eacf99832adde5657b451bb7589eee643ac6a9db3c2aa1c4984dd70ffa8ea987"
+    },
+    {
+      "path": "evals/delivery-behavior/README.md",
+      "base_sha256": "99a423470aa982fc9c7044cfe166c3946ad894490c6cab0d6491753a3bd15204",
+      "candidate_sha256": "dce53148be38314ab1cb370cd34d13f01f1fd9df24842f609c991da872c603cb"
+    },
+    {
+      "path": "evals/goal-handoff/frontend-first-mock-lane.md",
+      "base_sha256": "9cbc8cb0d91785adca49d2bc88ad6f49d6a6c8659fdefe8cbf5eba8bd1094540",
+      "candidate_sha256": "469b13978688a81a436f62f4aa4a6e24a14c078ae816f49091312a4d96ff705b"
+    },
+    {
+      "path": "references/delivery/agent-delivery-flow.md",
+      "base_sha256": "258fa8d1d3c651e2e50a9b0e5ac71f6e716e92d631a214a3f01bc591734d31fa",
+      "candidate_sha256": "7a4387aee47242e92e89daedd22b006cd628f8eb1dc650826c5616c9007fa901"
+    },
+    {
+      "path": "references/delivery/goal-v3.md",
+      "base_sha256": "14f2a0672bfcbe8a8dca01739c15831d1987c812dbf25c2247463da023699f9f",
+      "candidate_sha256": "88cf9e7a43e8ae7a30cabcf528222a6fafdaefcefc518058e9c9ec38a1c9dbb5"
+    },
+    {
+      "path": "references/plan/domain-design.md",
+      "base_sha256": "2e53d1ea324ed3b5d72b8408cd09f67d54a12a4702ab4275cfb0e7566fcfd829",
+      "candidate_sha256": "3fa93899c59dffa6476cc9957208f521b97763f703dd5cd5a22f48efb8bd824d"
+    },
+    {
+      "path": "references/plan/task-breakdown.md",
+      "base_sha256": "fb3f26f53c11c6167d9586dee62b6d9b8186e426483ddb6601447bf871f2c3b9",
+      "candidate_sha256": "ac59a7a82b0bc5b07b49cfbac80aaad2e92c3b9e01b82bda01936ed26e3e3009"
+    },
+    {
+      "path": "references/review-kit/architecture.md",
+      "base_sha256": "2504e181e62d09a77c54c9dac7713deafea059b7dab9d52e0cec2ddb1f3a02e4",
+      "candidate_sha256": "55c5d90854cd8eafba17762dbcade76875f8a134fbbdc872b4df7bc2fa0d0533"
+    },
+    {
+      "path": "references/stages/goal-handoff.md",
+      "base_sha256": "990f6054363c3b34ef7a9de3b4e37695c1096cd64576cb550029384393b65381",
+      "candidate_sha256": "526ae3103c2125e44e2482228b6ebb750564d626daa36eaf92083d31606248a1"
+    },
+    {
+      "path": "references/stages/implementation.md",
+      "base_sha256": "ab739bbecc57374830172f87938a4ec359917276caec62cd6cdd26742cfde10c",
+      "candidate_sha256": "652d19757461d12285494a2ce9f82fb0ef928ec800ede63f15ce06ada59ba985"
+    },
+    {
+      "path": "references/stages/plan.md",
+      "base_sha256": "16a3fe53d2eda38b6734881f29cac3cfe57899a47fada81159fdc9431e7db506",
+      "candidate_sha256": "9f5668bbb2ae081c0c8dbb7b817b3ffcddcefa174eb109e9bc2216e753a20257"
+    },
+    {
+      "path": "references/stages/review.md",
+      "base_sha256": "8912f1ced0bb22dc77ae91696874b647afc51d670f22554b75e0ceedcfe3abf6",
+      "candidate_sha256": "148fa7603f43134a3865d31772a98799d00c9d7493dbed7f59ba1f11d33bd61f"
+    },
+    {
+      "path": "scripts/check-playbook.sh",
+      "base_sha256": "d25f9f7ece8e696ed20cae54e17df916369096f9dba4e6c3d8b70ef714002c87",
+      "candidate_sha256": "94e02118851cd1911a793df5f36f79689d8eb59c3dcd479d31ccbd68210d36ba"
+    },
+    {
+      "path": "skills/design-review/SKILL.md",
+      "base_sha256": "b256c6cb0ee7e30c29d23d654cb12a6c77020558be8de18ca8c72fa89a8b8d63",
+      "candidate_sha256": "ea98c940130a486fd73819cd6ad2e85bbf2127627705fad01de9f2b721ae8116"
+    },
+    {
+      "path": "skills/fullstack-ui-prototype/SKILL.md",
+      "base_sha256": "2daf9e15f06ac6ff5e317b9fcac6ca22bd9bd73a0fce27634543613ea873fd2d",
+      "candidate_sha256": "26378fd9457983d4b4936c6a338fa15fca76628457fa62d11152ba26634e3da2"
+    },
+    {
+      "path": "skills/goal-execute/SKILL.md",
+      "base_sha256": "d01be341ca8f34f26099e47049bdad86179e5cc41b0489d9aeb8111da4de0b9c",
+      "candidate_sha256": "7bb5aa0ea03842573e7e3cbe66fb06289373b7dfdfa43b93598fa3f4def404f2"
+    },
+    {
+      "path": "skills/nest-api-design/SKILL.md",
+      "base_sha256": "d933ad3c94f3a426aecc05dea010b8cb271f33144ffcc2edc88a1265a890fa88",
+      "candidate_sha256": "e5190658d649051ff8f2b714da592e6c5da4a510f6c7305d186f3b46656a691f"
+    },
+    {
+      "path": "skills/react-vite-feature/SKILL.md",
+      "base_sha256": "d0b0ea67cbb087aa124967e1f145b76d479a6decd12ccc20d366d3cb4b4e7bd1",
+      "candidate_sha256": "e27bbcd710285b005e8352d532a5b1eb85cac73312ea90ead31d6ab42e4e920b"
+    },
+    {
+      "path": "templates/feature-design.md",
+      "base_sha256": "844b7294886dc77614cac0bbcbf9e271a5b6e8e35dd94b066a361cf1b8a36700",
+      "candidate_sha256": "fc710c70dca46b56e9907adce26a0089f24571274ac495a799dad59ae642a309"
+    }
+  ],
+  "validation": {
+    "regression": "checks.txt",
+    "scenarios": "scenario-assessment.json",
+    "review": "review.md",
+    "skill_format": "5个修改过的SKILL.md均通过quick_validate.py"
+  }
+}

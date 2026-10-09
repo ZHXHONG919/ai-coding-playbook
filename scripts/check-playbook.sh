@@ -496,7 +496,7 @@ ruby "$ROOT_DIR/scripts/test-goal-v3.rb"
 ruby -rjson -e '
   root = ARGV.fetch(0)
   cases = Dir.glob(File.join(root, "[0-9][0-9]-*" )).select { |p| File.directory?(p) }.sort
-  required_ids = %w[01-real-identifier 02-e2e-business-result 03-upload-preview-intent 04-no-invented-legacy-data 05-fallback-is-not-real-mode 06-fix-family-and-impact 07-stale-status 08-ordinary-vs-foundation 09-lightweight-doc-write 10-expected-source-conflict 11-prototype-fidelity 12-execution-evidence 13-autonomous-contract-recovery 14-minimal-handoff-retains-intent 15-current-runtime 16-grouped-review 17-cost-control 18-resource-ownership 19-handoff-release 20-preview-scope]
+  required_ids = %w[01-real-identifier 02-e2e-business-result 03-upload-preview-intent 04-no-invented-legacy-data 05-fallback-is-not-real-mode 06-fix-family-and-impact 07-stale-status 08-ordinary-vs-foundation 09-lightweight-doc-write 10-expected-source-conflict 11-prototype-fidelity 12-execution-evidence 13-autonomous-contract-recovery 14-minimal-handoff-retains-intent 15-current-runtime 16-grouped-review 17-cost-control 18-resource-ownership 19-handoff-release 20-preview-scope 21-frontend-group-sequence 22-server-domain-boundaries 23-probe-and-mock-replacement 24-server-api-mock]
   missing = required_ids - cases.map { |dir| File.basename(dir) }
   abort("缺少既有行为场景：#{missing.join(", ")}") unless missing.empty?
   cases.each do |dir|
