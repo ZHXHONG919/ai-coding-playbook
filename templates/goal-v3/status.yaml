@@ -6,5 +6,5 @@ runs: [] # 按执行顺序追加 {path: runs/V1.yaml, sha256: 实际摘要}
 # 以下字段按需要保留，不另建恢复文件。
 next_action: <下一具体动作>
 constraints: [] # 适用授权、硬约束与最新决定的定位引用
-active_workers: [] # {id: worker, task: T1, write_scope: [src], state: running或stale}
+active_workers: [] # {id: worker, task: T1, write_scope: [src], resource_scope: [local-api], state: running或stale}；资源范围按需，至少一种范围非空
 open_gaps: [] # {id: G1, results: [R1], detail: 具体缺口, required: true}

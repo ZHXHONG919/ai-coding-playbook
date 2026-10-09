@@ -91,6 +91,96 @@ class GoalV3Test < Minitest::Test
     assert_match(pattern, error.message)
   end
 
+  def resource_worker(id, resource, state: 'running', files: [])
+    { 'id' => id, 'task' => 'T1', 'state' => state, 'write_scope' => files, 'resource_scope' => resource }
+  end
+
+  def test_resource_only_worker_is_active_but_cannot_complete
+    record
+    @status['active_workers'] = [resource_worker('runtime', ['local-api'])]
+    refute check['complete']
+    rejects(/worker|写权限|释放/) { check(complete: true) }
+  end
+
+  def test_distinct_files_do_not_hide_shared_runtime_conflict
+    @status['active_workers'] = [resource_worker('api', ['local-api'], files: ['src/api']),
+      resource_worker('ui', ['local-api'], files: ['src/ui'])]
+    rejects(/运行资源范围重叠/) { check }
+  end
+
+  def test_stale_worker_retains_resource_until_explicit_release
+    @status['active_workers'] = [resource_worker('old', ['local-jobs'], state: 'stale'),
+      resource_worker('new', ['local-jobs'])]
+    rejects(/运行资源范围重叠/) { check }
+    @status['active_workers'].shift
+    refute check['complete']
+  end
+
+  def test_distinct_runtime_resources_are_allowed_and_can_be_released
+    record
+    @status['active_workers'] = [resource_worker('api', ['local-api']), resource_worker('jobs', ['local-jobs'])]
+    refute check['complete']
+    @status['active_workers'] = []
+    assert check(complete: true)['complete']
+  end
+
+  def test_invalid_or_empty_resource_ownership_is_rejected
+    [[], ['local-api', 'local-api'], ['Local-API'], ['https://secret@example.invalid']].each do |resources|
+      @status['active_workers'] = [resource_worker('worker', resources)]
+      rejects(/操作范围至少|不得重复|资源标识/) { check }
+    end
+  end
+
+  def test_misspelled_resource_scope_is_not_silently_ignored
+    @status['active_workers'] = [resource_worker('api', [], files: ['src/api'])]
+    @status['active_workers'][0]['resources_scope'] = ['local-api']
+    rejects(/未知字段/) { check }
+  end
+
+  def test_scoped_blocker_does_not_reject_independent_result
+    @doc['results']['V']['depends_on'] = ['F']
+    record(blockers: 1) { |run| run['review']['blocking_results'] = ['V'] }
+    assert_equal %w[F U], check['passed_results']
+    assert_equal ['V'], check['pending_results']
+    rejects(/V/) { check(complete: true) }
+    record(checks: ['V'])
+    assert check(complete: true)['complete']
+  end
+
+  def test_scoped_foundation_blocker_invalidates_transitive_consumers
+    record
+    record(blockers: 1, checks: []) { |run| run['review']['blocking_results'] = ['F'] }
+    assert_empty check['passed_results']
+    assert_equal %w[F U V], check['pending_results']
+  end
+
+  def test_scoped_blocker_preserves_prior_unrelated_evidence
+    @doc['results']['V']['depends_on'] = ['F']
+    record
+    record(blockers: 1, checks: []) { |run| run['review']['blocking_results'] = ['V'] }
+    assert_equal %w[F U], check['passed_results']
+  end
+
+  def test_invalid_blocker_scope_is_rejected
+    record(blockers: 1) { |run| run['review']['blocking_results'] = [] }
+    rejects(/空范围/) { check }
+  end
+
+  def test_unknown_blocker_result_is_rejected
+    record(blockers: 1) { |run| run['review']['blocking_results'] = ['UNKNOWN'] }
+    rejects(/blocking_results/) { check }
+  end
+
+  def test_zero_blockers_cannot_name_blocked_results
+    record { |run| run['review']['blocking_results'] = ['U'] }
+    rejects(/阻塞数量与结果范围/) { check }
+  end
+
+  def test_duplicate_blocker_scope_is_rejected
+    record(blockers: 1) { |run| run['review']['blocking_results'] = %w[U U] }
+    rejects(/重复/) { check }
+  end
+
   def test_ordinary_task_progress_does_not_claim_acceptance
     state = check
     assert_equal %w[F U V], state['pending_results']

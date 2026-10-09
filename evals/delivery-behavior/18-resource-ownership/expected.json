@@ -1,0 +1,18 @@
+{
+  "case_id": "18-resource-ownership",
+  "expected_route": [
+    "references/delivery/agent-delivery-flow.md",
+    "references/delivery/goal-v3.md"
+  ],
+  "must_include": [
+    "文件不重叠仍有运行冲突，重启、重置库和端口操作须统一安排，按测试副作用判断。",
+    "stale 资源未核实释放仍占用；推进无冲突工作，不终止未知进程。",
+    "仅实际独占操作登记统一 resource_scope；登记不等于系统锁，不假设脚本可识别别名。"
+  ],
+  "must_not": [
+    "把 test 命令视为无副作用而同时执行。",
+    "stale 当已退出，直接抢占资源。",
+    "默认换 worktree 就能隔离共享端口和库。"
+  ],
+  "review_method": "只向被测执行者提供 input 和相关候选规则；依据实际选择逐项判定。场景推演不证明真实运行或成本收益。"
+}

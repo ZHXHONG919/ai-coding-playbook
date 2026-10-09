@@ -370,14 +370,23 @@ module GoalV3
     string(status['next_action'], 'next_action') if status.key?('next_action')
     list(status.fetch('constraints', []), 'constraints').each { |constraint| string(constraint, 'constraint') }
     workers = list(status.fetch('active_workers', []), 'active_workers')
-    worker_ids, scopes = [], []
+    worker_ids, scopes, resources = [], [], []
     workers.each do |worker|
       mapping(worker, 'worker')
+      require!((worker.keys - %w[id task state write_scope resource_scope]).empty?, 'worker 包含未知字段；请核对文件与资源操作范围')
       worker_ids << string(worker['id'], 'worker.id')
       require!(doc['tasks'].key?(worker['task']), 'worker.task 不存在')
       require!(%w[running stale].include?(worker['state']), 'worker.state 必须为 running 或 stale')
       scope = list(worker['write_scope'], 'worker.write_scope').map { |path| relative(path) }
-      require!(!scope.empty?, 'worker.write_scope 不能为空')
+      resource_scope = list(worker.fetch('resource_scope', []), 'worker.resource_scope').map do |resource|
+        name = string(resource, 'worker.resource_scope item')
+        require!(name.match?(/\A[a-z][a-z0-9._:-]*\z/), '资源标识须为统一的小写名称，不使用 URL、凭据或路径')
+        name
+      end
+      require!(resource_scope.uniq == resource_scope, 'worker.resource_scope 不得重复')
+      require!(!scope.empty? || !resource_scope.empty?, 'worker 文件或资源操作范围至少一种非空')
+      require!((resources & resource_scope).empty?, '活动或失联 worker 运行资源范围重叠；先核实释放')
+      resources.concat(resource_scope)
       require!(scopes.none? { |other| scope.any? { |path| other.any? { |prior| path == prior || path.start_with?(prior + '/') || prior.start_with?(path + '/') } } }, '活动或失联 worker 写入范围重叠；先核实释放')
       scopes << scope
     end
@@ -445,9 +454,17 @@ module GoalV3
       passed.delete_if { |id, hash| !results.key?(id) || target['contract_hashes'][id] != hash }
       checks = mapping(run['checks'], 'checks')
       ids(checks.keys, results.keys, 'checks')
-      require!(blockers.zero? || !(affected + checks.keys).empty?, '有阻塞的审查必须标明受影响结果或验证项')
+      blocking_results = if review.key?('blocking_results')
+        declared = ids(review['blocking_results'], results.keys, 'review.blocking_results')
+        require!(blockers.zero? ? declared.empty? : !declared.empty?, '阻塞数量与结果范围不一致；不能用空范围绕过阻塞')
+        declared
+      else
+        # 既有 v3 记录没有定向范围时保守处理，不猜测问题属于哪个结果。
+        blockers.zero? ? [] : affected + checks.keys
+      end
+      require!(blockers.zero? || !blocking_results.empty?, '有阻塞的审查必须标明受影响结果或验证项')
       failed_results = checks.select { |_id, check| mapping(check, 'check')['state'] == 'failed' }.keys
-      invalidated = consumers(results, blockers.zero? ? failed_results : affected + checks.keys)
+      invalidated = consumers(results, failed_results + blocking_results)
       invalidated.each { |id| passed.delete(id) }
       checks.each do |id, check|
         mapping(check, "checks.#{id}")
@@ -457,7 +474,7 @@ module GoalV3
         evidence = list(check['evidence'], "#{id}.evidence")
         require!(!evidence.empty?, "#{id} 缺少实际观测证据")
         evidence.each { |item| workspace.ref_bytes(item, 'runs') }
-        if blockers.zero? && check['state'] == 'passed' && !invalidated.include?(id)
+        if check['state'] == 'passed' && !invalidated.include?(id)
           passed[id] = check['contract_hash']
         else
           passed.delete(id)

@@ -69,7 +69,7 @@ description: 创建、更新、审查或整理 Codex、Cursor 和 Claude Code �
 7. 若改动影响触发或输出门禁，新增或更新 `evals/` 样例。
 8. 更新 `scripts/check-playbook.sh` 的必需文件列表。
 9. 运行 `bash scripts/check-playbook.sh`。
-10. 安装与规则编辑分开。先检查全局 skills 是否实时软链接到当前仓库；用户要求暂不应用时，在独立工作树修改，保持已安装源和链接不变，运行 `bash scripts/check-playbook.sh --repo-only`。只有用户明确要求应用时才运行相应安装命令。
+10. 安装与规则编辑分开。先检查全局 skills 是否实时软链接到当前仓库；用户要求暂不应用时，保持已安装源和链接不变；若当前源被实时引用，在当前项目内使用普通候选副本并保留可回灌差异，不主动创建 worktree（仅用户明确要求时使用），运行 `bash scripts/check-playbook.sh --repo-only`。只有用户明确要求应用时才运行相应安装命令。
 
 ## Review Checklist
 

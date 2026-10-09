@@ -1,0 +1,19 @@
+{
+  "case_id": "15-current-runtime",
+  "expected_route": [
+    "references/stages/bugfix.md",
+    "references/delivery/agent-delivery-flow.md",
+    "references/git-safety.md"
+  ],
+  "must_include": [
+    "先核实实际入口、worker 加载版本及实际配置，以日志/任务轨迹/行为观测判断，不仅检查 cwd 或当前 env。",
+    "有操作权且无在途冲突才重启相关进程；从正常入口验证代表任务，未取得观测不得称已修复。",
+    "保留原开发环境，无需重建 Goal，后续只复核受影响结果。"
+  ],
+  "must_not": [
+    "默认创建 worktree、另起专用 worker 或切到临时库并宣称正常验收。",
+    "不检查运行分歧就继续改业务代码或重跑全部测试。",
+    "把本场景叙述当成亲自执行过的证据。"
+  ],
+  "review_method": "只向被测执行者提供 input 和相关候选规则；依据实际选择逐项判定。场景推演不证明真实运行或成本收益。"
+}

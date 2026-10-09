@@ -1,0 +1,18 @@
+{
+  "case_id": "16-grouped-review",
+  "expected_route": [
+    "references/stages/implementation.md",
+    "references/stages/review.md"
+  ],
+  "must_include": [
+    "继续接通保存、返回和再次读取，不因 R1/R2 自测通过分别启动正式 CR。",
+    "同一连续使用过程能完整运行时合批独立验收与 CR，后台和 CLI 的独立操作面另行形成候选。",
+    "首次真实路径尽早校准，共享格式既有覆盖有效则复用；不要等所有操作面实现完再首次正式核验。"
+  ],
+  "must_not": [
+    "每个结果分别安排同步 CR。",
+    "整个需求都归共享基础，必须等后台和 CLI 全部完成。",
+    "合批意味着取消独立验收或省略必需结果。"
+  ],
+  "review_method": "只向被测执行者提供 input 和相关候选规则；依据实际选择逐项判定。场景推演不证明真实运行或成本收益。"
+}

@@ -8,6 +8,8 @@ review:
   owner: independent-reviewer
   summary: <基于同一完整差异的独立审查及主线程裁决>
   blocking_findings: <实际非负整数> # 由审查结论填写；未裁决不能默认填 0
+  # 有阻塞且范围明确时填写；沿依赖失效，其他结果可通过。范围未知时省略，保守阻塞本轮受影响/核验结果。
+  # blocking_results: [R1] # 数量为0只能省略或[]；数量>0不得写[]
 changes:
   - path: <实际变化的仓库相对路径>
     results: [R1]
@@ -20,4 +22,4 @@ checks:
     evidence:
       - path: runs/evidence.txt # goal 目录相对路径
         sha256: <实际证据文件摘要>
-    observed: <实际入口、数据、操作及观测；不能只写“测试通过”>
+    observed: <实际入口、数据、操作及观测；涉及运行时补相关版本/配置事实、方法与时间，引用脱敏证据；不能只写“测试通过”>
