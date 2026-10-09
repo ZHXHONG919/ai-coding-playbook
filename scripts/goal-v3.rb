@@ -73,7 +73,8 @@ module GoalV3
 
   def self.nonsecret_path!(path)
     name = File.basename(path)
-    env_secret = name.start_with?('.env') && !%w[.env.example .env.sample .env.template].include?(name)
+    # 只允许精确的脱敏示例名；备份、环境实值文件和任意 .env.* 仍拒绝。
+    env_secret = name.start_with?('.env') && !%w[.env.example .env.local.example .env.sample .env.template].include?(name)
     require!(!env_secret && !%w[id_rsa id_ed25519].include?(name) && !name.end_with?('.pem', '.key'), "不能冻结可能含密钥的文件 #{path}；请引用项目批准的脱敏配置，并在验证证据记录环境标识")
   end
 

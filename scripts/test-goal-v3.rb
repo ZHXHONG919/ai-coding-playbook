@@ -400,6 +400,43 @@ class GoalV3Test < Minitest::Test
     rejects(/不能冻结可能含密钥/) { GoalV3.capture(@goal, 'secret') }
   end
 
+  def test_local_environment_example_is_frozen_and_changes_invalidate_checks
+    path = 'config/.env.local.example'
+    write(path, "APP_MODE=example\n")
+    @doc['inputs'] = [path]
+    record
+    frozen = JSON.parse(File.read(File.join(@goal, @last_snapshot['path'])))
+    assert frozen['files'].key?(path)
+    blob = frozen['files'].fetch(path).fetch('blob')
+    assert_equal "APP_MODE=example\n", File.binread(File.join(@goal, 'blobs', blob))
+    write(path, "APP_MODE=another-example\n")
+    record(checks: [])
+    assert_equal %w[F U V], check['pending_results']
+  end
+
+  def test_environment_and_key_names_remain_rejected_before_blob_storage
+    paths = %w[.env .env.local .env.prod .env.production .env.local.example.bak
+      .env.local.example~ .env.prod.example .env.sample.backup id_rsa id_ed25519 cert.pem cert.key]
+    marker = 'fixture-private-material-never-copy'
+    paths.each_with_index do |name, index|
+      path = "config/#{name}"
+      write(path, marker)
+      @doc['inputs'] = [path] # 即使被机器上的全局 Git ignore 忽略，也必须检查。
+      save
+      rejects(/不能冻结可能含密钥/) { GoalV3.capture(@goal, "blocked-#{index}") }
+      refute Dir.glob(File.join(@goal, 'blobs/*')).any? { |file| File.binread(file).include?(marker) }, name
+      File.delete(File.join(@repo, path))
+    end
+  end
+
+  def test_local_environment_example_cannot_bypass_symlink_protection
+    write('.env.local', 'fixture-private-target')
+    write('.gitignore', ".env.local\n")
+    File.symlink(File.join(@repo, '.env.local'), File.join(@repo, '.env.local.example'))
+    save
+    rejects(/不支持符号链接/) { GoalV3.capture(@goal, 'example-link') }
+  end
+
   def test_symbolic_source_is_rejected
     File.symlink(File.join(@repo, 'docs/F.md'), File.join(@repo, 'alias.md'))
     @doc['results']['F']['sources'] = [{ 'path' => 'alias.md', 'anchor' => 'F' }]
