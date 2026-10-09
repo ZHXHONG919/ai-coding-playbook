@@ -71,6 +71,8 @@ AI 应该自动读取目标业务项目自己的 README / AGENTS / CLAUDE / docs
 
 连续执行、资源操作范围与时间/token 控制的更新见 [2026-10-08 改动与审查记录](proposals/20261008-delivery-flow/review.md)。
 
+有确认原型的全栈工作采用“领域与接口设计 → 服务端开发态 Mock API → 本组完整前端体验 → 按领域能力实现真实业务 → 逐项替换与合批验收”，详见[实施顺序](references/plan/task-breakdown.md)及[本次改动与审查记录](proposals/20261009-frontend-first/review.md)。
+
 ## 用证据优化执行策略
 
 执行 Goal 或试用新策略时，在已有任务边界留下选择理由、实际结果和证据引用。复用原记录或一份[执行记录模板](templates/execution-log.md)，通过[记录方法](references/delivery/execution-evidence.md)区分需求变化、实现缺陷、验证遗漏和重复检查。开工粗略安排主要成本，已有工作边界比较进展与消耗，偏离时调整方法；时间/token 缺失如实标注，不增加逐工具报告，不以单次模拟宣称效率提高。

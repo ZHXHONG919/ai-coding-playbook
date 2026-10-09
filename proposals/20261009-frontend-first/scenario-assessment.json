@@ -1,0 +1,35 @@
+{
+  "method": "同一独立Agent未读expected的三例批量场景推演；主线程对照判据人工评价，不是真实开发或冷启动对照试验。",
+  "first_pass": [
+    {
+      "case_id": "21-frontend-group-sequence",
+      "verdict": "pass",
+      "evidence": "scenarios-first-pass.md#21-frontend-group-sequence",
+      "reason": "覆盖5条必要项；先补契约、A完整前端再后端、A/B可独立推进、区分模拟与真实证据、无新增审批。未命中禁止项。"
+    },
+    {
+      "case_id": "22-server-domain-boundaries",
+      "verdict": "pass",
+      "evidence": "scenarios-first-pass.md#22-server-domain-boundaries",
+      "reason": "覆盖5条必要项；复用既有职责、拒绝逐页面复制规则与通用引擎、共享基础提前定向核验、常规后端顺序保留。未命中禁止项。"
+    },
+    {
+      "case_id": "23-probe-and-mock-replacement",
+      "verdict": "partial",
+      "evidence": "scenarios-first-pass.md#23-probe-and-mock-replacement",
+      "reason": "6条必要项中第4条只说明模拟范围、替换点和清理条件，未明确真实替换责任归属，其余要求覆盖。未命中禁止项。"
+    }
+  ],
+  "targeted_change": "在task-breakdown的既有模拟记录要求中明确本组owner负责真实替换，明确交接后才能转交；不新增文件/状态字段。",
+  "recheck": {
+    "case_id": "23-probe-and-mock-replacement",
+    "verdict": "pass",
+    "evidence": "scenario-23-recheck.md",
+    "reason": "原判据保持不变；同一Agent仅补读更新规则和第23例输入，明确本组owner负责模拟退出及交接，其余边界保持。"
+  },
+  "limits": [
+    "场景输出是行动计划，未实现业务项目。",
+    "未得到实际业务工时或主/子Agent完整token用量，不能宣称效率改善。",
+    "归档只将读取清单中的机器绝对路径替换为<candidate>/，正文保留原回答。"
+  ]
+}

@@ -14,6 +14,8 @@ description: 执行或恢复已准备好的复杂功能 Goal。连续实现完�
 3. 选择下一可执行动作：先吸收用户修订、核实现场分歧、解决高影响未知、接回成果，再推进必需结果。普通自测通过继续，首条真实路径不自动 CR；正式核验按 `references/stages/review.md` 合批。
 4. 在已有边界依 `references/delivery/execution-evidence.md` 判断时间/token 消耗是否带来进展；缩减重复读取、过度委派和无新信息的检查，不降低质量或扩大授权。
 
+有确认原型的前端/API 工作，恢复时核实本组前端体验、领域/API 契约和模拟替换的实际进展，按 `references/plan/task-breakdown.md` 继续；不因恢复丢失前端先行顺序，也不重做已有效完成的阶段。服务端按领域职责及依赖实现。
+
 用户只要求检查或只跑一项时遵守范围；默认连续至请求完成。开工条件见 `references/stages/goal-handoff.md`。不支持格式不得改版本号伪造迁移；轻量工作不建 Goal。
 
 ## 协作与收尾
