@@ -31,7 +31,7 @@ evals/
 
 ## 当前结构检查与独立行为回放
 
-- `ruby scripts/test-goal-v3.rb`：临时 Git 仓库中的 v3 结果、任务、依赖、增量证据及非法格式正反例。
+- `ruby scripts/test-goal-v3.rb`：临时 Git 仓库中的 v3 结果、任务、依赖、增量证据及非法格式正反例；包含 `.env.local.example` 入快照及变更失效、真实环境配置/密钥/备份拒绝和符号链接拒绝。允许示例名不等于内容扫描，示例仍须先脱敏。
 - `ruby scripts/check-goal.rb --template templates/goal-v3`：当前模板结构一致性，不能代替真实 Goal 的开工条件。
 - [共用交付行为场景](delivery-behavior/README.md)：01–14 的 `input.md` 提供给独立执行者；运行后才由评价者读取 `expected.json` 评分，不把预期答案泄漏给执行者。
 - `delivery-behavior/execution/upload-preview/`：复制到隔离目录实际修复控制器，用未给实现者的用户行为检查复核；不能称为浏览器或真实项目验收。
