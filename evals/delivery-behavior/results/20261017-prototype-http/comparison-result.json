@@ -1,0 +1,775 @@
+{
+  "completed_at_utc": "2026-10-17T05:38:41.425032+00:00",
+  "plan_sha256": "34aebe3405571604f4fc9e84c315bdb8e5ef5fe33384aa244c5c4bded60c91b7",
+  "instructions_sha256": "f7542dba62fc20b37398a31e1a7d8630647e1ca609054ee2cb85b5abd8b0ad90",
+  "input_request": "接续本目录产品编辑页，按项目已确认的采用稿和接口约定完成“填写名称、选择目录、保存草稿、重开读回”，图片仅做布局。项目说明见README.md，启动方式见runtime.md。使用正常请求层并实际验证，不改采用稿、不操作业务项目、不提交、安装或部署。\n",
+  "baseline_commit": "b9e3a193c7620266cc6c5d9589c268d12be2d70f",
+  "candidate_rule_sources": {
+    "references/delivery/agent-delivery-flow.md": "# Agent 交付流程与节点职责\n\n> 在质量达标的前提下减少总交付时间、token 和返工。节点是职责，不要求分别开 Agent、建报告或等待用户。轻量任务直接执行；需要恢复的复杂任务沿用 schema 3，不新增流程层。\n\n## 一个持续推进的执行循环\n\n```mermaid\nflowchart TD\n  A[明确全部用户结果与当前依据] --> B[核实事实，选择最早真实路径]\n  B --> C[当前环境实现、集成与必要自测]\n  C -->|普通工作通过，继续| C\n  C -->|新的共享语义即将扩散| D[定向独立核验]\n  D --> C\n  C -->|一组连续使用过程可运行| E[集中独立验收与 CR]\n  E -->|定向修复或继续其他结果| C\n  E -->|全部必需结果已覆盖| F[核对最终差异与实际状态并交付]\n```\n\n先列全用户结果，近期工程步骤滚动展开。结果清单负责防漏，核验可以合并多个结果，不一一对应。主执行者持续推进主路径及集成，不只派活和汇总。独立检查期间，无冲突的工作继续；具体核验触发与合批判据只在 `references/stages/review.md` 定义。\n\n有确认原型时，实现循环按 `references/plan/task-breakdown.md` 展开：领域与接口契约 → 服务端开发态 Mock API → 前端真实请求下的本组完整体验 → 按领域能力实现真实业务 → 逐步替换模拟与真实集成。关键未知可提前有限验证；已有真实能力复用。用户路径组织交付，领域职责组织服务端；各步复用当前任务，不另设审批或报告。\n\n下一动作按实际需要选择，不逐轮复述本表：\n\n1. 有用户新决定：更新当前依据，暂停仍按旧约定写入的相关工作，再继续。\n2. 自测与现场矛盾：先核实入口、版本、数据和运行组合，再决定是否改业务代码。\n3. 有会推翻方案或造成广泛返工的未知：先做有限探针，解决一个具体问题。\n4. 有已完成的委派成果：及时接回，验证集成边界，不积累未集成工作。\n5. 其余情况：推进下一项必需结果；达到核验条件再合批检查。\n\n## 节点输入与输出\n\n| 职责 | 输入 | 输出与继续条件 |\n| --- | --- | --- |\n| 明确结果 | 用户原话、最新修订、既有行为 | 全部结果、非目标、不可变约束与授权；产品决定有当前来源 |\n| 准备执行 | 当前结果、采用稿、领域/API 契约、真实入口与消费者 | 本组范围与完整前端体验标准、服务端职责/依赖、最早真实路径和近期步骤；无界面工作按实际需要 |\n| 实现与集成 | 当前依据、事实、文件及运行资源范围 | 可运行改动、自测实际观测、影响和缺口；普通自测通过继续 |\n| 独立核验 | 当前要求、固定版本、真实入口和有效覆盖 | 行为结论、代码发现、主执行者裁决与定向复核范围 |\n| 交付或接任 | 全部结果、最终差异、实际状态和未完成项 | 准确的可用范围；未完成时留下下一具体动作及恢复条件 |\n\n同一 owner 贯通路径，当前接手者承担整体交付责任；不假设原聊天永久在线。能够由明确需求引用、涉及路径与当前结果唯一对应时，沿用原索引。不能只凭聊天标题或最近目录认领；无法确认归属时，不改写候选 Goal，仍可完成已明确且独立的授权请求，如实说明尚未纳入整体交付。不得自动控制或向其他会话发消息，须遵守工具和用户授权。\n\n## 当前依据与按需交接\n\n每个结果只维护一份短约定，复用需求、原型或 Goal：入口、对象、动作、上下文、结果；必须保持的行为与允许变化的细节；相关区块的当前来源；一个能区分误解的样本。两处同名按钮的对象与去向不得混同。用户的新局部决定优先于旧整页原型；技术选择和 reviewer 偏好不得改写用户语义。\n\n入口仅保留硬边界与路由；阶段规则仅加载本次动作，专项参考按真实风险读取。同一有效内容不反复全量读取；发生修订或恢复时补读相关来源。以下提示是现有来源的临时视图，不另建行动卡或复制完整方案。\n\n**执行与恢复：**\n\n> 依据 `<当前结果与来源>` 继续。保持 `<最近决定与硬约束>`，先核实本次最可能做错的地方。默认当前目录和现有环境，普通自测通过继续；缺口只阻止依赖它的工作。旧摘要用于定位，不作为当前通过依据。\n\n**实现委派：**\n\n> 完成 `<具体工作及结果编号>`，依据 `<当前来源>`；保持 `<关键约束>`。有界面时引用本组采用稿、接口契约与完整交互范围；本端采用状态、有效决定或正常运行入口不明时，按 `references/plan/task-breakdown.md` 查明，仅补需要复用的缺项，不能只列目录。服务端引用领域职责与依赖，说明哪些能力仍是模拟。只操作 `<文件与运行资源范围>`，其余共享资源由主执行者安排。返回实际改动、自测观测、受影响结果和待集成事项；不另写方案、不改全局进度、不自行提交发布。\n\n**独立核验：**\n\n> 核验 `<本组结果及固定版本>`。先从当前要求形成预期，使用 `<真实入口与中性运行事实>` 观察，再读实现解释和完整差异。复用仍有效的覆盖，补查受本次变化影响的范围。不得修改待验范围或自行替换共享环境；返回可复查的问题、影响及必要复核范围。\n\n## 当前环境与协作范围\n\n未特别说明时，在当前项目目录和现有正常开发环境工作，不主动创建或切换 worktree；用户明确要求才使用。使用正常测试夹具不等于切换开发环境，但不得把替身、临时库或专用 worker 接管用户日常入口后称为正常系统。Git 分支、数据和发布权限仍按项目约定。\n\n并行前判断输入是否稳定、成果是否可集成、文件及运行资源是否互不冲突。共享服务启停、端口、数据库、队列、运行配置和模板注册由当前承担集成者统一安排；可明确委派具体操作，未分配者不操作；委派期间主执行者也遵守该范围，核实收回后再自行操作。`test` 命令也可能写库、占端口或消费队列，按实际副作用判断。待验范围及其运行依赖冻结，无冲突工作继续。\n\n确有并行才在已有 `active_workers` 保留文件与资源操作范围；失联参与者不能当作已释放。登记是协作约定，不是跨会话强制锁，不覆盖未知的其他操作者。只读观察不占独占操作范围；已知冲突未解除时先做无冲突工作，不抢占或终止他人进程。\n\n只在以下边界核对与本次行为相关的运行事实：接手并即将使用现场、改变运行组合之后、准备声明结果可用之前。不每轮扫描全部进程和配置。\n\n```text\n用户实际入口 → 承担行为的进程/worker → 实际数据及关键配置 → 代表操作与最终结果\n```\n\n优先使用已有构建标识、启动日志、任务轨迹和同一存储读回。进程 cwd 不证明加载了最新代码，当前 .env 不证明进程已采用，API health 不证明异步任务成功。确有操作权且没有在途任务冲突时，可按正常方式受控重启并验证；不能为取得证据强制重启他人服务。无法证明的范围保留缺口，不建设万能环境平台，不保存凭据。\n\n发生临时配置或进程变更时，在已有恢复信息中保留差异及回收动作；交付前恢复约定运行方式，或落实已授权采用的正式改变。纯“启动服务、给预览”请求仍只做服务操作与最小检查，说明现有质量状态，不自动升级完整验收或 CR。\n\n## 缺口只阻止依赖它的工作\n\n| 情况 | 当前动作 | 尚不能宣称什么 |\n| --- | --- | --- |\n| 实现细节未知，用户结果不变 | 查询或有限探针，自主选择可验证做法 | 未观测行为已通过 |\n| 外部能力暂缺，消费语义可确定 | 约定输入输出、错误与副作用，用 adapter 或替身继续独立开发 | 真实能力及集成已经完成 |\n| 共享权限、身份或状态语义未成立 | 收口基础，查生产者、消费者和恢复入口；继续无依赖工作 | 接口签名等于业务规则成立 |\n| 超出现有授权或关键事实不可获得 | 保留具体缺口、恢复条件，推进其他可执行部分 | TODO 等于交付，或必需结果可以删除 |\n\n隔离复用现有 TODO/缺口记录，写清影响、负责人、回收点与真实检查。生产路径不得伪造成功。除非用户主动介入，不为普通选择重开产品问答；确实没有可推进工作时如实说明未完成条件。\n\n时间与 token 的事前安排、执行中调整和证据口径见 `references/delivery/execution-evidence.md`。成本压力改变工作方法，不降低必需质量或扩大授权。\n",
+    "references/delivery/evidence-driven-delivery.md": "# 证据驱动交付\n\n> 围绕已确认行为选择最小充分证据。每个结论都说明观察到了什么、能证明什么；普通任务共享结果证据，不重复搭环境、写报告或截图。Goal 统一以结果为验收单位。\n\n## 从行为选择证据\n\n正常开发以有效需求、用户认可的既有行为或已确认界面为基线；修复以问题原始来源和复现结果为依据。先按 `skills/test-scope-analysis/SKILL.md` 写检查单：\n\n```text\n改变的行为 → 关键反例 / 风险 → 真实入口与观测点 → 预期结果 → 足够的证据\n```\n\n“必要自测”由这份检查单决定，不是固定执行 lint、typecheck、build、全量 test 的组合。实现者执行任务自测；关键基础及完整结果需要独立判断，审查安排统一遵循 `references/stages/review.md`。\n\n## 观测生产行为，保持期望独立\n\n- **实际入口：** 选能覆盖本次行为的生产函数、服务接口或客户端入口。跨模块验收尽早接通一条最短应用路径，不用多组互不相连的单测推断整体已跑通。\n- **实际结果：** 响应、状态、调用次数、因果关系和存储内容必须从运行结果读取。将预期常量写进报告、读取上游状态代替最终状态，均不能证明最终行为。\n- **独立期望：** 来自有效业务规则、按该规则确定的冻结样例或用户认可的既有行为；只观察到旧代码/测试如此，不自动成为验收口径。来源冲突先说明，选一个能区分最可能两种解释的输入，不用旧测试通过决定产品口径。禁止用本次实现计算期望值，再以相同计算证明自己正确；基线变化需解释原因，不能直接更新快照吞掉差异。\n- **替身边界：** 可替换数据库连接、时钟、provider 等外部依赖，但保留被测业务判断。固定 provider 只校验真实请求并返回预声明响应，不在替身内重写路由、质量判定或回退决策。\n- **真实写后读：** 被测代码执行写入，再从同一个存储读取；手工预填“最终记录”只证明读取功能。使用内存存储时说明与真实数据库的差距，事务/锁/约束本身的验收需要相应数据库证据。\n- **能检出错误：** 高风险验收挑一个相关错误输入、断开调用或字段篡改，确认检查会失败。无需为所有任务另建完整变异测试体系。\n- **识别假接入：** 新增服务端 Mock 的当前路径，选一个能区分“消费响应”与“前端自造结果”的样例。例如改变服务端候选值，观察页面实际变化；涉及保存时通过正常页面保存并重开读回，再验证一次保存失败不会显示成功，只读场景不为此新增保存操作。使用项目已有请求层与观测方式，不为此建设通用探针或完整模拟数据库。HTTP 200、请求日志和特征值均只作辅助，不能单独证明页面消费了响应；成熟真实接口的无关样式修改不强制加入这项检查。\n- **模型质量边界：** 固定模型响应能证明应用如何构造输入、消费输出与保存结果，不能证明真实模型效果。若验收要求实际生成质量，应单独安排已授权环境的代表性评测，写明配置、结果和波动，不能用 mock 通过替代。\n\n## 证据等级\n\n| 等级 | 适用范围 | 最小充分证据 |\n| --- | --- | --- |\n| E0 | 重复问题、非问题、口径误解、无需运行的文档变化 | 产品口径、位置、历史提交或重复关系 |\n| E1 | 后端逻辑、接口、状态、数据、历史已修复 | 针对性测试、真实接口响应、数据读回或当前路径检查 |\n| E2 | 页面功能、入口、权限、状态展示 | 浏览器或客户端操作验证；必要时保留关键截图 |\n| E3 | 视觉差异、复杂交互、多角色、多端一致性、真实环境问题 | 基线/实现对比、关键角色和端的同路径证据 |\n\n等级只选择证明手段，不决定审查轮数，也不代表越高越好：\n\n- 用户可见界面行为至少需要运行态检查；视觉、跨角色或跨端结论要有对应对比。\n- 并发、事务、权限、幂等和数据正确性不能用截图替代行为证据。\n- 历史已修复问题要求当前路径证据，不强制重建修改前现场。\n- 多个任务共用同一路径、角色和状态时共享证据，并指明各自证明的行为。\n- 无法取得必要证据时标明未验收部分及影响；仍可推进无依赖工作，不把缺口写成通过。\n\n## 界面验证与预算\n\n涉及界面的任务声明界面基线、需要证明的关键状态及证据门禁；无界面变化可写 `界面基线：无`、`证据门禁：接口/数据证据`。\n\n**每个区块与动作只用一个当前依据。** 用户的新决定可能只覆盖卡片结构，旧系统样式仍有效；不能按整份文件新旧排序，把较早原型重新覆盖已认可的局部改动。v3 在结果的 sources / decisions 引用当前依据及区块，引用变更进入结果核验；已有 ui-flow 索引直接复用，不新建强制交接报告。任务只规定实现范围，不得改写这里的动作含义。\n\n```text\nUI-01：当前结果 <R-xx / revision>；采用稿 <路径/预览入口及可定位版本和区块>；确认依据 <已有用户决定>。\n分工：<该来源决定哪些结构/动作；其他仍有效来源负责哪些样式/规则；被新决定替代的旧约定不再参与裁决>。\n范围与比较条件：<页面/区块、状态、参考视口、代表性数据>。\n保留项：<布局、字号层级/密度、关键控件；操作/反馈/跳转；业务契约编号>。\n允许差异：<已授权的文案删除、真实数据替换、响应式适配等具体范围；未授权部分保留采用稿>。\n```\n\n实现者与修复者先实际打开采用稿及相关结构/样式。优先迁移可用结构、样式和组件再接真实数据；框架转换、组件库默认值或通用 polish 建议不能覆盖确认效果。只有源码而无法查看预览时，说明视觉输入缺口，不能把读源码当成运行对照。\n\n新页面、大改版或共享视觉基础首次可运行时，在扩展复用前，以同视口、同状态、代表性数据对照一个页面/区块，先校准主要布局、层级和关键控件。把这次结果放在现有自测记录，指出采用稿、实现版本、比较条件及有意义的差异；不新增 CR 批次，不要求每个任务截图。无法对照时保留校准缺口，推进无依赖工作，不能把同一未验证布局扩散后再统一返工。\n\n界面批次分别给出以下结论，比较原型不能只比较像素：\n\n| 维度 | 要证明的结果 | 对应证据 |\n| --- | --- | --- |\n| 视觉还原 | 确认的布局、层级、密度与关键控件保持一致，差异在授权范围内 | 同视口/状态的采用稿与实际页面对照；必要时查计算样式，不默认要求所有页面逐像素一致 |\n| 交互一致 | 主路径、入口、操作条件、反馈和跳转符合确认流程 | 实际点击/键盘操作与关键状态验证，截图不能单独证明 |\n| 业务正确 | 数据范围、单位、权限、状态与接口结果正确 | 实际应用路径及必要读写/权限证据，视觉相似不能代替 |\n\n视觉未验证时写“还原待验收”，不能以源码 `Fixed`、测试绿或用户将自行验证推导整体完成。用户选择手动验收时提供采用稿、当前页面及待验关键项，收到实际结果后再更新对应结论，不重复索要已给予的授权。\n\n- 同一页面和批次集中验证，普通任务先做轻量实际查看，不反复制作最终截图。\n- 保留能证明主路径、最高风险异常/权限状态和关键成功结果的材料；其余状态优先复用自动化覆盖，无需每个状态留图。\n- 最终证据与代码审查可在同一固定版本并行完成，合并写入批次验收记录；不强制另建逐片 `evidence-confirmation` 报告。\n- 修复改变了哪些行为或呈现，就重查哪些状态；未受影响证据可复用。纯报告变更核对事实即可。\n- 客户端控制连续同类失败时，依据错误换定位或采集方式；不要无限重试。更换手段不能降低原证明目标，接口/数据不能替代视觉结论。必要登录或工具不可用时登记具体缺口和人工介入。\n\n## 固定版本，集中验证\n\n```text\n确认行为与检查单\n→ 尽早接通最短应用路径\n→ 普通任务连续实现与自测；关键基础在依赖前审\n→ 相关结果构成完整使用过程，按 review.md 合批固定代码及约定版本\n→ 独立验证者从当前来源写预期和判错数据，先运行，再读实现报告并 CR\n→ 主线程裁决问题，集中修复\n→ 原失败路径和影响范围复验 / 复审\n→ 交付版本增量覆盖检查\n```\n\n独立验证前可以读取启动命令、数据准备和版本等中性事实，不先接收“已经通过”的实现结论。每条证据记录代码版本和相关配置；外部环境变化也要说明。固定版本期间不改同一范围，独立范围工作可继续；必须修改时重新标定版本，仅使受影响结论失效。\n\n全量回归不是 Goal、批量问题或最终收尾的固定动作。共享规则影响面无法可靠隔离、项目明确要求或交付风险需要时运行；可信的已通过检查可复用，不因进入另一审查环节再跑一遍。修复影响域与同类问题根因分析见 `references/stages/review.md`。\n\n## 问题来源与批量处理\n\n从会话、工单、截图、录屏、日志、监控、失败测试、CR 或数据收敛必要信息，可记录在现有任务台账：\n\n```yaml\nsource:\n  type: conversation | ticket | screenshot | recording | log | test | monitoring | review | data\n  reference: \"<原始消息、链接、文件、日志或编号>\"\nsymptom:\n  observed: \"<实际结果>\"\n  expected: \"<已确认期望；未知则待确认>\"\n  environment: local | test | production | unknown\nreproduction:\n  steps: []\n  role: \"<角色>\"\n  test_data: \"<必要数据>\"\n  reproducible: yes | no | partial | unknown\nscope:\n  parent_case: null\n  child_cases: []\n  related_cases: []\nevidence:\n  level: E0 | E1 | E2 | E3\n  available: []\n  missing: []\n```\n\n批量问题先展开父子/关联记录，确认范围和状态；按页面、角色、接口或共享根因成组复现与修复。共享证据不等于共享结论，每条仍说明是缺陷、非问题、重复项还是历史已修复。跨问题出现同类失效时检查共同规则，不逐工单复制补丁。\n\n外部平台只提供来源和可选状态回写。仅在用户已授权回写时执行，并读回确认；无回写授权时在任务记录与最终回复交付结果。\n\n## 输出\n\n普通任务合并记录改变的行为、自测结果及缺口，不强制另写报告。正式核验记录：\n\n- 基线、代码版本、配置与实际入口。\n- 关键预期、运行观测、证据位置及充分性。\n- CR 发现的主线程裁决、修复和影响范围复验。\n- 尚未覆盖的行为、原因、负责人与交付影响。\n\n记录帮助恢复和核验，不追求报告数量；测试绿、审查通过和交付完成分别陈述。\n",
+    "references/plan/task-breakdown.md": "# 方案规则：完整结果，滚动任务\n\n> 前置确定要交付什么，详细计划只展开到当前路径和近期依赖。Goal 统一使用 schema 3；字段见 `references/delivery/goal-v3.md`。\n\n## 先列全结果和共享基础\n\n结果清单是范围边界，不能因技术任务尚未展开而漏掉已确认要求。每个结果列出 `owner`、当前约定与来源、依赖，以及能否被真实操作或消费：\n\n| 结果类型 | 如何划分 | 必须说明 |\n| --- | --- | --- |\n| `user_result` | 一条完整用户路径，不按页面、文件或 API 拆成多个验收结果 | 入口、对象、动作、保留上下文、去向/状态、关键反例；各动作或区块的当前来源 |\n| `shared_foundation` | 本次改变、且后续工作依赖其正确性的高风险共享规则 | 规则与消费者、失败传播范围、提前核验入口；如身份、权限、计费、核心状态、并发或迁移切换 |\n\n复用成熟 API、数据库或既有权限不自动增加基础结果。不要把每个技术任务换名为结果，也不额外创建只负责汇总报告的“最终功能”；最终覆盖是整个 Goal 的收尾条件。\n\n先核实关键入口、上游类型、消费者与真实数据事实，再确定依赖。所有已知高风险基础和外部条件前置识别；普通实现细节随代码事实展开，不能把影响全局的未知推迟到最后。\n\n## 近期任务怎样展开\n\n选一个输入可用、能尽早证明用户价值的结果，由同一 owner 持续推进。只展开当前路径、近期依赖及解除高影响未知所需的探针；后续结果保留约定、依赖和风险，接近执行时再补工程步骤。\n\n每项技术任务保留：**ID、关联结果、实际工作和输出、依赖、必要自测、状态**。一个改动影响多个结果时全部关联，不要求一个任务只归一处；不为任务单独创建验收批次、逐任务 CR 或 `accepted` 状态。\n\n必要自测先写清：\n\n```text\n改变的行为 → 最可能的错误解释 → 能区分它的样本 → 真实入口/观测点 → 预期\n```\n\n例如“任务卡能进入成品”不足以判错；应使用不同任务和多个结果，确认入口保留当前任务。依赖已有测试前先看样本能否区分错误；build、源码字符串或复制实现常量的断言不能替代行为证据。按风险选择最便宜且有效的方法，不因任务存在就补单测或重复跑同一套检查。\n\n展开、合并或删除技术步骤只改变实现计划，不改变已确认结果。发现新的结果或业务规则变化时，先更新当前约定和受影响范围，再同步近期工作，不重写整个工程任务表。\n\n## 前端完整体验先行，按功能组接通真实能力\n\n有确认原型、且需要新增或改变前端/API 交互时，默认以一个完整页面或连续使用过程为功能组。先明确本组包含的动作、状态与返回关系，以及与其他组的稳定边界；不按单个按钮拆组来跳过完整交互，也不把全部独立页面捆成一个组。复用现有结果与任务说明，不新增分组状态文件。\n\n当前动作无法唯一定位本端采用状态、有效覆盖决定或正常运行入口时，由当前 owner 查明；缺失或过时且需要后续复用的信息补回已有任务说明、ui-flow 或运行说明。能从已有资料查明并正确执行就继续，不要求填齐固定清单、另写索引或逐页转抄。委派引用当前工作真正需要的来源与运行说明，不能仅传目录或要求“读完全部文档”。链接可打开不代表采用版本、目标端和实际运行系统正确；确认与证据复用沿用现有规则。缺口只限制依赖它的动作，不新增审批或通过表。\n\n```text\nCONTRACT → FE_MOCK_LOOP → SERVER_CAPABILITY → MOCK_REPLACEMENT → INTEGRATION / QA\n契约       本组完整前端体验   按领域能力实现       逐步替换接口模拟      真实功能验收\n```\n\n| 步骤 | 输入与工作 | 产物及继续条件 |\n| --- | --- | --- |\n| 契约与模拟接口准备 | 当前原型、需求、领域职责和真实上游类型 | 明确请求、响应、错误、权限、状态与副作用语义及页面映射；先提供可调用的服务端开发态 Mock API。后端设计与接口准备先行，真实业务逻辑后置 |\n| 前端模拟 | 当前采用稿、已明确的契约与可调用的服务端 Mock API | 正式页面通过正常请求层发送真实 HTTP 请求，由服务端返回模拟响应；本组约定的浏览、编辑、保存、取消、返回及相关加载/空态/失败/权限/冲突状态可操作，并保持对象上下文 |\n| 前端体验检查 | 运行中的本组页面、采用稿及判错样本 | 实现者确认本组交互、状态和原型还原，并核实请求确实到达服务端；缺项继续补齐。通过后自主进入服务端真实业务实现，不增加固定用户确认或独立 CR |\n| 服务端与模拟替换 | 领域设计、接口契约及已可操作的前端 | 按领域能力及依赖实现；每个能力具备后接回前端，尽早完成第一条真实路径，不等本组全部后端写完才联调 |\n| 真实验收 | 已替换模拟的完整操作及仍有效的证据 | 验证真实权限、持久化、副作用及最终消费者；相关使用过程按审查规则合批核验 |\n\n完整前端体验以本组已确认范围为准，只覆盖相关状态，不穷举所有组合、不扩张视觉打磨。组 A 前端体验完成即可实现 A 的服务端，独立组 B 可以继续前端工作；并行仍须满足输入和资源边界。首个代表页面先校准再扩展；它通过不代表本组其余交互已完成。前端模拟通过只证明体验与接口消费方式，不证明真实业务能力。\n\n默认由本组 owner 安排接口实现者在项目现有服务端提供开发态模拟 API，前端调用约定路由，不默认使用浏览器请求拦截或组件内假数据。一个 Agent 可以同时承担接口准备和前端实现，不为 Mock 固定增派角色或独立服务。用户或项目明确采用其他机制时遵从并记录依据；服务端暂不可用时保留接口准备缺口，先推进无依赖的界面工作，不能静默改用前端模拟并称本阶段通过。\n\n模拟接口准备属于前端先行的前置工作：复用项目路由、参数类型、响应和错误约定，在接口后的数据/业务实现处提供可替换的模拟响应。覆盖必要状态切换和失败样本即可，不另造完整规则引擎；模拟数据与写入限于隔离的开发夹具，不产生真实业务副作用。用页面网络请求及服务端请求记录或等价观测核实调用到达，HTTP 成功只证明传输与响应，不能证明真实权限或业务能力。\n\n模拟启用范围、真实替换负责人、替换点及清理条件写在已有记录中；负责人沿用本组 owner，明确接回后才能转交。随后保持约定的 API 路由、请求/响应和错误语义，逐项替换服务端内部实现，前端正常调用方式不变。开发态显式启用模拟，生产入口不得启用成功替身；真实逻辑失败不得回退到模拟成功。确需修改契约时同步模拟、前端消费者与真实实现，并复查受影响体验，不为迎合模拟数据改变领域事实。\n\n### 何时调整顺序\n\n- 已有真实能力可用时直接复用；成熟接口的局部改动、纯后端或无新交互的工作，不强制重做页面或引入模拟。尚无明确界面依据时先按方案规则补齐本次需要的依据。\n- 影响可行性的外部能力、性能或新共享语义，允许在前端完成前做有限真实探针或必要基础核验。在已有计划写清要回答的问题、最小范围、停止条件和影响；不能借“尽早真实路径”提前展开全部常规后端。失败只阻止依赖该结论的工作。\n- 模拟消费者只依赖已明确并核验的协议语义；尚未成立的权限、归属和状态规则不能靠假响应固化。真实共享基础仍按下一节在实际依赖前核验，探针通过不代替完整能力或最终验收。\n- 用户或项目有明确实施顺序时遵从，并说明实际验证边界；不把默认顺序再变成一次审批。\n\n路径写具体输入、应用入口、实际经过的边界、最终消费者及未经过的外部能力。例如“保存配置 → 预览读取 → 实际任务解析 → provider 请求含新值”，不能写成“接口 200”。目标环境、必要代表数据和工具能力尽早核实；付费/生产动作依已有授权执行，未执行保留缺口。\n\n## 共享基础与隔离依赖\n\n共享基础必须在消费者依赖其新规则前完成正式验证和 CR；内部相互依赖的实现步骤可作为同一基础中的技术任务，不为每一步再建基础。\n\n消费者需要的是稳定协议还是已验证真实能力，要明确区分：\n\n- 协议能独立确定时，限定输入输出、错误、状态和副作用。必要的协议核验通过后，可供消费者开发或模拟联调使用；真实集成仍依赖真实能力。\n- 未解决的权限、数据归属、状态等语义不能用接口签名代替。不能把协议通过写成整个基础通过，也不能复用旧结果编号去证明一个被缩小的断言。\n- 缺失能力在原结果下保留待完成工作、owner、解除条件、回收点及真实检查。生产代码不得返回伪造业务成功；TODO 和 mock 记录本身不算证据。\n- 基础约定或实现改变时，沿生产者、全部消费者及恢复入口标出受影响结果；依赖旧基础的证据不再证明新基础下的行为。无关结果及证据保留。\n\n具体隔离和阻塞处理见 `references/delivery/agent-delivery-flow.md`。\n\n## owner 与并行边界\n\n默认当前目录和现有环境，不主动创建或切换 worktree。结果清单用于防漏，核验分组按 `references/stages/review.md` 的连续使用过程决定，不按结果编号一一安排 CR。\n\n同一 owner 贯穿准备、实现、集成和返修；需要换人时交接当前结果、采用依据、代码版本、缺口和写入范围。工程分工服从用户路径：要求同页弹层，就协调详情页与组件的写入，不能为分开目录改成独立页面。\n\n共享契约、migration/Entity、核心状态或公共服务由一个 owner 收口；进程、端口、数据库、队列和运行配置的操作同样明确归属，不能只检查文件冲突。独立区块、已稳定契约的 adapter 等可并行，明确写入范围和整合责任。需要更新正在使用的约定时先同步受影响 worker；失联写入者未确认停止前不能接管其范围。正式核验使用固定版本，独立工作可继续。\n\n## 记录、工具与完成标准\n\n技术任务仅用 `todo → in_progress → done`；`done` 表示本步骤完成且必要自测通过，不表示用户结果通过。失败或阻塞保持未完成，并说明原因及可继续范围。\n\n结果通过由正式检查证据判断。schema 3 在运行记录保存版本差异、改动到结果的映射、结果检查及独立 CR；当前有效性由工具结合历史记录推导，不手填一套结果通过状态。检查不能替代未完成的本次必需技术工作。收尾核对全部结果与最终增量，不因全部任务 `done` 或 CR 没有 finding 宣布完成。\n\n证据等级、界面基线与证据门禁按结果和风险选择，方法见 `references/delivery/evidence-driven-delivery.md`。同一路径、角色和状态共享有效证据，不按技术任务重复截图。第三方工具按 `references/delivery/tooling-prerequisites.md` 共用一份能力/安装/认证清单；引用已有清单位置，不给每个任务重复安装、登录或建清单。\n",
+    "references/stages/implementation.md": "# 实现落地阶段\n\n> 已授权范围内连续实现、集成与必要自测。下一动作、接任、中文提示和运行资源分工统一见 `references/delivery/agent-delivery-flow.md`；核验触发只见 `references/stages/review.md`。\n\n## 开始与继续\n\n- 读取项目事实、当前结果及相关来源、授权与实际改动；不因换节点重复确认。仅讨论方案时不改代码。\n- 默认当前目录与现有正常环境，不主动使用 worktree。Git 写操作按 `references/git-safety.md`；规则候选不应用时按 `skills/skill-maintenance/SKILL.md` 保护已安装源，不擅自改链接。\n- 轻量工作不建 Goal；需要恢复时按 `references/stages/goal-handoff.md`，创建与恢复均使用 schema 3，执行入口为 `skills/goal-execute/SKILL.md`。\n- 第三方能力按需读 `references/delivery/tooling-prerequisites.md`。首次核实必要入口、代表数据、权限和工具；不每步重复安装或做全量环境清点。真实 provider 验证属于范围且已有授权时执行，说明成本及证明边界。\n- 在现有记录一次性保留主要成本来源、最早真实路径和集成余量；已有时间/token 约束直接沿用。按 `references/delivery/execution-evidence.md` 在已有边界比较进展与消耗，偏离时调整策略，不追加预算表。\n\n## 实现、自测与集成\n\n1. 主执行者推进完整路径；稳定且无冲突的工作才委派，结果返回后及时集成。共享资源由明确操作者安排，不因文件分离而同时重启服务或消费队列。\n2. 先用能区分误解的样本核实实际生产者、转换与消费者。有确认原型的前端/API 工作按 `references/plan/task-breakdown.md` 先准备服务端开发态 Mock API，前端通过真实请求完成本组体验后推进服务端真实业务；已有能力直接复用，影响可行性的未知按有限探针提前验证。Mock 只证明已明确边界内的体验，不能替代真实能力。\n3. 工程步骤滚动展开，普通自测通过即继续；技术任务 `done` 不代表结果验收。必要自测按 `skills/test-scope-analysis/SKILL.md` 从改变行为选择，已有足够证据时停止重复。\n4. 服务端沿已定领域职责与依赖实现，核对规则的承载模块及所有相关入口；职责不清时补读 `references/plan/domain-design.md`，不直接按页面按钮堆逻辑。能力具备后逐步接回前端，首条真实路径用于校准事实；一组真实可用体验形成后合并独立核验。共享语义在实际依赖前定向审查，未涉影响的工作继续。\n5. 修复后复核受影响行为。同类再发或自测与现场矛盾时先查实际执行系统与共同原因，避免继续修改未运行的代码。\n\n## 有已确认界面时\n\n开始或接续当前路径时，按 `references/plan/task-breakdown.md` 使用当前端的有效来源与正常页面/API；无法确定或运行时由当前 owner 查明，只补确需复用的缺项，不让用户反复解释已有决定。原型校准、运行事实和各端证据范围沿用现有规则，不以写出入口说明代替实际操作。简单成熟接口或局部样式修改直接复用现有入口，不为此搭 Mock 或补整套资料。\n\n实际打开当前动作/区块的采用稿，保持页面层级、打开与返回方式、对象上下文和控件关系；组件复用不得改写已确认交互。首个代表界面在相同视口、角色、状态与数据下校准，再扩展复用；不能用截图存在代替判断。无法校准的共享布局先不扩散，独立工作继续。\n\n代表页面校准后继续完成本组约定的交互与状态，以真实点击、调用服务端 Mock API 及请求到达证据检查前端完整体验。通过后自主推进服务端真实业务，无须再等用户批准或新增一轮完整 CR；模拟证明范围和真实待验能力必须分开记录。\n\n目标项目已安装 impeccable 时按问题选择 audit / critique / polish；用户认可调整优先于旧稿和通用审美。视觉、交互、业务分别用适当证据证明；只复查受影响状态，不为每次修复制造全套截图。\n\n## 修订与交付\n\n用户修订先更新单一业务决定及相关来源、受影响结果和派生契约；只暂停依赖旧约定的写入。已经授权的新要求不重复申请确认。共享规则变更沿生产者、消费者及恢复入口判断影响，旧证据保留为历史，不刷新摘要冒充重验。\n\n恢复信息、任务进度和核验证据只存现有位置；非 Goal 可用对话或既有记录。收尾核对全部承诺结果、最终差异与当前运行状态，必需缺口未关闭不能宣布完整完成；准确区分代码验收、测试发布和生产发布，发布继续按已有授权与项目 SOP。\n"
+  },
+  "verifier_sha256": "a2a09d0cf1fb2831be43b573656ea473804d1311c296f0dc7c3ff2ccd9ee7197",
+  "trials": [
+    {
+      "id": "trial-1",
+      "arm": "old",
+      "pair": 1,
+      "first_delivery_passed": true,
+      "visual_check": "父线程已打开390×844实现截图，对照同一采用稿；分组/密度/操作位置符合",
+      "elapsed_seconds": 56.098555,
+      "raw_metrics": {
+        "started_at": "2026-10-17T05:34:00.536042+00:00",
+        "finished_at": "2026-10-17T05:34:56.634597+00:00",
+        "elapsed_seconds": 56.098555
+      },
+      "parent_dispatch_receive": {
+        "dispatch_at": "2026-10-17T05:33:44.992936+00:00",
+        "received_at": "2026-10-17T05:35:05.398355+00:00"
+      },
+      "parent_wall_seconds": 80.405419,
+      "tokens": null,
+      "internal_rework_count": null,
+      "first_working_path_seconds": null,
+      "evaluator_requested_rework": 0,
+      "rework_zero_fixed_by_design": true,
+      "changed_product_files": [
+        "server.cjs",
+        "app.html"
+      ],
+      "final_source_sha256": {
+        "server.cjs": "34331be9d8b03e141227c50040de035ace44655741d4138fab30e456dd8cdf48",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "f1778aee51e461e59ee5b6b477883a1054925f5cccb829e15850f01ded10d0e2",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+        "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+        "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+        "runtime.md": "f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156",
+        "request.md": "b535dbd06096acfd22a1eb08ea50b0a0a69f07a17bc279368f52b09a8eddbeb0"
+      },
+      "independent_evaluation": {
+        "task": "C",
+        "timestamp": "2026-10-17T05:37:46.937Z",
+        "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-benefit-zrjgleuk/trial-1",
+        "environment": {
+          "node": "v22.22.3",
+          "playwright": "1.62.1",
+          "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+        },
+        "files": {
+          "server.cjs": "34331be9d8b03e141227c50040de035ace44655741d4138fab30e456dd8cdf48",
+          "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+          "app.html": "f1778aee51e461e59ee5b6b477883a1054925f5cccb829e15850f01ded10d0e2",
+          "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+          "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+          "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+          "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+          "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+          "runtime.md": "f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156"
+        },
+        "checks": [
+          {
+            "name": "采用稿与历史入口保持",
+            "passed": true,
+            "observation": "当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例"
+          },
+          {
+            "name": "最终采用稿与实际布局",
+            "passed": true,
+            "observation": "390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看"
+          },
+          {
+            "name": "页面消费服务端变化",
+            "passed": true,
+            "observation": "服务端改变候选名称后，正常页面显示新名称"
+          },
+          {
+            "name": "正常保存、重开与服务端读回",
+            "passed": true,
+            "observation": "浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致"
+          },
+          {
+            "name": "重开消费服务端新值而非本地缓存",
+            "passed": true,
+            "observation": "浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过"
+          },
+          {
+            "name": "保存失败不假成功且保留输入",
+            "passed": true,
+            "observation": "服务端503，页面显示失败、保留名称与目录，存储仍为此前内容"
+          },
+          {
+            "name": "底部返回实际可用",
+            "passed": true,
+            "observation": "产品页返回到原设置页"
+          }
+        ],
+        "passed": true
+      },
+      "network": [
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/item",
+          "status": 503
+        },
+        {
+          "method": "GET",
+          "path": "/api/info",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        }
+      ],
+      "evaluation_process": {
+        "exit_code": 0,
+        "stdout": "{\"task\":\"C\",\"timestamp\":\"2026-10-17T05:37:46.937Z\",\"workspace\":\"/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-benefit-zrjgleuk/trial-1\",\"environment\":{\"node\":\"v22.22.3\",\"playwright\":\"1.62.1\",\"chromium\":\"/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell\"},\"files\":{\"server.cjs\":\"34331be9d8b03e141227c50040de035ace44655741d4138fab30e456dd8cdf48\",\"api.js\":\"a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a\",\"app.html\":\"f1778aee51e461e59ee5b6b477883a1054925f5cccb829e15850f01ded10d0e2\",\"settings.html\":\"828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea\",\"prototype.html\":\"36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20\",\"prototype-final.js\":\"b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae\",\"prototype-v1.html\":\"bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835\",\"README.md\":\"6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94\",\"runtime.md\":\"f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156\"},\"checks\":[{\"name\":\"采用稿与历史入口保持\",\"passed\":true,\"observation\":\"当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例\"},{\"name\":\"最终采用稿与实际布局\",\"passed\":true,\"observation\":\"390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看\"},{\"name\":\"页面消费服务端变化\",\"passed\":true,\"observation\":\"服务端改变候选名称后，正常页面显示新名称\"},{\"name\":\"正常保存、重开与服务端读回\",\"passed\":true,\"observation\":\"浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致\"},{\"name\":\"重开消费服务端新值而非本地缓存\",\"passed\":true,\"observation\":\"浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过\"},{\"name\":\"保存失败不假成功且保留输入\",\"passed\":true,\"observation\":\"服务端503，页面显示失败、保留名称与目录，存储仍为此前内容\"},{\"name\":\"底部返回实际可用\",\"passed\":true,\"observation\":\"产品页返回到原设置页\"}],\"passed\":true}\n",
+        "stderr": ""
+      },
+      "selftest_sources": {
+        "verify.cjs": "const assert = require('node:assert/strict');\nconst fs = require('node:fs');\nconst {chromium}=require('/Users/xiaohong.zhxh/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');\nconst base=process.argv[2];\n(async()=>{\n const browser=await chromium.launch({executablePath:'/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell'});\n try {\n const page=await browser.newPage({viewport:{width:390,height:844}});\n const network=[];page.on('response',r=>{if(r.url().includes('/api/')) network.push({url:r.url(),status:r.status(),method:r.request().method()});});\n await page.request.post(base+'/__control',{data:{directoryName:'验收动态目录'}});\n await page.goto(base+'/settings');await page.locator('#service').waitFor();\n await page.goto(base+'/');await page.locator('#save:enabled').waitFor();\n assert.equal(await page.locator('#directory option').textContent(),'验收动态目录');\n assert.equal(await page.locator('.images').count(),1);assert.equal(await page.locator('.images .row button').count(),3);\n const directoryId=await page.locator('#directory').inputValue();assert.notEqual(directoryId,'local');\n await page.locator('#name').fill('秋日产品 A');await page.locator('#directory').selectOption(directoryId);\n await page.locator('#save').click();await page.getByRole('status').filter({hasText:'保存成功'}).waitFor();\n let inspect=await (await page.request.get(base+'/__inspect')).json();assert.deepEqual(inspect.item,{name:'秋日产品 A',directoryId});\n await page.reload();await page.locator('#save:enabled').waitFor();assert.equal(await page.locator('#name').inputValue(),'秋日产品 A');assert.equal(await page.locator('#directory').inputValue(),directoryId);\n await page.screenshot({path:'evidence/readback.png'});\n await page.request.post(base+'/__control',{data:{rejectSave:true}});await page.locator('#name').fill('失败时保留的修改');await page.locator('#save').click();await page.getByRole('status').filter({hasText:'保存暂不可用'}).waitFor();assert.equal(await page.locator('#name').inputValue(),'失败时保留的修改');\n inspect=await (await page.request.get(base+'/__inspect')).json();assert.equal(inspect.item.name,'秋日产品 A');await page.screenshot({path:'evidence/rejected-save.png'});\n await page.request.post(base+'/__control',{data:{rejectSave:false}});\n for(const data of [{name:'  ',directoryId},{name:'有效名称',directoryId:'invalid'},null]){const r=await page.request.post(base+'/api/item',{data});assert.equal(r.status(),400);}\n assert.equal((await (await page.request.get(base+'/api/item')).json()).item.name,'秋日产品 A');\n await page.locator('#back').click();await page.waitForURL(base+'/settings');assert.equal(await page.locator('#service').textContent(),'现有服务');\n fs.writeFileSync('evidence/results.json',JSON.stringify({checks:['动态目录来自服务端','填写选择保存草稿','同一服务刷新读回','503保留表单且存储未变','空白名称、无效目录、null返回400且原值未变','返回浏览器历史/settings保持可用','图片单组内三行右侧操作'],network,inspect},null,2));\n console.log('全部检查通过');\n } finally {await browser.close();}\n})().catch(e=>{console.error(e);process.exitCode=1});\n"
+      },
+      "patch": "comparison/trial-1.patch",
+      "patch_sha256": "01fa4b19924ab45e3d870396df40de681179f781e00c9d609ba3a96cb144c803",
+      "screenshot_sha256": {
+        "trial-1-implementation.png": "81ba81f5b55a5dae1f136af3b798fd814d7cec94a1fc3347023915c3cd000e37",
+        "trial-1-failure.png": "fb8c8c765e578bb3e8ec2229e897241ac0c23ac95b3dd918992c010306c7bb1d"
+      }
+    },
+    {
+      "id": "trial-2",
+      "arm": "new",
+      "pair": 1,
+      "first_delivery_passed": true,
+      "visual_check": "父线程已打开390×844实现截图，对照同一采用稿；分组/密度/操作位置符合",
+      "elapsed_seconds": 59.554838,
+      "raw_metrics": {
+        "started_at": "2026-10-17T05:34:05.729033+00:00",
+        "finished_at": "2026-10-17T05:35:05.283871+00:00",
+        "elapsed_seconds": 59.554838
+      },
+      "parent_dispatch_receive": {
+        "dispatch_at": "2026-10-17T05:33:53.634856+00:00",
+        "received_at": "2026-10-17T05:35:13.188203+00:00"
+      },
+      "parent_wall_seconds": 79.553347,
+      "tokens": null,
+      "internal_rework_count": null,
+      "first_working_path_seconds": null,
+      "evaluator_requested_rework": 0,
+      "rework_zero_fixed_by_design": true,
+      "changed_product_files": [
+        "server.cjs",
+        "app.html",
+        "runtime.md"
+      ],
+      "final_source_sha256": {
+        "server.cjs": "ae65f754fdbc1e81d4d395d94a5444f0177bfbcac64767bd869788f6e47baca3",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "bd1c4e41dc735ec24be33064b9bcee877716c76082780bbb4029d2b417dcb69d",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+        "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+        "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+        "runtime.md": "cba67365c1ab12ce071988a65ae3545f3465fbaf4a65c3e205ac393149a4318b",
+        "request.md": "b535dbd06096acfd22a1eb08ea50b0a0a69f07a17bc279368f52b09a8eddbeb0"
+      },
+      "independent_evaluation": {
+        "task": "C",
+        "timestamp": "2026-10-17T05:37:47.996Z",
+        "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-benefit-zrjgleuk/trial-2",
+        "environment": {
+          "node": "v22.22.3",
+          "playwright": "1.62.1",
+          "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+        },
+        "files": {
+          "server.cjs": "ae65f754fdbc1e81d4d395d94a5444f0177bfbcac64767bd869788f6e47baca3",
+          "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+          "app.html": "bd1c4e41dc735ec24be33064b9bcee877716c76082780bbb4029d2b417dcb69d",
+          "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+          "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+          "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+          "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+          "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+          "runtime.md": "cba67365c1ab12ce071988a65ae3545f3465fbaf4a65c3e205ac393149a4318b"
+        },
+        "checks": [
+          {
+            "name": "采用稿与历史入口保持",
+            "passed": true,
+            "observation": "当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例"
+          },
+          {
+            "name": "最终采用稿与实际布局",
+            "passed": true,
+            "observation": "390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看"
+          },
+          {
+            "name": "页面消费服务端变化",
+            "passed": true,
+            "observation": "服务端改变候选名称后，正常页面显示新名称"
+          },
+          {
+            "name": "正常保存、重开与服务端读回",
+            "passed": true,
+            "observation": "浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致"
+          },
+          {
+            "name": "重开消费服务端新值而非本地缓存",
+            "passed": true,
+            "observation": "浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过"
+          },
+          {
+            "name": "保存失败不假成功且保留输入",
+            "passed": true,
+            "observation": "服务端503，页面显示失败、保留名称与目录，存储仍为此前内容"
+          },
+          {
+            "name": "底部返回实际可用",
+            "passed": true,
+            "observation": "产品页返回到原设置页"
+          }
+        ],
+        "passed": true
+      },
+      "network": [
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/item",
+          "status": 503
+        },
+        {
+          "method": "GET",
+          "path": "/api/info",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        }
+      ],
+      "evaluation_process": {
+        "exit_code": 0,
+        "stdout": "{\"task\":\"C\",\"timestamp\":\"2026-10-17T05:37:47.996Z\",\"workspace\":\"/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-benefit-zrjgleuk/trial-2\",\"environment\":{\"node\":\"v22.22.3\",\"playwright\":\"1.62.1\",\"chromium\":\"/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell\"},\"files\":{\"server.cjs\":\"ae65f754fdbc1e81d4d395d94a5444f0177bfbcac64767bd869788f6e47baca3\",\"api.js\":\"a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a\",\"app.html\":\"bd1c4e41dc735ec24be33064b9bcee877716c76082780bbb4029d2b417dcb69d\",\"settings.html\":\"828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea\",\"prototype.html\":\"36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20\",\"prototype-final.js\":\"b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae\",\"prototype-v1.html\":\"bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835\",\"README.md\":\"6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94\",\"runtime.md\":\"cba67365c1ab12ce071988a65ae3545f3465fbaf4a65c3e205ac393149a4318b\"},\"checks\":[{\"name\":\"采用稿与历史入口保持\",\"passed\":true,\"observation\":\"当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例\"},{\"name\":\"最终采用稿与实际布局\",\"passed\":true,\"observation\":\"390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看\"},{\"name\":\"页面消费服务端变化\",\"passed\":true,\"observation\":\"服务端改变候选名称后，正常页面显示新名称\"},{\"name\":\"正常保存、重开与服务端读回\",\"passed\":true,\"observation\":\"浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致\"},{\"name\":\"重开消费服务端新值而非本地缓存\",\"passed\":true,\"observation\":\"浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过\"},{\"name\":\"保存失败不假成功且保留输入\",\"passed\":true,\"observation\":\"服务端503，页面显示失败、保留名称与目录，存储仍为此前内容\"},{\"name\":\"底部返回实际可用\",\"passed\":true,\"observation\":\"产品页返回到原设置页\"}],\"passed\":true}\n",
+        "stderr": ""
+      },
+      "selftest_sources": {
+        "verify.cjs": "const assert=require('node:assert/strict');\nconst fs=require('node:fs');\nconst {chromium}=require('/Users/xiaohong.zhxh/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');\n(async()=>{\nconst b=await chromium.launch({executablePath:'/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell'});\ntry {\nconst p=await b.newPage({viewport:{width:390,height:844}});const base='http://127.0.0.1:49982';\nconst control=async data=>{const r=await fetch(base+'/__control',{method:'POST',body:JSON.stringify(data)});assert.equal(r.status,200)};\nawait control({directoryName:'验收目录-响应值A'});\nawait p.goto(base+'/settings');await p.goto(base+'/');\nawait p.locator('#name').waitFor();await p.waitForFunction(()=>!document.querySelector('#save').disabled);\nassert.equal(await p.locator('#directory option').textContent(),'验收目录-响应值A');\nassert.equal(await p.locator('.group').count(),3);assert.equal(await p.locator('.images .row button').count(),3);\nawait p.locator('#name').fill('秋季产品-独立样本甲');await p.locator('#directory').selectOption({label:'验收目录-响应值A'});\nawait p.locator('#save').click();await p.getByRole('status').filter({hasText:'保存成功'}).waitFor();\nlet inspected=await (await fetch(base+'/__inspect')).json();assert.equal(inspected.item.name,'秋季产品-独立样本甲');\nawait p.reload();await p.waitForFunction(()=>!document.querySelector('#save').disabled);assert.equal(await p.locator('#name').inputValue(),'秋季产品-独立样本甲');assert.equal(await p.locator('#directory').inputValue(),inspected.item.directoryId);\nawait p.screenshot({path:'evidence/reopened.png'});\nawait control({directoryName:'验收目录-响应值B',rejectSave:true});await p.reload();await p.waitForFunction(()=>!document.querySelector('#save').disabled);assert.equal(await p.locator('#directory option').textContent(),'验收目录-响应值B');\nawait p.locator('#name').fill('拒绝保存的样本乙');await p.locator('#save').click();await p.getByRole('status').filter({hasText:'保存暂不可用'}).waitFor();assert.equal(await p.locator('#name').inputValue(),'拒绝保存的样本乙');assert.equal(await p.getByRole('status').textContent(),'保存暂不可用');\nawait p.screenshot({path:'evidence/rejected.png'});\ninspected=await (await fetch(base+'/__inspect')).json();assert.equal(inspected.item.name,'秋季产品-独立样本甲');\nawait control({rejectSave:false});await p.locator('#name').fill('   ');await p.locator('#save').click();await p.getByRole('status').filter({hasText:'请填写名称'}).waitFor();\nconst bad=await fetch(base+'/api/item',{method:'POST',body:JSON.stringify({name:'合法名称',directoryId:'missing'})});assert.equal(bad.status,400);\nawait p.locator('#back').click();await p.waitForURL(base+'/settings');await p.getByText('现有服务',{exact:true}).waitFor();\nfs.writeFileSync('evidence/results.json',JSON.stringify({viewport:{width:390,height:844},checks:['服务端目录更名两次均显示','页面保存后同一存储读回','刷新重开名称及目录恢复','503保留输入且未覆盖存储','空白名称与无效目录400','返回浏览器历史设置页正常'],observed:inspected},null,2));\nconsole.log('全部行为检查通过');\n} finally {await b.close()}\n})().catch(e=>{console.error(e);process.exitCode=1});\n",
+        "preview.cjs": "const {chromium}=require('/Users/xiaohong.zhxh/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');\n(async()=>{const b=await chromium.launch({executablePath:'/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell'});const p=await b.newPage({viewport:{width:390,height:844}});await p.goto('http://127.0.0.1:49911/prototype');await p.screenshot({path:'evidence/prototype.png'});await b.close()})()\n"
+      },
+      "patch": "comparison/trial-2.patch",
+      "patch_sha256": "7fd2ca8ec71ab5f1173e645af55499be08572b39b6e0a74c386682a44874077e",
+      "screenshot_sha256": {
+        "trial-2-implementation.png": "239abd299a954590730700e07c982e5b3a8e66c18cf1dbb588b64dae5010ae97",
+        "trial-2-failure.png": "7fcc3db8989cc4007b2db1184e036d7c575573f2b6f3ab0a2b5ca97b353ccd6f"
+      }
+    },
+    {
+      "id": "trial-3",
+      "arm": "new",
+      "pair": 2,
+      "first_delivery_passed": true,
+      "visual_check": "父线程已打开390×844实现截图，对照同一采用稿；分组/密度/操作位置符合",
+      "elapsed_seconds": 57.622081,
+      "raw_metrics": {
+        "started_at": "2026-10-17T05:35:37.276845+00:00",
+        "finished_at": "2026-10-17T05:36:34.898926+00:00",
+        "elapsed_seconds": 57.622081
+      },
+      "parent_dispatch_receive": {
+        "dispatch_at": "2026-10-17T05:35:13.188203+00:00",
+        "received_at": "2026-10-17T05:36:41.787956+00:00"
+      },
+      "parent_wall_seconds": 88.599753,
+      "tokens": null,
+      "internal_rework_count": null,
+      "first_working_path_seconds": null,
+      "evaluator_requested_rework": 0,
+      "rework_zero_fixed_by_design": true,
+      "changed_product_files": [
+        "server.cjs",
+        "app.html",
+        "runtime.md"
+      ],
+      "final_source_sha256": {
+        "server.cjs": "2c3ea26996617901c0c679d90231cca08a42dc9eb22b093e3d5f1c4e3785c4fe",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "1be12f50d0036e1c00770b66af0aa0ece5ecb8a90ca4a8f3078509915399927f",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+        "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+        "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+        "runtime.md": "102a386950251e969e76418765799d1920d0dabe80032774acdd42bcb346a870",
+        "request.md": "b535dbd06096acfd22a1eb08ea50b0a0a69f07a17bc279368f52b09a8eddbeb0"
+      },
+      "independent_evaluation": {
+        "task": "C",
+        "timestamp": "2026-10-17T05:37:49.029Z",
+        "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-benefit-zrjgleuk/trial-3",
+        "environment": {
+          "node": "v22.22.3",
+          "playwright": "1.62.1",
+          "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+        },
+        "files": {
+          "server.cjs": "2c3ea26996617901c0c679d90231cca08a42dc9eb22b093e3d5f1c4e3785c4fe",
+          "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+          "app.html": "1be12f50d0036e1c00770b66af0aa0ece5ecb8a90ca4a8f3078509915399927f",
+          "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+          "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+          "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+          "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+          "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+          "runtime.md": "102a386950251e969e76418765799d1920d0dabe80032774acdd42bcb346a870"
+        },
+        "checks": [
+          {
+            "name": "采用稿与历史入口保持",
+            "passed": true,
+            "observation": "当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例"
+          },
+          {
+            "name": "最终采用稿与实际布局",
+            "passed": true,
+            "observation": "390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看"
+          },
+          {
+            "name": "页面消费服务端变化",
+            "passed": true,
+            "observation": "服务端改变候选名称后，正常页面显示新名称"
+          },
+          {
+            "name": "正常保存、重开与服务端读回",
+            "passed": true,
+            "observation": "浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致"
+          },
+          {
+            "name": "重开消费服务端新值而非本地缓存",
+            "passed": true,
+            "observation": "浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过"
+          },
+          {
+            "name": "保存失败不假成功且保留输入",
+            "passed": true,
+            "observation": "服务端503，页面显示失败、保留名称与目录，存储仍为此前内容"
+          },
+          {
+            "name": "底部返回实际可用",
+            "passed": true,
+            "observation": "产品页返回到原设置页"
+          }
+        ],
+        "passed": true
+      },
+      "network": [
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/item",
+          "status": 503
+        },
+        {
+          "method": "GET",
+          "path": "/api/info",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        }
+      ],
+      "evaluation_process": {
+        "exit_code": 0,
+        "stdout": "{\"task\":\"C\",\"timestamp\":\"2026-10-17T05:37:49.029Z\",\"workspace\":\"/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-benefit-zrjgleuk/trial-3\",\"environment\":{\"node\":\"v22.22.3\",\"playwright\":\"1.62.1\",\"chromium\":\"/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell\"},\"files\":{\"server.cjs\":\"2c3ea26996617901c0c679d90231cca08a42dc9eb22b093e3d5f1c4e3785c4fe\",\"api.js\":\"a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a\",\"app.html\":\"1be12f50d0036e1c00770b66af0aa0ece5ecb8a90ca4a8f3078509915399927f\",\"settings.html\":\"828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea\",\"prototype.html\":\"36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20\",\"prototype-final.js\":\"b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae\",\"prototype-v1.html\":\"bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835\",\"README.md\":\"6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94\",\"runtime.md\":\"102a386950251e969e76418765799d1920d0dabe80032774acdd42bcb346a870\"},\"checks\":[{\"name\":\"采用稿与历史入口保持\",\"passed\":true,\"observation\":\"当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例\"},{\"name\":\"最终采用稿与实际布局\",\"passed\":true,\"observation\":\"390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看\"},{\"name\":\"页面消费服务端变化\",\"passed\":true,\"observation\":\"服务端改变候选名称后，正常页面显示新名称\"},{\"name\":\"正常保存、重开与服务端读回\",\"passed\":true,\"observation\":\"浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致\"},{\"name\":\"重开消费服务端新值而非本地缓存\",\"passed\":true,\"observation\":\"浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过\"},{\"name\":\"保存失败不假成功且保留输入\",\"passed\":true,\"observation\":\"服务端503，页面显示失败、保留名称与目录，存储仍为此前内容\"},{\"name\":\"底部返回实际可用\",\"passed\":true,\"observation\":\"产品页返回到原设置页\"}],\"passed\":true}\n",
+        "stderr": ""
+      },
+      "selftest_sources": {
+        "verify.cjs": "const assert = require('node:assert/strict');\nconst fs = require('node:fs');\nconst {chromium}=require('/Users/xiaohong.zhxh/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');\nconst base = process.argv[2];\n(async()=>{\n const browser=await chromium.launch({executablePath:'/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell'});\n try {\n const page=await browser.newPage({viewport:{width:390,height:844}});\n const control=body=>fetch(base+'/__control',{method:'POST',body:JSON.stringify(body)});\n await control({directoryName:'验收动态目录-731'});\n await page.goto(base+'/');await page.waitForFunction(()=>!document.querySelector('#save').disabled);\n assert.equal(await page.locator('#directory option').textContent(),'验收动态目录-731');\n await page.locator('#name').fill('样例产品');\n await page.screenshot({path:'evidence/app-baseline.png'});\n await page.locator('#name').fill('实际保存产品-731');\n const directoryId=await page.locator('#directory').inputValue();\n await page.locator('#directory').selectOption(directoryId);\n await page.locator('#save').click();await page.getByRole('status').filter({hasText:'保存成功'}).waitFor();\n await page.reload();await page.waitForFunction(()=>!document.querySelector('#save').disabled);\n assert.equal(await page.locator('#name').inputValue(),'实际保存产品-731');\n assert.equal(await page.locator('#directory').inputValue(),directoryId);\n await page.screenshot({path:'evidence/reopened.png'});\n await control({rejectSave:true});await page.locator('#name').fill('拒绝后保留的输入');await page.locator('#save').click();\n await page.getByRole('status').filter({hasText:'保存暂不可用'}).waitFor();\n assert.equal(await page.locator('#name').inputValue(),'拒绝后保留的输入');\n assert.equal(await page.locator('#directory').inputValue(),directoryId);\n await page.screenshot({path:'evidence/save-rejected.png'});\n let inspected=await (await fetch(base+'/__inspect')).json();\n assert.deepEqual(inspected.item,{name:'实际保存产品-731',directoryId});\n await control({rejectSave:false});\n for(const input of [{name:' ',directoryId},{name:'有效名称',directoryId:'invalid'},null]) {\n const response=await fetch(base+'/api/item',{method:'POST',body:JSON.stringify(input)});assert.equal(response.status,400);\n }\n await page.goto(base+'/settings');await page.goto(base+'/');await page.locator('#back').click();await page.waitForURL(base+'/settings');\n inspected=await (await fetch(base+'/__inspect')).json();\n fs.writeFileSync('evidence/observations.json',JSON.stringify({checks:['服务端动态目录显示','正常保存并刷新读回','503保留名称及目录且不显示成功','拒绝保存未覆盖已存草稿','无效名称/目录及null返回400','返回恢复settings历史页面'],observed:inspected},null,2));\n console.log('6 behavior checks passed');\n } finally {await browser.close()}\n})().catch(error=>{console.error(error);process.exitCode=1});\n"
+      },
+      "patch": "comparison/trial-3.patch",
+      "patch_sha256": "4be25233b48dc63ac7238129ef30074ae32432cd645819d63c4523d837227504",
+      "screenshot_sha256": {
+        "trial-3-implementation.png": "ff4d7521463041a9c820c6154718f2a3c61d1a2dcf9ef04c93646fadb50b89a3",
+        "trial-3-failure.png": "8c1d3708e3ec6c39d6de612f8f72577f4810e8c9ad469c58fea45d47023dd487"
+      }
+    },
+    {
+      "id": "trial-4",
+      "arm": "old",
+      "pair": 2,
+      "first_delivery_passed": true,
+      "visual_check": "父线程已打开390×844实现截图，对照同一采用稿；分组/密度/操作位置符合",
+      "elapsed_seconds": 64.010079,
+      "raw_metrics": {
+        "started_at": "2026-10-17T05:35:45.489243+00:00",
+        "finished_at": "2026-10-17T05:36:49.499322+00:00",
+        "elapsed_seconds": 64.010079
+      },
+      "parent_dispatch_receive": {
+        "dispatch_at": "2026-10-17T05:35:20.352993+00:00",
+        "received_at": "2026-10-17T05:37:38.781772+00:00"
+      },
+      "parent_wall_seconds": 138.428779,
+      "tokens": null,
+      "internal_rework_count": null,
+      "first_working_path_seconds": null,
+      "evaluator_requested_rework": 0,
+      "rework_zero_fixed_by_design": true,
+      "changed_product_files": [
+        "server.cjs",
+        "app.html"
+      ],
+      "final_source_sha256": {
+        "server.cjs": "f2870f9236903bd1995a1dd1352f6a93f9edb6527afc6131950e64550a09d76a",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "252ae664ca4c385c51fdb5c035e09a9bf0daca40f78518cd87ee3a2480f87921",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+        "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+        "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+        "runtime.md": "f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156",
+        "request.md": "b535dbd06096acfd22a1eb08ea50b0a0a69f07a17bc279368f52b09a8eddbeb0"
+      },
+      "independent_evaluation": {
+        "task": "C",
+        "timestamp": "2026-10-17T05:37:50.063Z",
+        "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-benefit-zrjgleuk/trial-4",
+        "environment": {
+          "node": "v22.22.3",
+          "playwright": "1.62.1",
+          "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+        },
+        "files": {
+          "server.cjs": "f2870f9236903bd1995a1dd1352f6a93f9edb6527afc6131950e64550a09d76a",
+          "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+          "app.html": "252ae664ca4c385c51fdb5c035e09a9bf0daca40f78518cd87ee3a2480f87921",
+          "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+          "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+          "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+          "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+          "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+          "runtime.md": "f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156"
+        },
+        "checks": [
+          {
+            "name": "采用稿与历史入口保持",
+            "passed": true,
+            "observation": "当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例"
+          },
+          {
+            "name": "最终采用稿与实际布局",
+            "passed": true,
+            "observation": "390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看"
+          },
+          {
+            "name": "页面消费服务端变化",
+            "passed": true,
+            "observation": "服务端改变候选名称后，正常页面显示新名称"
+          },
+          {
+            "name": "正常保存、重开与服务端读回",
+            "passed": true,
+            "observation": "浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致"
+          },
+          {
+            "name": "重开消费服务端新值而非本地缓存",
+            "passed": true,
+            "observation": "浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过"
+          },
+          {
+            "name": "保存失败不假成功且保留输入",
+            "passed": true,
+            "observation": "服务端503，页面显示失败、保留名称与目录，存储仍为此前内容"
+          },
+          {
+            "name": "底部返回实际可用",
+            "passed": true,
+            "observation": "产品页返回到原设置页"
+          }
+        ],
+        "passed": true
+      },
+      "network": [
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/item",
+          "status": 503
+        },
+        {
+          "method": "GET",
+          "path": "/api/info",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/directories",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/item",
+          "status": 200
+        }
+      ],
+      "evaluation_process": {
+        "exit_code": 0,
+        "stdout": "{\"task\":\"C\",\"timestamp\":\"2026-10-17T05:37:50.063Z\",\"workspace\":\"/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-benefit-zrjgleuk/trial-4\",\"environment\":{\"node\":\"v22.22.3\",\"playwright\":\"1.62.1\",\"chromium\":\"/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell\"},\"files\":{\"server.cjs\":\"f2870f9236903bd1995a1dd1352f6a93f9edb6527afc6131950e64550a09d76a\",\"api.js\":\"a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a\",\"app.html\":\"252ae664ca4c385c51fdb5c035e09a9bf0daca40f78518cd87ee3a2480f87921\",\"settings.html\":\"828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea\",\"prototype.html\":\"36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20\",\"prototype-final.js\":\"b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae\",\"prototype-v1.html\":\"bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835\",\"README.md\":\"6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94\",\"runtime.md\":\"f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156\"},\"checks\":[{\"name\":\"采用稿与历史入口保持\",\"passed\":true,\"observation\":\"当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例\"},{\"name\":\"最终采用稿与实际布局\",\"passed\":true,\"observation\":\"390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看\"},{\"name\":\"页面消费服务端变化\",\"passed\":true,\"observation\":\"服务端改变候选名称后，正常页面显示新名称\"},{\"name\":\"正常保存、重开与服务端读回\",\"passed\":true,\"observation\":\"浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致\"},{\"name\":\"重开消费服务端新值而非本地缓存\",\"passed\":true,\"observation\":\"浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过\"},{\"name\":\"保存失败不假成功且保留输入\",\"passed\":true,\"observation\":\"服务端503，页面显示失败、保留名称与目录，存储仍为此前内容\"},{\"name\":\"底部返回实际可用\",\"passed\":true,\"observation\":\"产品页返回到原设置页\"}],\"passed\":true}\n",
+        "stderr": ""
+      },
+      "selftest_sources": {
+        "verify.cjs": "const {chromium}=require('/Users/xiaohong.zhxh/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');\nconst assert=require('node:assert/strict');const fs=require('node:fs');\n(async()=>{const browser=await chromium.launch({executablePath:'/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell'});try{\nconst page=await browser.newPage({viewport:{width:390,height:844}});const base='http://127.0.0.1:50508';const responses=[];page.on('response',r=>{if(r.url().includes('/api/'))responses.push({url:r.url(),status:r.status(),method:r.request().method()})});\nawait page.request.post(base+'/__control',{data:{directoryName:'验收目录-独立样本'}});\nawait page.goto(base+'/prototype');const baseline=await page.locator('main').boundingBox();await page.screenshot({path:'evidence/prototype.png'});\nawait page.goto(base+'/');await page.waitForFunction(()=>!document.querySelector('#save').disabled);assert.equal(await page.locator('#directory option').textContent(),'验收目录-独立样本');assert.equal(await page.locator('.group').count(),3);assert.equal(await page.locator('.images .row button').count(),3);assert.deepEqual(await page.locator('main').boundingBox(),baseline);\nawait page.screenshot({path:'evidence/editor.png'});\nawait page.locator('#name').fill('产品 A · 复验');const directoryId=await page.locator('#directory').inputValue();await page.locator('#directory').selectOption(directoryId);await page.locator('#save').click();await page.getByRole('status').filter({hasText:'保存成功'}).waitFor();\nlet inspect=await (await page.request.get(base+'/__inspect')).json();assert.deepEqual(inspect.item,{name:'产品 A · 复验',directoryId});\nawait page.reload();await page.waitForFunction(()=>!document.querySelector('#save').disabled);assert.equal(await page.locator('#name').inputValue(),'产品 A · 复验');assert.equal(await page.locator('#directory').inputValue(),directoryId);await page.screenshot({path:'evidence/reopened.png'});\nawait page.request.post(base+'/__control',{data:{rejectSave:true}});await page.locator('#name').fill('失败后保留 B');await page.locator('#save').click();await page.getByRole('status').filter({hasText:'保存暂不可用'}).waitFor();assert.equal(await page.locator('#name').inputValue(),'失败后保留 B');assert.equal(await page.locator('#directory').inputValue(),directoryId);inspect=await(await page.request.get(base+'/__inspect')).json();assert.equal(inspect.item.name,'产品 A · 复验');await page.screenshot({path:'evidence/rejected.png'});\nawait page.request.post(base+'/__control',{data:{rejectSave:false}});await page.locator('#save').click();await page.getByRole('status').filter({hasText:'保存成功'}).waitFor();\nfor(const data of [{name:' ',directoryId},{name:'非法目录',directoryId:'local'},null]){const r=await page.request.post(base+'/api/item',{data});assert.equal(r.status(),400)}\nawait page.reload();await page.waitForFunction(()=>!document.querySelector('#save').disabled);assert.equal(await page.locator('#name').inputValue(),'失败后保留 B');\nawait page.goto(base+'/settings');await page.waitForFunction(()=>document.querySelector('#service').textContent==='现有服务');await page.goto(base+'/');await page.locator('#back').click();await page.waitForURL(base+'/settings');\ninspect=await(await page.request.get(base+'/__inspect')).json();fs.writeFileSync('evidence/observations.json',JSON.stringify({viewport:{width:390,height:844},responses,inspect,checks:['v2布局','动态目录','保存写入','刷新读回','503保留输入及旧存储','失败重试','无效名称与目录400','返回历史及settings现有请求']},null,2));\nconsole.log('全部行为检查通过');}finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});\n"
+      },
+      "patch": "comparison/trial-4.patch",
+      "patch_sha256": "98727e21795bddae8bf80eb0269eede878681763d4afb1c3cbe4fe1b411feead",
+      "screenshot_sha256": {
+        "trial-4-implementation.png": "6f277a934ab38b5deeb3a39c94a2d36c0e955368ca0a065ef6fc1f2b855b3e6e",
+        "trial-4-failure.png": "57cab0675b21b5d171143d3e304f99ade4a620c9e7416c65817602699e7112f6"
+      }
+    }
+  ],
+  "summary": {
+    "old": {
+      "n": 2,
+      "first_passed": 2,
+      "times_seconds": [
+        56.098555,
+        64.010079
+      ],
+      "mean_seconds": 60.054317,
+      "median_seconds": 60.054317
+    },
+    "new": {
+      "n": 2,
+      "first_passed": 2,
+      "times_seconds": [
+        59.554838,
+        57.622081
+      ],
+      "mean_seconds": 58.5884595,
+      "median_seconds": 58.5884595
+    }
+  },
+  "observed_mean_difference_seconds_old_minus_new": 1.4658574999999985,
+  "observed_mean_difference_percent_of_old": 2.4408861397924126,
+  "interpretation": "旧2/2、新2/2；本场景未检出首交质量增益。两轮耗时差方向相反；均值差只作描述，不证明稳定效率改善。",
+  "unavailable": [
+    "可靠token遥测",
+    "内部修复次数与工具完整轨迹",
+    "首次可用路径时间"
+  ],
+  "limitations": [
+    "仅同一隔离网页入口恢复场景，每组2次；不能推广到真实三端",
+    "四份规则整体比较，不能归因到某一句",
+    "共同全局元数据下强制读本地快照，不是自动触发试验；未完整审计读取轨迹",
+    "评价者知道分组，非双盲；采用冻结脚本与一致截图条件",
+    "自计wall-clock含采样与工具等待；父线程时间还含调度/收讯延迟",
+    "返修次数按设计均0，不能当成减少返工证据；输出长度/文件数不替代token",
+    "运行时随机目录及UUID不同但语义和分布一致，无组间固定数据优势"
+  ],
+  "archive_note": "初次归档补丁未正确表示trial-3文件末尾无换行，复放摘要不同；仅修正补丁格式，四份均复放摘要一致，未修改执行产物或评价结果。"
+}

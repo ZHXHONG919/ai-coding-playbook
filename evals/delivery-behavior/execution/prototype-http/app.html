@@ -1,0 +1,7 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>产品</title>
+<style>body{font:16px sans-serif}main{padding:20px}section{margin:16px 0}button{padding:12px}input,select{display:block}</style>
+<main><h1>新建产品</h1><section><label>名称<input id="name"></label><label>保存目录<select id="directory"><option value="local">默认目录</option></select></label></section><section>商品图<button>选择图片</button></section><section>背景图<button>选择图片</button></section><section>参考图<button>选择图片</button></section><button id="save">保存草稿</button><p id="status" role="status"></p></main>
+<script type="module">
+import {request} from '/api.js';
+document.querySelector('#save').onclick=()=>{document.querySelector('#status').textContent='保存成功'};
+</script></html>
