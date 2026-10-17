@@ -1,0 +1,62 @@
+--- a/server.cjs
++++ b/server.cjs
+@@ -22,8 +22,17 @@
+   if (url.pathname === '/__inspect') return json(200, { item, requests });
+   if (url.pathname === '/api/item') {
+     requests.push({ method: req.method, path: url.pathname });
+-    // TODO: 实现已确认的开发态保存与读回，使用上面的隔离内存状态。
+-    return json(501, { message: '本路由尚未实现' });
++    if (req.method === 'GET') return json(200, { item });
++    if (req.method !== 'POST') return json(405, { message: '不支持此操作' });
++    let body = ''; for await (const chunk of req) body += chunk;
++    let value;
++    try { value = JSON.parse(body); } catch { return json(400, { message: '请求格式无效' }); }
++    if (!value || typeof value.name !== 'string' || !value.name.trim() || !directories.some(directory => directory.id === value.directoryId)) {
++      return json(400, { message: '请填写名称并选择有效目录' });
++    }
++    if (rejectSave) return json(503, { message: '保存暂不可用' });
++    item = { name: value.name, directoryId: value.directoryId };
++    return json(200, { item });
+   }
+   const files = { '/': 'app.html', '/settings': 'settings.html', '/prototype': 'prototype.html', '/prototype-v1': 'prototype-v1.html', '/prototype-final.js': 'prototype-final.js', '/api.js': 'api.js' };
+   const file = files[url.pathname];
+--- a/app.html
++++ b/app.html
+@@ -1,7 +1,32 @@
+-<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>产品</title>
+-<style>body{font:16px sans-serif}main{padding:20px}section{margin:16px 0}button{padding:12px}input,select{display:block}</style>
+-<main><h1>新建产品</h1><section><label>名称<input id="name"></label><label>保存目录<select id="directory"><option value="local">默认目录</option></select></label></section><section>商品图<button>选择图片</button></section><section>背景图<button>选择图片</button></section><section>参考图<button>选择图片</button></section><button id="save">保存草稿</button><p id="status" role="status"></p></main>
++<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
++<title>产品</title><style>
++*{box-sizing:border-box}body{margin:0;background:#f5f6f8;font:16px sans-serif;color:#222}main{width:100%;max-width:390px;margin:auto;padding:20px}h1{font-size:22px}.group{background:white;padding:16px;margin:16px 0;border-radius:12px}label{display:block;margin-bottom:12px}input,select{display:block;width:100%;height:44px;margin-top:8px}button{height:44px}footer{display:flex;gap:12px}.images .row{padding:12px 0;border-bottom:1px solid #ddd}.images .row:last-child{border:0}
++</style><main><h1>新建产品</h1><section class="group basics"><label>名称<input id="name" autocomplete="off"></label></section><section class="group placement"><label>保存目录<select id="directory" disabled><option value="">加载中</option></select></label></section><section class="group images"><div class="row">商品图</div><div class="row">背景图</div><div class="row">参考图</div></section><footer><button id="back" type="button">返回</button><button id="save" type="button" disabled>保存草稿</button></footer><p id="status" role="status" aria-live="polite"></p></main><script src="/prototype-final.js"></script></html>
++
+ <script type="module">
+ import {request} from '/api.js';
+-document.querySelector('#save').onclick=()=>{document.querySelector('#status').textContent='保存成功'};
+-</script></html>
++const name = document.querySelector('#name');
++const directory = document.querySelector('#directory');
++const save = document.querySelector('#save');
++const status = document.querySelector('#status');
++document.querySelector('#back').onclick = () => history.back();
++let ready = false;
++async function load() {
++  try {
++    const [directories, draft] = await Promise.all([request('/api/directories'), request('/api/item')]);
++    directory.replaceChildren(...directories.items.map(item => new Option(item.name, item.id)));
++    if (draft.item) { name.value = draft.item.name; directory.value = draft.item.directoryId; }
++    ready = true; directory.disabled = false; save.disabled = false;
++  } catch (error) { status.textContent = error.message; }
++}
++save.onclick = async () => {
++  if (!ready || save.disabled) return;
++  save.disabled = true; status.textContent = '正在保存';
++  try {
++    await request('/api/item', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name.value, directoryId:directory.value})});
++    status.textContent = '保存成功';
++  } catch (error) { status.textContent = error.message; }
++  finally { save.disabled = false; }
++};
++load();
++</script>

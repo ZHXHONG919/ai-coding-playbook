@@ -1,0 +1,324 @@
+{
+  "date": "2026-10-17 Asia/Shanghai",
+  "mode": "单例接续实际执行；非新旧规则对照",
+  "baseline_commit": "b9e3a193c7620266cc6c5d9589c268d12be2d70f",
+  "implementer": "/root/execute_recovery_case，fork_turns=none，模型继承默认未覆盖；只提供选定任务与规则副本/运行工具，不提供过期位置、评价脚本或历史结果",
+  "evaluator": "主线程独立运行浏览器及数据观测，打开截图；未替实现者修改实现",
+  "reviewer": "/root/round2_validation，只读规则与评价逻辑，历史文件保护漏检已修复",
+  "input": "接续本目录产品编辑页，按项目已确认的采用稿和接口约定完成“填写名称、选择目录、保存草稿、重开读回”，图片仅做布局。项目事实见README.md，启动方式见runtime.md。使用正常请求层并实际验证，不改采用稿、不操作业务项目、不提交或部署。资料能直接查明就继续，不要求新写入口说明。\n",
+  "project_facts": {
+    "README.md": "# 示例项目\n\n## 当前采用决定\n\n本文件维护当前已确认采用范围，历史运行笔记不改变采用决定。\n\n- 当前产品编辑页采用v2，目标端为浏览器390×844，采用稿同源路径为 `/prototype`，含其加载的样式与脚本。历史v1保留只供追溯。\n- 正式产品页为 `/`。按采用稿保持字段分组、图片操作、底部操作与返回关系；返回使用浏览器历史。\n- 当前实现范围：填写名称、选择保存目录、保存草稿、重开读回。图片只实现采用稿布局，不实现上传。\n- 正常请求层为 `api.js` 的 `request`；服务端提供隔离开发态模拟，不使用前端固定业务候选或伪造保存成功。\n\n## 已确认接口\n\n- GET `/api/directories` → `{items:[{id,name}]}`。\n- GET `/api/item` → `{item:null|{name,directoryId}}`。\n- POST `/api/item`，JSON `{name,directoryId}` → `{item:{name,directoryId}}`。\n- 服务端保存到本地隔离内存，同一服务刷新读回；不保证进程重启后保留。无效名称/目录返回400，保存拒绝返回503和 `{message:'保存暂不可用'}`。\n- 失败保留表单，不显示成功。`/settings` 是已有页面，不属于本次修改。\n\n## 开发环境\n\nNode.js标准库服务，无认证和外部副作用；启动命令与随机端口获取见runtime.md。生产权限、真实持久化和真实三端验收不在本示例内。\n",
+    "runtime.md": "# 本地运行笔记\n\n记录上下文：产品采用稿v1。\n\n执行 `node server.cjs`；第一行JSON输出port。服务仅监听127.0.0.1，默认随机端口。正式页面打开该端口根路径，采用稿打开同端口 `/prototype-v1`。\n\n请求层与已确认接口参见README。当前仅在隔离目录开发，勿使用业务项目固定端口。\n"
+  },
+  "rules_sha256": {
+    "references/plan/task-breakdown.md": "4cd7e9d4688beec7dfaf487eed2a3c96715e9f5e89329098003da7883054c680",
+    "references/stages/implementation.md": "1132b7c3d033066f38377480c6579b3fc4c16ff9157cd47b50237ec7c066d8ea",
+    "references/delivery/evidence-driven-delivery.md": "c750a5fd40bc959194853507f04c5e5600e9158cff9128eb46295cf702c8c3c2",
+    "references/delivery/agent-delivery-flow.md": "de41a84225195af84ee506d4f39a4ae82a61eeddcf7ff62712ce131094f6f4a8"
+  },
+  "fixture_sha256": {
+    "server.cjs": "c9ec7b9281a8ac341fc1c692b70687f5d10d51192a18ef5fdee8225f0db2b2f2",
+    "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+    "app.html": "cb3b55277486b5076595437fb96d71efd8753fe4bf610f14f369c3a12daed504",
+    "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+    "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+    "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+    "request.md": "565714fb25e62d3b7f45fca49e4db7b4bb16d9a5639489efe1e6f3fa941cb186",
+    "verify.cjs": "a2a09d0cf1fb2831be43b573656ea473804d1311c296f0dc7c3ff2ccd9ee7197"
+  },
+  "prepared_sha256": {
+    "server.cjs": "f3ed93be65aa0ae9363be277a1e944102dddfa4a5776d23ec9d2ef735360f7e2",
+    "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+    "app.html": "cb3b55277486b5076595437fb96d71efd8753fe4bf610f14f369c3a12daed504",
+    "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+    "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+    "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+    "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+    "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+    "runtime.md": "f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156",
+    "request.md": "a1ca29db44ae5439a5c2c797aa1d9aa5fdf86b28abee5a40a8ce1e0cd094429a"
+  },
+  "observations": {
+    "C": {
+      "task": "C",
+      "timestamp": "2026-10-17T05:26:04.832Z",
+      "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-recovery-pv7cej1l/C",
+      "environment": {
+        "node": "v22.22.3",
+        "playwright": "1.62.1",
+        "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+      },
+      "files": {
+        "server.cjs": "fcfa1d10b33089f9f770c3daf49d647e8b16ed8b05225fc953e460e3ca3f35b5",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "4431e7f8a159292e5d55bb297238313d53856b81e91b40cbfe0311b6a132f3bd",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+        "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+        "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+        "runtime.md": "f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156"
+      },
+      "checks": [
+        {
+          "name": "采用稿与历史入口保持",
+          "passed": true,
+          "observation": "当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例"
+        },
+        {
+          "name": "最终采用稿与实际布局",
+          "passed": true,
+          "observation": "390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看"
+        },
+        {
+          "name": "页面消费服务端变化",
+          "passed": true,
+          "observation": "服务端改变候选名称后，正常页面显示新名称"
+        },
+        {
+          "name": "正常保存、重开与服务端读回",
+          "passed": true,
+          "observation": "浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致"
+        },
+        {
+          "name": "重开消费服务端新值而非本地缓存",
+          "passed": true,
+          "observation": "浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过"
+        },
+        {
+          "name": "保存失败不假成功且保留输入",
+          "passed": true,
+          "observation": "服务端503，页面显示失败、保留名称与目录，存储仍为此前内容"
+        },
+        {
+          "name": "底部返回实际可用",
+          "passed": true,
+          "observation": "产品页返回到原设置页"
+        }
+      ],
+      "passed": true
+    },
+    "changed_history": {
+      "task": "C",
+      "timestamp": "2026-10-17T05:26:10.529Z",
+      "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-recovery-pv7cej1l/changed-history",
+      "environment": {
+        "node": "v22.22.3",
+        "playwright": "1.62.1",
+        "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+      },
+      "files": {
+        "server.cjs": "fcfa1d10b33089f9f770c3daf49d647e8b16ed8b05225fc953e460e3ca3f35b5",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "4431e7f8a159292e5d55bb297238313d53856b81e91b40cbfe0311b6a132f3bd",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+        "prototype-v1.html": "afd96b326f83b911ab011f01a7f5a891eebf8bd960106145cf17a6ede96ad85a",
+        "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+        "runtime.md": "f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156"
+      },
+      "checks": [
+        {
+          "name": "采用稿与历史入口保持",
+          "passed": false,
+          "error": "不得改写历史采用稿消除过期入口\n+ actual - expected\n\n+ '<!doctype html><html lang=\"zh-CN\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>产品原型 v1</title><meta name=\"prototype-version\" content=\"v2\">\\n' +\n- '<!doctype html><html lang=\"zh-CN\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>产品原型 v1</title><meta name=\"prototype-version\" content=\"v1\">\\n' +\n    '<style>body{font:16px sans-serif}main{padding:20px}section{margin:16px 0}button{padding:12px}input,select{display:block}</style>\\n' +\n    '<main><h1>新建产品</h1><section><label>名称<input id=\"name\"></label><label>保存目录<select id=\"directory\"><option value=\"local\">默认目录</option></select></label></section><section>商品图<button>选择图片</button></section><section>背景图<button>选择图片</button></section><section>参考图<button>选择图片</button></section><button id=\"save\">保存草稿</button><p id=\"status\" role=\"status\"></p></main>\\n' +\n    '<script type=\"module\">\\n' +\n    \"import {request} from '/api.js';\\n\" +\n    \"document.querySelector('#save').onclick=()=>{document.querySelector('#status').textContent='保存成功'};\\n\" +\n"
+        },
+        {
+          "name": "最终采用稿与实际布局",
+          "passed": true,
+          "observation": "390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看"
+        },
+        {
+          "name": "页面消费服务端变化",
+          "passed": true,
+          "observation": "服务端改变候选名称后，正常页面显示新名称"
+        },
+        {
+          "name": "正常保存、重开与服务端读回",
+          "passed": true,
+          "observation": "浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致"
+        },
+        {
+          "name": "重开消费服务端新值而非本地缓存",
+          "passed": true,
+          "observation": "浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过"
+        },
+        {
+          "name": "保存失败不假成功且保留输入",
+          "passed": true,
+          "observation": "服务端503，页面显示失败、保留名称与目录，存储仍为此前内容"
+        },
+        {
+          "name": "底部返回实际可用",
+          "passed": true,
+          "observation": "产品页返回到原设置页"
+        }
+      ],
+      "passed": false
+    },
+    "stale_layout": {
+      "task": "C",
+      "timestamp": "2026-10-17T05:26:10.507Z",
+      "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-recovery-pv7cej1l/stale-layout",
+      "environment": {
+        "node": "v22.22.3",
+        "playwright": "1.62.1",
+        "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+      },
+      "files": {
+        "server.cjs": "fcfa1d10b33089f9f770c3daf49d647e8b16ed8b05225fc953e460e3ca3f35b5",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "c50bee653c8bff18efd661bfd4d4429ea99d7fcc4841e165a5e2dfc1fe2614be",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+        "prototype-v1.html": "bd42c9bf1639d98404588fee1ac351dd45779ed6cf5ebba4524abc40c4eed835",
+        "README.md": "6a9a67498923ffd397f7ec16bb8b2addb913779a4a348d3fcdd31f126de3ec94",
+        "runtime.md": "f025e921237fd8cfac0447b3573e27a6f3c60c7cc2b3adb4fb90f2d7b8fa1156"
+      },
+      "checks": [
+        {
+          "name": "采用稿与历史入口保持",
+          "passed": true,
+          "observation": "当前采用稿与请求层保持，旧版文件及路由内容仍是原v1；不是404恢复样例"
+        },
+        {
+          "name": "最终采用稿与实际布局",
+          "passed": false,
+          "error": "内容宽度偏离采用稿"
+        },
+        {
+          "name": "页面消费服务端变化",
+          "passed": true,
+          "observation": "服务端改变候选名称后，正常页面显示新名称"
+        },
+        {
+          "name": "正常保存、重开与服务端读回",
+          "passed": true,
+          "observation": "浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致"
+        },
+        {
+          "name": "重开消费服务端新值而非本地缓存",
+          "passed": true,
+          "observation": "浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过"
+        },
+        {
+          "name": "保存失败不假成功且保留输入",
+          "passed": true,
+          "observation": "服务端503，页面显示失败、保留名称与目录，存储仍为此前内容"
+        },
+        {
+          "name": "底部返回实际可用",
+          "passed": true,
+          "observation": "产品页返回到原设置页"
+        }
+      ],
+      "passed": false
+    }
+  },
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/directories",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/item",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/directories",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/item",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/item",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/item",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/directories",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/directories",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/item",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/item",
+      "status": 503
+    },
+    {
+      "method": "GET",
+      "path": "/api/info",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/directories",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/item",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/info",
+      "status": 200
+    }
+  ],
+  "actor_selftest_source": "const assert=require('node:assert/strict');\nconst {chromium}=require('/Users/xiaohong.zhxh/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');\n(async()=>{const base=process.argv[2];const control=async value=>fetch(base+'/__control',{method:'POST',body:JSON.stringify(value)});const b=await chromium.launch({executablePath:'/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell'});try{\nconst p=await b.newPage({viewport:{width:390,height:844}});await control({directoryName:'服务端验收目录-蓝莓'});await p.goto(base+'/');await p.locator('#name:enabled').waitFor();assert.equal(await p.locator('#directory option').textContent(),'服务端验收目录-蓝莓');\nawait p.locator('#name').fill('样例产品');await p.screenshot({path:__dirname+'/implementation.png'});\nconst geometry=await p.locator('.group,footer').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return [r.x,r.y,r.width,r.height]}));const ref=await b.newPage({viewport:{width:390,height:844}});await ref.goto(base+'/prototype');assert.deepEqual(geometry,await ref.locator('.group,footer').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return [r.x,r.y,r.width,r.height]})));await ref.close();\nawait p.locator('#name').fill('蓝莓产品-73');await p.getByRole('button',{name:'保存草稿'}).click();await p.getByRole('status').filter({hasText:'保存成功'}).waitFor();await p.reload();await p.locator('#name:enabled').waitFor();assert.equal(await p.locator('#name').inputValue(),'蓝莓产品-73');assert.equal(await p.locator('#directory option:checked').textContent(),'服务端验收目录-蓝莓');await p.screenshot({path:__dirname+'/readback.png'});\nawait control({rejectSave:true});await p.locator('#name').fill('拒绝保存-94');await p.getByRole('button',{name:'保存草稿'}).click();await p.getByRole('status').filter({hasText:'保存暂不可用'}).waitFor();assert.equal(await p.locator('#name').inputValue(),'拒绝保存-94');assert(!await p.getByRole('status').textContent().then(x=>x.includes('成功')));await p.screenshot({path:__dirname+'/failure.png'});await p.reload();await p.locator('#name:enabled').waitFor();assert.equal(await p.locator('#name').inputValue(),'蓝莓产品-73');await control({rejectSave:false});\nfor(const value of [{name:' ',directoryId:await p.locator('#directory').inputValue()},{name:'bad',directoryId:'nonexistent'}]){const r=await fetch(base+'/api/item',{method:'POST',body:JSON.stringify(value)});assert.equal(r.status,400);}\nconst state=await fetch(base+'/__inspect').then(r=>r.json());assert.equal(state.item.name,'蓝莓产品-73');assert(state.requests.some(r=>r.method==='POST'));await p.goto(base+'/settings');await p.goto(base+'/');await p.locator('#name:enabled').waitFor();await p.getByRole('button',{name:'返回',exact:true}).click();await p.waitForURL(base+'/settings');assert.equal(await p.locator('#service').textContent(),'现有服务');console.log(JSON.stringify({result:'PASS',geometry,item:state.item,requestCount:state.requests.length}));\n}finally{await b.close()}})().catch(e=>{console.error(e);process.exitCode=1});\n",
+  "mutations": {
+    "changed_history": {
+      "file": "prototype-v1.html",
+      "replace": [
+        "content=\"v1\"",
+        "content=\"v2\""
+      ]
+    },
+    "stale_layout": {
+      "file": "app.html",
+      "replace": [
+        "</style>",
+        "main{width:calc(100% - 16px);margin:8px}body{background:white}</style>"
+      ]
+    }
+  },
+  "unchanged_project_documents": true,
+  "limits": [
+    "仅一个有明确权威来源和一处过期映射的本地网页场景",
+    "不证明真实三端、身份、数据库或普遍恢复能力",
+    "没有旧新规则对照，不推断质量改善幅度或成本收益",
+    "评价按正确产物及运行结果判断，不要求修改README/runtime或新写入口说明"
+  ],
+  "artifacts_sha256": {
+    "recovery-setup.patch": "fdd0d13921d4eb5b7b0de26f91059ff6a7ef78ac0b60f416b8255909cc94fedc",
+    "recovery-implementation.patch": "6382c08d218d950defe01ff11ebd73211625b63c97c4b87f2c44a41a8b0d175d",
+    "recovery-historical.png": "f65076b6d9ac41f86d3957c675563e20993fc9fbddbda4402f88d690c04c35ab",
+    "recovery-prototype.png": "b1297620f1658e8bf2dc3f92b079264f56f6a1e71d54413f3d2ef39e4328b615",
+    "recovery-implementation.png": "f75db0809c1157ebf00c7bd722997e9706204e4ff966e6b60301b946df63072d",
+    "recovery-failure.png": "c2c218f2cc5bf1c56f7f5acd8d0e42612da12c3f7ee2a2bd86aa560fc0cfcf8a"
+  }
+}

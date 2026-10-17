@@ -1,0 +1,296 @@
+{
+  "date": "2026-10-17 Asia/Shanghai",
+  "mode": "实际执行，不是旧新规则对照",
+  "baseline_commit": "b9e3a193c7620266cc6c5d9589c268d12be2d70f",
+  "implementation_agents": {
+    "A": "/root/execute_prototype_case",
+    "B": "/root/execute_small_change",
+    "context": "各自fork_turns=none；模型继承当前默认，未设置覆盖；只提供选定任务、三份规则副本、运行依赖位置；未提供评价脚本与其他任务"
+  },
+  "evaluator": "主线程；未参与A/B实现；独立运行浏览器、检查截图及差异",
+  "reviewer": "/root/challenge_cost；只读规则与评价脚本；两项缺口修复后复审",
+  "task_inputs": {
+    "A": "# 当前任务\n\n新增页面的原型与 Mock 接入\n\n已授权修复本目录产品页，采用稿已经确认，不重开设计。完成一条“填写名称、选择目录、保存草稿、重开读回”的路径，并核对原型。图片本次只实现采用稿的布局，不实现上传。不要操作业务项目、提交、安装或部署。\n\n当前任务入口：\n- 目标为浏览器390×844产品编辑页 `/`；最终采用稿打开 `/prototype`，等待 `/prototype-final.js` 生效。该脚本是已确认的局部覆写，不能只按 HTML 初始内容实现。按采用稿保留字段分组、图片区三行右侧操作和底部返回/保存；返回使用浏览器历史。\n- 正常请求层是 `api.js` 的 `request`，同源服务由 `node server.cjs` 启动。目录数据使用服务端响应，不在前端声明固定业务候选。\n- 契约：GET `/api/directories` → `{items:[{id,name}]}`；GET `/api/item` → `{item:null|{name,directoryId}}`；POST `/api/item`，JSON `{name,directoryId}` → `{item:{name,directoryId}}`。查询、保存没有外部副作用，当前待补的路由在 `server.cjs`。\n- 保存拒绝返回503及 `{message:'保存暂不可用'}`；无效名称/目录返回400；失败保留表单，不显示成功。成功记录在隔离内存，刷新页面读同一服务端状态。\n- 易错样例：初始页面只显示本地目录并直接提示成功；修复须能区分实际消费服务端响应与前端自造结果。沿用当前 owner 补接口、自测，无须另建知识库或通过表。\n",
+    "B": "# 当前任务\n\n成熟接口的局部样式修改\n\n只修 `/settings` 中取消按钮高度，使它与保存按钮一致，保持当前请求与行为。`GET /api/info` 和 `api.js` 已可用；无新增交互、接口或其他端需求。启动和访问方式同上。完成必要实际查看，不搭 Mock、不整理新文档、不修改产品页或服务端，不提交、安装或部署。\n"
+  },
+  "rules_sha256": {
+    "references/plan/task-breakdown.md": "f8db5d0afc16e91bbfff358a6cec5a266b2d5532b77b74c74f325ce452c9ddcd",
+    "references/stages/implementation.md": "8b245c41977750840479ea89c393640bc2f6c4e2e1185ab945039cd083c92618",
+    "references/delivery/evidence-driven-delivery.md": "92a37a99e24e0dfbb2df449dfec30a7c872eeb1e02287a109e5ae4e11306b5b9",
+    "references/delivery/agent-delivery-flow.md": "b7afc0c60ff25a70bca2c411aaa9ebe4c09830bdc7a11d0e2b58dd396f5cfafe"
+  },
+  "fixture_sha256": {
+    "server.cjs": "c9ec7b9281a8ac341fc1c692b70687f5d10d51192a18ef5fdee8225f0db2b2f2",
+    "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+    "app.html": "cb3b55277486b5076595437fb96d71efd8753fe4bf610f14f369c3a12daed504",
+    "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+    "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+    "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae",
+    "verify.cjs": "6c833a25a439afc4fd455632ae75ce15976e74438d57f9acf719591c230de6dd",
+    "request.md": "094252da70e4d680b225526f96b16cb95256531c5a7abce1edef306a396c4f85"
+  },
+  "observations": {
+    "A": {
+      "task": "A",
+      "timestamp": "2026-10-17T05:02:33.400Z",
+      "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-prototype-http-4ut3a8v7/A",
+      "environment": {
+        "node": "v22.22.3",
+        "playwright": "1.62.1",
+        "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+      },
+      "files": {
+        "server.cjs": "d84ff308744627f05db314cbc5ab4b67b482888fdcc4c1fdeedffab6f311b0b5",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "443acb918e1e4469d924cd7470c56939b5a8c7dc84b6d77cec687b0e6480f183",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae"
+      },
+      "checks": [
+        {
+          "name": "最终采用稿与实际布局",
+          "passed": true,
+          "observation": "390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看"
+        },
+        {
+          "name": "页面消费服务端变化",
+          "passed": true,
+          "observation": "服务端改变候选名称后，正常页面显示新名称"
+        },
+        {
+          "name": "正常保存、重开与服务端读回",
+          "passed": true,
+          "observation": "浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致"
+        },
+        {
+          "name": "重开消费服务端新值而非本地缓存",
+          "passed": true,
+          "observation": "浏览器外正常POST改变存储后，刷新采用新服务端值，不能靠上次输入或本地缓存通过"
+        },
+        {
+          "name": "保存失败不假成功且保留输入",
+          "passed": true,
+          "observation": "服务端503，页面显示失败、保留名称与目录，存储仍为此前内容"
+        },
+        {
+          "name": "底部返回实际可用",
+          "passed": true,
+          "observation": "产品页返回到原设置页"
+        }
+      ],
+      "passed": true
+    },
+    "B": {
+      "task": "B",
+      "timestamp": "2026-10-17T05:03:19.541Z",
+      "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-prototype-http-4ut3a8v7/B",
+      "environment": {
+        "node": "v22.22.3",
+        "playwright": "1.62.1",
+        "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+      },
+      "files": {
+        "server.cjs": "c9ec7b9281a8ac341fc1c692b70687f5d10d51192a18ef5fdee8225f0db2b2f2",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "cb3b55277486b5076595437fb96d71efd8753fe4bf610f14f369c3a12daed504",
+        "settings.html": "39ff4c9fc07ac850adf02aa0735db8debc6e531f9c490b232caeb231a6a41de7",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae"
+      },
+      "checks": [
+        {
+          "name": "局部任务变更范围",
+          "passed": true,
+          "observation": "仅settings.html允许改变；其他源码摘要保持且没有额外文件"
+        },
+        {
+          "name": "成熟接口样式修改",
+          "passed": true,
+          "observation": "两按钮均44px且同行，原有/api/info实际请求和显示保持"
+        }
+      ],
+      "passed": true
+    },
+    "original_A": {
+      "task": "A",
+      "timestamp": "2026-10-17T05:02:45.163Z",
+      "workspace": "evals/delivery-behavior/execution/prototype-http",
+      "environment": {
+        "node": "v22.22.3",
+        "playwright": "1.62.1",
+        "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+      },
+      "files": {
+        "server.cjs": "c9ec7b9281a8ac341fc1c692b70687f5d10d51192a18ef5fdee8225f0db2b2f2",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "cb3b55277486b5076595437fb96d71efd8753fe4bf610f14f369c3a12daed504",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae"
+      },
+      "checks": [
+        {
+          "name": "最终采用稿与实际布局",
+          "passed": false,
+          "error": "内容宽度偏离采用稿"
+        },
+        {
+          "name": "页面消费服务端变化",
+          "passed": false,
+          "error": "locator.waitFor: Timeout 4000ms exceeded.\nCall log:\n  - waiting for getByRole('option', { name: '验收-55b4a2c7', exact: true })\n"
+        },
+        {
+          "name": "正常保存、重开与服务端读回",
+          "passed": false,
+          "error": "缺少服务端候选"
+        },
+        {
+          "name": "重开消费服务端新值而非本地缓存",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n\n501 !== 200\n"
+        },
+        {
+          "name": "保存失败不假成功且保留输入",
+          "passed": false,
+          "error": "page.waitForResponse: Timeout 4000ms exceeded while waiting for event \"response\""
+        },
+        {
+          "name": "底部返回实际可用",
+          "passed": false,
+          "error": "locator.click: Timeout 4000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: '返回', exact: true })\n"
+        }
+      ],
+      "passed": false
+    },
+    "original_B": {
+      "task": "B",
+      "timestamp": "2026-10-17T05:01:45.172Z",
+      "workspace": "evals/delivery-behavior/execution/prototype-http",
+      "environment": {
+        "node": "v22.22.3",
+        "playwright": "1.62.1",
+        "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+      },
+      "files": {
+        "server.cjs": "c9ec7b9281a8ac341fc1c692b70687f5d10d51192a18ef5fdee8225f0db2b2f2",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "cb3b55277486b5076595437fb96d71efd8753fe4bf610f14f369c3a12daed504",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae"
+      },
+      "checks": [
+        {
+          "name": "成熟接口样式修改",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n\n28 !== 44\n"
+        }
+      ],
+      "passed": false
+    },
+    "cache_mutant": {
+      "task": "A",
+      "timestamp": "2026-10-17T05:02:56.234Z",
+      "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-prototype-http-4ut3a8v7/A-cache-mutant",
+      "environment": {
+        "node": "v22.22.3",
+        "playwright": "1.62.1",
+        "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+      },
+      "files": {
+        "server.cjs": "d84ff308744627f05db314cbc5ab4b67b482888fdcc4c1fdeedffab6f311b0b5",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "e2b4b2af50130cd50fc4e78bb98b5235fff66d58f4c498eaaefbf6874ffb4a0d",
+        "settings.html": "828c087a2e175cf8c1a8c39427c629c6bd029ad7e725c383273ba3a6e9838cea",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae"
+      },
+      "checks": [
+        {
+          "name": "最终采用稿与实际布局",
+          "passed": true,
+          "observation": "390×844下分组、输入、三行右侧操作和底部按钮符合结构检查；截图仍需人工查看"
+        },
+        {
+          "name": "页面消费服务端变化",
+          "passed": true,
+          "observation": "服务端改变候选名称后，正常页面显示新名称"
+        },
+        {
+          "name": "正常保存、重开与服务端读回",
+          "passed": true,
+          "observation": "浏览器POST保存；同一服务内存读回及刷新后的GET和字段回显一致"
+        },
+        {
+          "name": "重开消费服务端新值而非本地缓存",
+          "passed": false,
+          "error": "page.waitForFunction: Timeout 4000ms exceeded."
+        },
+        {
+          "name": "保存失败不假成功且保留输入",
+          "passed": true,
+          "observation": "服务端503，页面显示失败、保留名称与目录，存储仍为此前内容"
+        },
+        {
+          "name": "底部返回实际可用",
+          "passed": true,
+          "observation": "产品页返回到原设置页"
+        }
+      ],
+      "passed": false
+    },
+    "extra_file_mutant": {
+      "task": "B",
+      "timestamp": "2026-10-17T05:02:51.849Z",
+      "workspace": "/var/folders/h5/zsqqrxy907gcm8f6lw66hphw0000gp/T/playbook-prototype-http-4ut3a8v7/B-extra-mutant",
+      "environment": {
+        "node": "v22.22.3",
+        "playwright": "1.62.1",
+        "chromium": "/Users/xiaohong.zhxh/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+      },
+      "files": {
+        "server.cjs": "c9ec7b9281a8ac341fc1c692b70687f5d10d51192a18ef5fdee8225f0db2b2f2",
+        "api.js": "a42526d7c1712f3b9f427b86202e31bb6333573eaccf6a99f67698711728851a",
+        "app.html": "cb3b55277486b5076595437fb96d71efd8753fe4bf610f14f369c3a12daed504",
+        "settings.html": "39ff4c9fc07ac850adf02aa0735db8debc6e531f9c490b232caeb231a6a41de7",
+        "prototype.html": "36109f069530c9adcc208a08daf80e42b3946a1d107eb0382ce2c1a6c24f2a20",
+        "prototype-final.js": "b1f8d5706db174bf57cce3afb776d7145f872e95f28824bc3831401790709aae"
+      },
+      "checks": [
+        {
+          "name": "局部任务变更范围",
+          "passed": false,
+          "error": "局部任务不应增加文档或其他文件\n+ actual - expected\n\n+ [\n+   'unrequested-guide.md'\n+ ]\n- []\n"
+        },
+        {
+          "name": "成熟接口样式修改",
+          "passed": true,
+          "observation": "两按钮均44px且同行，原有/api/info实际请求和显示保持"
+        }
+      ],
+      "passed": false
+    }
+  },
+  "mutations": {
+    "cache_mutant": "--- a/app.html\n+++ b/app.html\n@@ -10,14 +10,14 @@\n try {\n   const [directories, result] = await Promise.all([request('/api/directories'), request('/api/item')]);\n   for (const entry of directories.items) { const option = document.createElement('option'); option.value = entry.id; option.textContent = entry.name; directory.append(option); }\n-  if (result.item) { name.value = result.item.name; directory.value = result.item.directoryId; }\n+  if (result.item) { name.value = localStorage.getItem('cachedName') || result.item.name; directory.value = result.item.directoryId; }\n   name.disabled = false; directory.disabled = false; save.disabled = false;\n } catch (error) { status.textContent = error.message; }\n save.onclick = async () => {\n   save.disabled = true; status.textContent = '保存中…';\n   try {\n     const result = await request('/api/item', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name.value, directoryId:directory.value})});\n-    name.value = result.item.name; directory.value = result.item.directoryId; status.textContent = '保存成功';\n+    name.value = result.item.name; localStorage.setItem('cachedName',name.value); directory.value = result.item.directoryId; status.textContent = '保存成功';\n   } catch (error) { status.textContent = error.message; }\n   finally { save.disabled = false; }\n };\n",
+    "extra_file_mutant": {
+      "path": "unrequested-guide.md",
+      "content": "局部按钮修改不需要新建这份资料。\n"
+    }
+  },
+  "implementation_self_report_A": "# 执行记录\n\n界面基线：390×844 `/prototype`，等待 `/prototype-final.js` 完成；已实际打开并检查 prototype.png。保留分组、三行右侧图片操作、底部返回与保存。业务数据允许替换样例数据。\n\n检查单：服务端改目录名 → 前端自造目录风险 → 正常页面读取 → 展示服务端新名称；正常页面保存再重开 → 假成功风险 → 同服务端 GET 读回原值；503 → 保留输入且无成功；非法名称/目录 → 400 且存储不变；返回 → 浏览器历史回到设置页。视觉比较使用同视口及样例文本。\n\n成本集中于现有页面和两个接口，自测共用一个服务进程和浏览器；不引入依赖或额外系统。当前 owner 实现隔离内存能力，本目录开发夹具无外部副作用。真实数据库、上传和生产环境不在范围。\n\n实际自测：`BASE_URL=http://127.0.0.1:<port> node selftest.cjs` 已通过，完整观测见 selftest-result.json。通过服务端控制接口改变目录名称，正常页面确实展示变化；正常页面 POST 保存，再刷新由 GET 读回同一内存记录。503 时页面显示“保存暂不可用”、保留名称，存储仍是上次成功值；无效名称、目录和 null 请求均返回400；返回按钮实际回到历史设置页。\n\n视觉：已打开并核对 prototype.png、saved.png、save-failure.png，采用稿动态三行操作已经生效。390×844 下标题、三个分组、图片区按钮和底部操作的实际几何位置完全相同；saved.png 展示服务端目录和读回名称，save-failure.png 展示失败输入与提示。图片按钮只反馈暂不支持上传，不实现上传。\n\n交付边界：仅隔离开发内存写后读，进程重启不持久化；没有真实数据库或外部服务验证。未修改 settings.html、api.js 或采用稿。无提交、安装和部署。自测后停止自有服务进程。\n",
+  "known_limits": [
+    "未验证真实认证、数据库、微信原生或三端应用",
+    "未作旧新规则对照，不推断耗时/token收益",
+    "首次评价脚本因label包含option文本与隐藏option可见性而误判，修复后重验；非实现失败",
+    "原始B负例使用增加范围检查前的脚本，尺寸断言仍能拒绝28px；A的最终评价之后仅增加了B规则副本范围检查"
+  ],
+  "artifacts_sha256": {
+    "implementation.patch": "5cb0a82cc550e58d70ef7f9683dbc3fd78653edcda099a6baa84d3271366c328",
+    "prototype.png": "b1297620f1658e8bf2dc3f92b079264f56f6a1e71d54413f3d2ef39e4328b615",
+    "implementation.png": "cdfa75970f97a34f5920108723dbaad563db9ecd5b361b763aaf592a29fa5b71",
+    "failure.png": "c9af728591a5c1b9872ff35ecf7f2000de2077435aaccb73a9120c4abbd6a7b1",
+    "settings.png": "33b89539ea897df6fef5a92cda9774462e342b2dc5a898b323937c2739f1dcc5"
+  }
+}

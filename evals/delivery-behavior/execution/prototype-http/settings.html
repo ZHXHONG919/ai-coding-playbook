@@ -1,0 +1,3 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>设置</title><style>body{font:16px sans-serif}.actions{display:flex;gap:12px;align-items:center}button{height:44px;padding:0 16px}button.secondary{height:28px}</style>
+<h1>设置</h1><p id="service"></p><div class="actions"><button>保存设置</button><button class="secondary">取消</button></div>
+<script type="module">import {request} from '/api.js';document.querySelector('#service').textContent=(await request('/api/info')).name;</script></html>

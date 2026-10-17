@@ -1,0 +1,60 @@
+--- a/server.cjs
++++ b/server.cjs
+@@ -25,7 +25,7 @@
+     // TODO: 实现已确认的开发态保存与读回，使用上面的隔离内存状态。
+     return json(501, { message: '本路由尚未实现' });
+   }
+-  const files = { '/': 'app.html', '/settings': 'settings.html', '/prototype': 'prototype.html', '/prototype-final.js': 'prototype-final.js', '/api.js': 'api.js' };
++  const files = { '/': 'app.html', '/settings': 'settings.html', '/prototype': 'prototype.html', '/prototype-v1': 'prototype-v1.html', '/prototype-final.js': 'prototype-final.js', '/api.js': 'api.js' };
+   const file = files[url.pathname];
+   if (!file) return json(404, { message: '不存在' });
+   res.writeHead(200, { 'content-type': file.endsWith('.js') ? 'text/javascript; charset=utf-8' : 'text/html; charset=utf-8' });
+--- /dev/null
++++ b/prototype-v1.html
+@@ -0,0 +1,7 @@
++<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>产品原型 v1</title><meta name="prototype-version" content="v1">
++<style>body{font:16px sans-serif}main{padding:20px}section{margin:16px 0}button{padding:12px}input,select{display:block}</style>
++<main><h1>新建产品</h1><section><label>名称<input id="name"></label><label>保存目录<select id="directory"><option value="local">默认目录</option></select></label></section><section>商品图<button>选择图片</button></section><section>背景图<button>选择图片</button></section><section>参考图<button>选择图片</button></section><button id="save">保存草稿</button><p id="status" role="status"></p></main>
++<script type="module">
++import {request} from '/api.js';
++document.querySelector('#save').onclick=()=>{document.querySelector('#status').textContent='保存成功'};
++</script></html>
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,22 @@
++# 示例项目
++
++## 当前采用决定
++
++本文件维护当前已确认采用范围，历史运行笔记不改变采用决定。
++
++- 当前产品编辑页采用v2，目标端为浏览器390×844，采用稿同源路径为 `/prototype`，含其加载的样式与脚本。历史v1保留只供追溯。
++- 正式产品页为 `/`。按采用稿保持字段分组、图片操作、底部操作与返回关系；返回使用浏览器历史。
++- 当前实现范围：填写名称、选择保存目录、保存草稿、重开读回。图片只实现采用稿布局，不实现上传。
++- 正常请求层为 `api.js` 的 `request`；服务端提供隔离开发态模拟，不使用前端固定业务候选或伪造保存成功。
++
++## 已确认接口
++
++- GET `/api/directories` → `{items:[{id,name}]}`。
++- GET `/api/item` → `{item:null|{name,directoryId}}`。
++- POST `/api/item`，JSON `{name,directoryId}` → `{item:{name,directoryId}}`。
++- 服务端保存到本地隔离内存，同一服务刷新读回；不保证进程重启后保留。无效名称/目录返回400，保存拒绝返回503和 `{message:'保存暂不可用'}`。
++- 失败保留表单，不显示成功。`/settings` 是已有页面，不属于本次修改。
++
++## 开发环境
++
++Node.js标准库服务，无认证和外部副作用；启动命令与随机端口获取见runtime.md。生产权限、真实持久化和真实三端验收不在本示例内。
+--- /dev/null
++++ b/runtime.md
+@@ -0,0 +1,7 @@
++# 本地运行笔记
++
++记录上下文：产品采用稿v1。
++
++执行 `node server.cjs`；第一行JSON输出port。服务仅监听127.0.0.1，默认随机端口。正式页面打开该端口根路径，采用稿打开同端口 `/prototype-v1`。
++
++请求层与已确认接口参见README。当前仅在隔离目录开发，勿使用业务项目固定端口。
+--- /dev/null
++++ b/request.md
+@@ -0,0 +1 @@
++接续本目录产品编辑页，按项目已确认的采用稿和接口约定完成“填写名称、选择目录、保存草稿、重开读回”，图片仅做布局。项目事实见README.md，启动方式见runtime.md。使用正常请求层并实际验证，不改采用稿、不操作业务项目、不提交或部署。资料能直接查明就继续，不要求新写入口说明。
