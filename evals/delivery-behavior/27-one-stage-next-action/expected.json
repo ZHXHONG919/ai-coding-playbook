@@ -1,0 +1,22 @@
+{
+  "case_id": "27-one-stage-next-action",
+  "expected_route": [
+    "skills/goal-execute/SKILL.md",
+    "references/delivery/goal-v3.md",
+    "references/delivery/agent-delivery-flow.md"
+  ],
+  "must_include": [
+    "这句下一步不能执行。使用场景、服务端模拟、前端交互和真实保存不写进同一步。",
+    "恢复后先停下不写代码，把 next_action 改成只做服务端模拟入口，并点明打开 skills/nest-api-design/SKILL.md、要留下的记录和停止条件。",
+    "改好 next_action 后，开始执行时的第一个动作是读取 skills/nest-api-design/SKILL.md，再只做服务端模拟这一段。",
+    "做完要留下约定路由返回模拟数据、请求到达的记录。路由还没有时，前端不开工，也不写真实保存。",
+    "这段自测通过只表示可以写下一段，不表示订单列表整组完成。"
+  ],
+  "must_not": [
+    "按原句把模拟接口、页面和真实保存在同一次继续里做完。",
+    "因为普通自测可以通过，就跳过改下一步。",
+    "把技能正文抄进下一步，或为此新建技能、新增 Goal 字段。",
+    "服务端模拟还没有时先做前端或真实保存。"
+  ],
+  "review_method": "依据隔离运行的实际输出判断；本样例是策略判断，样例准备完成不等于 Agent 行为通过。"
+}
