@@ -1,0 +1,22 @@
+digraph G { graph [bgcolor="#ffffff",pad="0.35",nodesep="0.5",ranksep="0.65",fontname="Heiti SC",fontsize=20]; node [shape=box,style="rounded,filled",fillcolor="#F3F6FA",color="#BCC9D7",fontname="Heiti SC",fontsize=16,margin="0.20,0.15"]; edge [color="#64748B",fontname="Heiti SC",fontsize=12,arrowsize=0.7];rankdir=TB;label="领域对象｜业务职责与关系";labelloc=t;
+graph[ranksep="0.55"];edge[fontsize=15];
+batch[label="审核批次 ReviewBatch
+一次提交的身份与进度
+请求去重、结果汇总"];
+item[label="批次项 ReviewBatchItem
+一条内容的处理结果
+执行信息与终态结果"];
+content[label="内容 Content
+内容当前审核状态
+约束合法状态变化"];
+record[label="审核记录 ReviewRecord
+已发生的审核动作
+操作者与发生时间"];
+batch->item[label="1 个批次包含 1..100 个条目"];
+item->content[label="每项保存内容ID
+内容目标当前为 0..1 条"];
+content->record[dir=back,label="每条记录保存内容ID
+内容目标当前为 0..1 条"];
+note[shape=plaintext,label="逻辑关联保存目标ID；目标可能不存在或已清理。
+历史ID及结果继续保留，不要求目标记录仍存在。",fontsize=14];
+record->note[style=invis];}

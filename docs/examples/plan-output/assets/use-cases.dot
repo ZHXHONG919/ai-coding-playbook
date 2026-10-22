@@ -1,0 +1,5 @@
+digraph G { graph [bgcolor="#ffffff",pad="0.35",nodesep="0.5",ranksep="0.65",fontname="Heiti SC",fontsize=20]; node [shape=box,style="rounded,filled",fillcolor="#F3F6FA",color="#BCC9D7",fontname="Heiti SC",fontsize=16,margin="0.20,0.15"]; edge [color="#64748B",fontname="Heiti SC",fontsize=12,arrowsize=0.7];rankdir=LR;label="用例总览｜参与者与系统能力";labelloc=t;actor[shape=plaintext,label="«参与者»
+审核人员
+（具备审核权限）"];subgraph cluster_system {label="内容审核系统";color="#94B8DC";uc1[shape=ellipse,label="UC-01
+批量通过内容",fillcolor="#E6F0FB"];uc2[shape=ellipse,label="UC-02
+查看处理进度与结果",fillcolor="#E6F0FB"];}actor->uc1[dir=none];actor->uc2[dir=none];}

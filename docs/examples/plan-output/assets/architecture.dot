@@ -1,0 +1,12 @@
+digraph G { graph [bgcolor="#ffffff",pad="0.35",nodesep="0.5",ranksep="0.65",fontname="Heiti SC",fontsize=20]; node [shape=box,style="rounded,filled",fillcolor="#F3F6FA",color="#BCC9D7",fontname="Heiti SC",fontsize=16,margin="0.20,0.15"]; edge [color="#64748B",fontname="Heiti SC",fontsize=12,arrowsize=0.7];rankdir=TB; label="系统设计概览｜在既有单体中增加批量审核"; labelloc=t;
+subgraph cluster_front {label="管理端 · 浏览器";color="#CBD5E1";web[label="审核页面
+新增：批量提交、进度与结果",fillcolor="#E6F0FB"];}
+subgraph cluster_app {label="审核服务 · 单体部署边界";color="#94B8DC";style=rounded;api[label="HTTP API 模块
+鉴权、创建批次、查询结果",fillcolor="#E6F0FB"];worker[label="后台 Worker 模块
+轮询、租约、有限重试",fillcolor="#E6F0FB"];domain[label="既有内容审核规则
+状态校验、审核记录"];{rank=same;api;worker;}worker->domain[label="调用领域能力"];}
+db[shape=cylinder,label="PostgreSQL
+既有：content、review_record
+新增：review_batch、review_batch_item",fillcolor="#E6F0FB"];
+web->api[label="HTTPS · 提交 / 查询"];api->db[label="SQL · 保存批次 / 读取结果"];worker->db[label="SQL · 轮询 / 获取租约"];domain->db[label="单项事务 · 内容 + 记录 + 结果"];
+legend[shape=plaintext,label="蓝底：本次新增或修改    灰底：既有能力",fontsize=12];db->legend[style=invis];}

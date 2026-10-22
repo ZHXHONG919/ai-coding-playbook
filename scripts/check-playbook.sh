@@ -20,6 +20,8 @@ required=(
   "scripts/check-goal.rb"
   "scripts/goal-v3.rb"
   "scripts/test-goal-v3.rb"
+  "scripts/read-plan-context.py"
+  "scripts/test-read-plan-context.py"
   "references/delivery/goal-v3.md"
   "templates/goal-v3/goal.yaml"
   "templates/goal-v3/status.yaml"
@@ -63,6 +65,8 @@ required=(
   "references/stages/release.md"
   "references/git-safety.md"
   "references/plan/evidence-first.md"
+  "references/plan/plan-writing-guide.md"
+  "references/plan/plan-light-writing-guide.md"
   "references/plan/role-lens.md"
   "references/plan/domain-design.md"
   "references/plan/diagram-required.md"
@@ -93,6 +97,7 @@ required=(
   "workflows/technical-plan-quality-gate.md"
   "workflows/release-workflow.md"
   "templates/feature-design.md"
+  "references/plan/plan-writing-guide.md"
   "templates/plan-light.md"
   "evals/README.md"
   "evals/ai-coding-playbook-routing.md"
@@ -110,6 +115,7 @@ required=(
   "evals/plan/boundary-cases-required.md"
   "evals/plan/latest-requirement-delta-gate.md"
   "evals/plan/prototype-confirmation-gate.md"
+  "evals/plan-activation/scenario-projection.md"
   "evals/plan/open-design-usage-gate.md"
   "evals/plan/open-design-existing-baseline.md"
   "evals/implementation/ui-drift-gate-impeccable.md"
@@ -312,7 +318,7 @@ if ! grep -q '用户原话和最新确认业务规则' "$ROOT_DIR/skills/design-
   exit 1
 fi
 
-if ! grep -q '更严格 / 更安全' "$ROOT_DIR/references/stages/plan.md"; then
+if ! { grep -q '用户最新确认的业务规则' "$ROOT_DIR/references/stages/plan.md" && grep -q '不能任选一种实现' "$ROOT_DIR/references/stages/plan.md"; }; then
   echo "plan stage missing business-rule-vs-safety conflict gate" >&2
   exit 1
 fi

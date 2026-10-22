@@ -1,6 +1,6 @@
 # AI Coding Playbook 入口
 
-> 跨项目复用的 AI coding 规则库。目标是在普通对话里稳定识别研发阶段，先做好抽象和方案，再进入实现、测试、Review 和发布。
+> 跨项目复用的 AI coding 规则库。目标是在普通对话里稳定识别研发阶段。方案把已确认需求转化为可实现、可验证的设计，供后续任务拆解、实现和验收使用；进入实现仍以用户授权为准。
 
 ## 默认行为
 
@@ -8,7 +8,7 @@
 
 处理业务项目时：
 
-1. 先读目标项目自己的 `README.md`、`AGENTS.md`、`CLAUDE.md` 和相关文档。
+1. 先取得目标项目自己的 `README.md`、`AGENTS.md`、`CLAUDE.md`，确定项目约定、规则根和任务范围；相关定义由对应阶段按方法选择，不在入口批量预读。方案请求按入口Skill的只读准备动作取得正文。
 2. playbook 只提供通用方法论。
 3. 项目本地事实优先于 playbook 默认规则。
 4. 如果 playbook 与项目文档冲突，遵循项目文档，并简短说明冲突。
@@ -25,7 +25,8 @@
 | --- | --- |
 | 梳理需求 / 分析需求 / 看下这个需求 | 需求分析 |
 | 确认需求 / 对齐口径 / 收口需求 | 需求确认 |
-| 做方案 / 写方案 / 方案设计 / 技术设计 | 方案阶段 |
+| 做方案 / 写方案 / 方案设计 / 技术设计 / 整体重构已有方案 | 方案阶段 |
+| 评审方案 / 检查方案某部分 / 设计 CR | 设计评审 |
 | 做 UI Flow / 画页面流 / 做原型 / 看页面路径 | UI Flow / 静态原型 |
 | 拆任务 / 拆实现 / 拆 task | 任务拆解 |
 | 执行任务 / 开始实现 / 按方案落地 / 落地这个需求 | 实现阶段 |
@@ -52,8 +53,9 @@
 | 需求分析 / 梳理需求 | `references/stages/requirement.md` |
 | 复杂需求进入方案前 / 需求确认 / 对齐口径 | `references/stages/requirement-confirmation.md` + `references/stages/requirement.md` |
 | 新需求开工 / kickoff / 建方案和任务目录 / 开始一个需求 | `references/stages/feature-kickoff.md` + `references/git-safety.md`；落盘不改变复杂度，按实际范围选择轻量或复杂方案规则 |
-| 技术方案 / 功能设计 / 模型设计 / 架构设计 | 先判断轻量或复杂：轻量读 `references/stages/plan-light.md` + `templates/plan-light.md`；复杂先读 `references/stages/requirement-confirmation.md`，再读 `references/stages/plan.md`；按该阶段说明选择相关 `references/plan/` 规则 + 匹配 `references/scenarios/*`，落盘用 `templates/feature-design.md` |
-| 方案评审 / 设计 CR / 设计评审 | `skills/design-review/SKILL.md` + `references/stages/plan.md`；按该阶段说明选择相关 `references/plan/` 规则 |
+| 技术方案 / 功能设计 / 模型设计 / 架构设计 / 整体重构已有方案 | `references/stages/plan.md`；统一装配full/light方法包，完整返回后再选择和读取项目定义。旧轻量入口也转入同一准备，编写方法各维护一份；聊天与文件使用同一依据，统一衔接采用检查及评审 |
+| 方案评审 / 设计 CR / 设计评审 / 局部方案检查 | `skills/design-review/SKILL.md`；局部评审只检查受影响范围。转为整体重构时，重新进入 `references/stages/plan.md` 的完整编写流程，不沿旧稿零散追加 |
+| 拆任务 / 拆实现 / 拆 task | `references/plan/task-breakdown.md`；承接当前采用方案及有效设计评审范围，复用已有确认和授权；不因拆任务自动开始实现或创建 Goal |
 | 生成 Goal 包 / Goal Handoff / 执行契约 / 复杂方案转连续执行 | `references/stages/goal-handoff.md` + `references/plan/task-breakdown.md`；统一选择 `templates/goal-v3/` |
 | 开始实现 / 按方案落地 | `references/stages/implementation.md` + `references/git-safety.md` + `references/plan/task-breakdown.md` |
 | 按 Goal 执行 / 续跑 goal / 从 status.yaml next_action 继续 | `skills/goal-execute/SKILL.md` + `references/stages/implementation.md` + `references/git-safety.md` |
@@ -75,27 +77,17 @@
 | 根据项目生成架构图 / ER 图 / 数据流图 | `skills/codegen-diagram/SKILL.md` + 匹配的 `references/plan/*` |
 | 根据项目生成文档 / 模块说明 / 交接材料 | `skills/codegen-doc/SKILL.md` |
 
-旧的 `workflows/*`、`profiles/*`、`templates/*` 暂时保留，用于兼容已有引用；新规则优先读取 `references/*`。
+`references/` 维护阶段与专题规则，`templates/` 维护当前输出模板；`workflows/`、`profiles/` 中仍有引用的内容保留兼容用途。按当前路由定位，不把模板目录整体当作旧资产。
 
 ## 方案阶段核心要求
 
-方案阶段默认不改代码。复杂方案按以下依赖关系推导，按实际风险选择需要的图和细节，不机械补齐所有产物：
+方案阶段默认不改业务代码。完整方案与轻量方案的选择、新写与整体重构的加载、采用自查、设计评审及任务承接，统一按 `references/stages/plan.md`。完整方案沿同一条主线推导，图和细节随实际变化展开：
 
 ```text
-用户目标 / 旧方案 / 当前项目事实
-→ 需求确认：已确认口径 / 非目标 / 待确认阻塞项 / 文档一致性
-→ 证据来源表
-→ 业务问题与非目标
-→ 系统用例
-→ 轻量领域抽象
-→ 业务结构图
-→ 流程图 / 状态图 / 数据流图
-→ 工程映射
-→ 表 / Entity / API / DTO / ViewModel / Job
-→ 决策表
-→ 任务拆解
-→ 测试与验收
-→ 本轮待确认问题
+已确认需求与项目事实 → 参与者目标与用例行为
+→ 共同能力、概念、规则及生命周期
+→ 存储与交互协议共同设计 → 场景、观测和质量验证
+→ 设计评审与裁决 → 按结果拆解任务、已授权实现与验收
 ```
 
 ### 决定流程轻重的规则

@@ -73,6 +73,12 @@ AI 应该自动读取目标业务项目自己的 README / AGENTS / CLAUDE / docs
 
 有确认原型的全栈工作采用“领域与接口设计 → 服务端开发态 Mock API → 本组完整前端体验 → 按领域能力实现真实业务 → 逐项替换与合批验收”，详见[实施顺序](references/plan/task-breakdown.md)及[本次改动与审查记录](proposals/20261009-frontend-first/review.md)。
 
+## 方案输出与评审
+
+普通“做方案”请求由 Skill 定位规则根，先准备项目事实与相应方法，再按用例、共同领域职责、存储和接口逐步形成可实施设计。完整方案采用[八模块模板](templates/feature-design.md)与[编写规范](references/plan/plan-writing-guide.md)，图和 API 的合格示例见[批量审核方案](docs/examples/plan-output/plan.md)；局部修改采用[轻量方法](references/plan/plan-light-writing-guide.md)和[轻量模板](templates/plan-light.md)。
+
+方案用于后续实现和验收。正式产物为 `plan.md` 与必要图源/图片，不要求另维护 HTML；各章按实际影响展开，监控与非功能部分不机械扩写。本次采用内容及验证范围见[方案工作流发布说明](docs/releases/20261022-plan-output.md)。
+
 ## 用证据优化执行策略
 
 执行 Goal 或试用新策略时，在已有任务边界留下选择理由、实际结果和证据引用。复用原记录或一份[执行记录模板](templates/execution-log.md)，通过[记录方法](references/delivery/execution-evidence.md)区分需求变化、实现缺陷、验证遗漏和重复检查。开工粗略安排主要成本，已有工作边界比较进展与消耗，偏离时调整方法；时间/token 缺失如实标注，不增加逐工具报告，不以单次模拟宣称效率提高。

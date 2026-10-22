@@ -1,0 +1,43 @@
+digraph G { graph [bgcolor="#ffffff",pad="0.35",nodesep="0.5",ranksep="0.65",fontname="Heiti SC",fontsize=20]; node [shape=box,style="rounded,filled",fillcolor="#F3F6FA",color="#BCC9D7",fontname="Heiti SC",fontsize=16,margin="0.20,0.15"]; edge [color="#64748B",fontname="Heiti SC",fontsize=12,arrowsize=0.7];rankdir=TB;labelloc=t;label="批次项执行状态机｜领取、重试与终态";
+graph[nodesep="0.35",ranksep="0.65",splines=polyline];
+edge[fontsize=15];
+node[width=2.1,height=0.75];
+initial[shape=point,label="",width=0.14,height=0.14,fillcolor="#334155",color="#334155"];
+pending[label="PENDING
+待执行 / 等待重试",fillcolor="#E6F0FB",group="main"];
+running[label="RUNNING
+已领取执行",fillcolor="#E6F0FB",group="main"];
+success[label="SUCCEEDED
+成功 · 终态",fillcolor="#E8F4ED",color="#9DBEAA",peripheries=2];
+business[label="BUSINESS_FAILED
+业务拒绝 · 终态",fillcolor="#FFF3DB",color="#D5BB82",peripheries=2];
+failed[label="SYSTEM_FAILED
+系统故障终止 · 终态",fillcolor="#FBE9E9",color="#D6A8A8",peripheries=2];
+{rank=same;success;business;failed;}
+retryTop[shape=point,label="",width=0,height=0,style=invis,group="retry"];
+retryBottom[shape=point,label="",width=0,height=0,style=invis,group="retry"];
+{rank=same;retryTop;pending;}
+{rank=same;retryBottom;running;}
+retryTop->pending[style=invis,weight=100];
+retryBottom->running[style=invis,weight=100];
+retryTop->retryBottom[style=invis,weight=100];
+initial->pending[label="新建"];
+pending->running[label="[到期且次数 < 3]
+/ 次数 +1，换凭证与租约"];
+running->success[label="[凭证有效
+且业务合法]
+/ 同事务提交成功"];
+running->business[label="[凭证有效
+且业务拒绝]
+/ 写入业务失败"];
+running->failed[label="[系统故障或租约到期
+且次数已满]
+/ 回滚后保存系统失败"];
+running:e->running:e[label="[租约到期且次数 < 3]
+/ 换凭证，次数 +1"];
+running:w->retryBottom[constraint=false,arrowhead=none];
+retryBottom->retryTop[constraint=false,arrowhead=none,xlabel="[系统故障且次数 < 3]
+/ 回滚后设重试时间
+并清除租约"];
+retryTop->pending:w[constraint=false];
+}
