@@ -1,0 +1,19 @@
+{
+  "case_id": "31-predevelopment-image-baseline",
+  "expected_route": ["skills/fullstack-ui-prototype/SKILL.md", "references/delivery/evidence-driven-delivery.md", "references/plan/task-breakdown.md"],
+  "must_include": [
+    "图片在相应界面开发前由原型准备环节维护、打开实际文件核对，并作为采用稿一部分交接。",
+    "只有链接无图不能让实现者边开发边选基准；加载中与旧版图是缺口，回原型准备环节处理。",
+    "实现截图是实际结果证据，不能按实现重截原型或覆盖参考图来消除差异。",
+    "已采用图片保留稳定路径版本；修正候选核对后另留新版本及采用依据，同版有效确认复用。",
+    "同一Agent兼任也必须先准备核对采用，再开发；受影响界面不猜测开发，独立API工作可继续。",
+    "一字修改复用有效输入，只做受影响核对，不强制全套新图或逐张额外审批。"
+  ],
+  "must_not": [
+    "让实现Agent边写边自行截取并决定参考基准。",
+    "接受加载中或旧版图片为当前基准。",
+    "按实际实现覆盖参考图后宣布一致。",
+    "为了补图停止所有无依赖工作或让所有小改重新逐图审批。"
+  ],
+  "review_method": "新上下文执行者仅读input及规则，不读expected和历史结果；文本判断不等于真实截图准备成功。"
+}

@@ -12,7 +12,7 @@ description: 实现或审查 React + Vite 前端功能，包括接口集成、�
 - 组件库 / UI primitives。
 - 状态管理：TanStack Query / Zustand / local state。
 - 现有 loading / empty / error 模式。
-- 有已确认界面时，实际打开采用稿与相关结构/样式，按其编号读取版本、页面状态、参考视口、保留项和允许差异；主线程看过不等于 worker 已获得设计输入。
+- 有已确认界面时，按 `references/delivery/evidence-driven-delivery.md` 分工：图片用于还原画面，可操作原型用于交互，需求/API约定用于业务及请求；实际打开开发前由原型准备方维护并采用的关键图片。缺图或图不对时交回原型准备环节，不自行截取或替换参考基准。实际打开采用稿与相关结构/样式，按其编号读取版本、页面状态、参考视口、保留项和允许差异；主线程看过不等于 worker 已获得设计输入。
 
 ## 配套规则
 
