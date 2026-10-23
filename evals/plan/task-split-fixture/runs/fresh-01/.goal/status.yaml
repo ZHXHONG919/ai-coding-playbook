@@ -1,0 +1,42 @@
+---
+schema_version: 3
+state: active
+tasks:
+  C01: todo
+  M01: todo
+  U01: todo
+  U02: todo
+  B01: todo
+  B02: todo
+  B03: todo
+  V01: todo
+  W01: todo
+  I01: todo
+  I02: todo
+  I03: todo
+  O01: todo
+  O02: todo
+  W02: todo
+  O03: todo
+  V02: todo
+runs: []
+next_action: R1/R2/F1：打开skills/ai-coding-playbook/SKILL.md，只做C01（T01/S01）采用协议与场景核对，在T01现有执行记录留下核对及替换边界，不运行业务；遇到需改业务语义、超出fresh-01写入或需启动服务/连接数据库即停并记录缺口。后续真实实施必须先有目标业务项目及实施授权。
+constraints:
+- evals/plan/task-split-fixture/request.md：仅写fresh-01，不实现/启动/连库/提交推送/App Goal
+- evals/plan/task-split-fixture/adoption.md：F1教学采用；原型不是后端
+- tasks/README.md：完整前端体验及F1核验继续条件；当前既有开发库规则
+active_workers: []
+open_gaps:
+- id: G1
+  results:
+  - F1
+  - R1
+  - R2
+  detail: main负责：目前仅虚构项目和文档授权，无真实业务项目/服务/数据库运行入口。只阻止业务实施及真实验证，不阻止C01教学协议核对。解除需明确目标业务项目及实施授权；回收点T01/S02、T06/S01核实真实入口、事务、连接和副作用。
+  required: true
+- id: G2
+  results:
+  - R1
+  - R2
+  detail: main负责：机器规格、数据规模、样本量、监控覆盖及告警策略未落实。T06/S01核实，T06/S03前解除；真实测量300ms/30秒/60秒并记录成立条件。协议和模拟准备不受此局部缺口阻止，整体结果不能宣布完成。
+  required: true

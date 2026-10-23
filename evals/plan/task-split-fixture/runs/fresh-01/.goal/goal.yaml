@@ -1,0 +1,278 @@
+---
+schema_version: 3
+baseline_commit: 2f61c24cef93bcb780a4220c276a2dd4019536eb
+decisions:
+  D1:
+    text: 采用夹具adoption F1：需求v1、方案v12假定已采用并通过design CR；原型v3仅约束已列界面，未画业务仍由方案负责。
+  D2:
+    text: 仅授权fresh-01任务及教学Goal交接文件；全部工程任务todo。未授权业务实施、服务、数据库、提交推送、发布或App Goal；真实业务与性能均未验证。
+results:
+  F1:
+    revision: 1
+    kind: shared_foundation
+    owner: main
+    expected:
+      entry: 批次创建与最小真实领取/审核/恢复adapter
+      action: 保存可信提交身份并领取执行，重用approveWithAudit及同事务结果写入
+      object: ReviewBatch、ReviewBatchItem、Content、ReviewRecord
+      context: 单体审核服务/PostgreSQL；同内容并发、过期凭证及已接受后撤权
+      outcome: 唯一请求身份、有效领取凭证排他，成功内容/审核记录/条目同事务；恢复不重做已完成项；下游真实消费前独立验证和CR
+      counterexample: 先提交内容再补结果、恢复复制审核判断、旧worker覆盖或撤权取消已接受任务均失败
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: R-03～07、A-02～05
+    - path: docs/examples/plan-output/project-context.md
+      anchor: approveWithAudit及状态写入者
+    - path: docs/examples/plan-output/plan.md
+      anchor: 第4章领域对象设计、第5章事务与竞争处理
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: 冻结范围
+    decisions:
+    - D1
+    - D2
+    depends_on: []
+  R1:
+    revision: 1
+    kind: user_result
+    owner: main
+    expected:
+      entry: 审核列表P1→同页确认→P2结果
+      action: 选择1～100项确认提交，丢响应沿原标识重试，逐条异步完成，可返回重新选择提交
+      object: 本租户内容集合及本次批次
+      context: 具备content.review，审核读取不要求content.read；三条含一条已通过
+      outcome: 取消保留选择且零提交；确认才POST，202仅接收并按batchId进结果页；最终2成功1业务失败等真实终态清楚可见；单项失败不阻其余；保留/质量要求按方案第5/7/8章验收
+      counterexample: 打开弹框就提交、202显示全部成功、网络重试换key、同key换参数自动重提或整批回滚均失败
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: R-01～08、A-01～05、非功能目标
+    - path: docs/examples/plan-output/plan.md
+      anchor: UC-01、API-01、第7/8章
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: P1及UI-01/02、冻结范围
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: confirm/cancel/send及P1列表
+    - path: evals/plan/task-split-fixture/prototype/images/UI-01-selection.png
+      anchor: UI-01
+    - path: evals/plan/task-split-fixture/prototype/images/UI-02-confirm.png
+      anchor: UI-02
+    decisions:
+    - D1
+    - D2
+    depends_on:
+    - F1
+  R2:
+    revision: 1
+    kind: user_result
+    owner: main
+    expected:
+      entry: "/review/batches/{batchId}；保存地址/刷新/浏览器历史"
+      action: 读取URL批次、轮询、查看逐项原因，查询失败重试并返回列表
+      object: 当前提交人的批次及全部条目
+      context: 当前仍有content.review；已接受任务之后撤权仍执行但不可查询
+      outcome: 2秒轮询、30秒仅提示，全终态停查，完成含失败；查询失败保留已显示结果；403/404语义正确，可恢复同批次；结果及去重完成后至少90天保留，监控与时效仍需真实检查
+      counterexample: 查询他人批次可见、刷新丢失/串批、失败清空结果、把系统错误算业务失败或完成等于全成功均失败
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: R-05/06/08、A-06、非功能目标
+    - path: docs/examples/plan-output/plan.md
+      anchor: UC-02、API-02、第5/7/8章
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: P2及UI-03/04/05、冻结范围
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: draw结果/重试/返回区块
+    - path: evals/plan/task-split-fixture/prototype/images/UI-03-pending.png
+      anchor: UI-03
+    - path: evals/plan/task-split-fixture/prototype/images/UI-04-completed.png
+      anchor: UI-04
+    - path: evals/plan/task-split-fixture/prototype/images/UI-05-query-failure.png
+      anchor: UI-05
+    decisions:
+    - D1
+    - D2
+    depends_on:
+    - F1
+tasks:
+  C01:
+    owner: main
+    results:
+    - F1
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T01-批次身份与结果能力.md / S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T01-批次身份与结果能力.md
+      / V01
+    depends_on: []
+  M01:
+    owner: main
+    results:
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T04-确认并提交批量审核.md / S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T04-确认并提交批量审核.md
+      / V01
+    depends_on:
+    - C01
+  U01:
+    owner: main
+    results:
+    - R1
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T04-确认并提交批量审核.md / S02；与U02联合完整体验门禁，先开UI-01/02
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T04-确认并提交批量审核.md
+      / V02/V03
+    depends_on:
+    - M01
+  U02:
+    owner: main
+    results:
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T05-查看与找回批次结果.md / S01；先开UI-03/04/05，与U01联合门禁
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T05-查看与找回批次结果.md
+      / V01/V02
+    depends_on:
+    - M01
+  B01:
+    owner: main
+    results:
+    - F1
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T01-批次身份与结果能力.md / S02；必须有完整体验有效证据；todo/done不代替放行；业务实施另获授权
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T01-批次身份与结果能力.md
+      / V02/V03
+    depends_on:
+    - U01
+    - U02
+  B02:
+    owner: main
+    results:
+    - F1
+    - R1
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T02-审核原子提交能力.md / S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T02-审核原子提交能力.md
+      / V01/V02
+    depends_on:
+    - B01
+  B03:
+    owner: main
+    results:
+    - F1
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T03-执行与恢复能力.md / S01；最小真实消费者属于同一基础实现，不依赖完整worker
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T03-执行与恢复能力.md /
+      V01/V02
+    depends_on:
+    - B02
+  V01:
+    owner: main
+    results:
+    - F1
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T01-批次身份与结果能力.md / S03；独立观测后CR，产生F1当前有效证据
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T01-批次身份与结果能力.md
+      / V02/V03及T02/V01/V02、T03/V01/V02
+    depends_on:
+    - B01
+    - B02
+    - B03
+  W01:
+    owner: main
+    results:
+    - F1
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T03-执行与恢复能力.md / S02；实际依赖前必须核实F1证据有效
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T03-执行与恢复能力.md /
+      V03
+    depends_on:
+    - V01
+  I01:
+    owner: main
+    results:
+    - R1
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T04-确认并提交批量审核.md / S03
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T04-确认并提交批量审核.md
+      / V04
+    depends_on:
+    - W01
+  I02:
+    owner: main
+    results:
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T05-查看与找回批次结果.md / S02
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T05-查看与找回批次结果.md
+      / V03
+    depends_on:
+    - W01
+  I03:
+    owner: main
+    results:
+    - F1
+    - R1
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T02-审核原子提交能力.md / S02
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T02-审核原子提交能力.md
+      / V03
+    depends_on:
+    - W01
+  O01:
+    owner: main
+    results:
+    - F1
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T06-保留运维与容量验证.md / S01；真实项目及实施授权前仅保留交接范围，不连接数据库
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T06-保留运维与容量验证.md
+      / V01
+    depends_on:
+    - C01
+  O02:
+    owner: main
+    results:
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T06-保留运维与容量验证.md / S02
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T06-保留运维与容量验证.md
+      / V02/V03
+    depends_on:
+    - W01
+    - O01
+  W02:
+    owner: main
+    results:
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T03-执行与恢复能力.md / S03
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T03-执行与恢复能力.md /
+      V03
+    depends_on:
+    - I01
+    - I02
+    - O01
+  O03:
+    owner: main
+    results:
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T06-保留运维与容量验证.md / S03；接近执行时补真实环境/样本/命令，不虚构达标
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T06-保留运维与容量验证.md
+      / V04
+    depends_on:
+    - I01
+    - I02
+    - O01
+    - O02
+    - W02
+  V02:
+    owner: main
+    results:
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-01/tasks/T05-查看与找回批次结果.md / S03；相关路径合批独立验收与CR；O03未验不能整体完成
+    self_check: evals/plan/task-split-fixture/runs/fresh-01/tasks/T05-查看与找回批次结果.md
+      / V01/V02/V03和A-01～06
+    depends_on:
+    - I01
+    - I02
+    - I03
+    - W02

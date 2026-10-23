@@ -1,0 +1,50 @@
+schema_version: 3
+state: "active"
+tasks:
+  E01: "todo"
+  E02: "todo"
+  E03: "todo"
+  E04: "todo"
+  E05: "todo"
+  E06: "todo"
+  E07: "todo"
+  E08: "todo"
+  E09: "todo"
+  E10: "todo"
+  E11: "todo"
+  E12: "todo"
+  E13: "todo"
+  E14: "todo"
+runs: []
+next_action: "F1/F2/U1/U2；先打开 skills/goal-execute/SKILL.md 及 tasks/T01-协议与模拟.md S01，只核对实际工程、授权和协议输入，把定位结果/工具缺口留在T01第6节与本status.open_gaps。当前只授权交接；遇到需写业务源码、启动服务或连接数据库立即停止，不执行E02，不把业务预期写成通过。"
+constraints:
+  - "evals/plan/task-split-fixture/request-fresh03.md"
+  - "evals/plan/task-split-fixture/adoption.md"
+  - "AGENTS.md：现有开发库，不自行隔离、不清库；本轮仅写交接包"
+active_workers: []
+open_gaps:
+  - 
+    id: "G1"
+    results:
+      - "F1"
+      - "F2"
+      - "U1"
+      - "U2"
+    detail: "main：当前只有交接授权，无业务实施授权；明确授权后才可执行业务，不能把Goal active当授权。"
+    required: true
+  - 
+    id: "G2"
+    results:
+      - "F1"
+      - "F2"
+      - "U1"
+      - "U2"
+    detail: "main在T01/S01定位实际目标工程、启动/测试命令、CLI及运行配置；夹具无业务源码，不能虚构可运行命令。解除条件为真实工程与必要工具可复查；阻止S02及下游，不阻止本交接。"
+    required: true
+  - 
+    id: "G3"
+    results:
+      - "U1"
+      - "U2"
+    detail: "main在T06/S02前明确机器/数据规模/统计样本量、现有告警策略与覆盖；只阻止对应量测及监控验收，其他无依赖准备继续。"
+    required: true

@@ -1,0 +1,195 @@
+---
+schema_version: 3
+baseline_commit: 2f61c24cef93bcb780a4220c276a2dd4019536eb
+decisions:
+  D1:
+    text: 采用需求v1、方案v12与现状教学输入；F1冻结及design CR状态以夹具adoption为准。原型v3只约束对应界面，不证明业务。
+  D2:
+    text: 仅授权fresh-04交接文档及教学Goal；业务实现/运行/数据库/发布均未授权，不创建App Goal。执行任务保持todo，未来实施须取得适用授权并定位真实项目。
+results:
+  F1:
+    revision: 1
+    kind: shared_foundation
+    owner: main
+    expected:
+      entry: 审核HTTP提交和查询adapter
+      action: 创建/重放/查询
+      object: 批次及请求身份
+      context: 当前审核权限、提交人及本租户
+      outcome: 同key同参一批，异参冲突，仅提交人且当前有权可见；初态持久完整
+      counterexample: 并发同key不能两批，撤权不能查询
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: 业务规则、验收场景与非功能目标
+    - path: docs/examples/plan-output/plan.md
+      anchor: 第3～8章
+    - path: docs/examples/plan-output/project-context.md
+      anchor: 已有审核能力及状态写入者
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: 冻结范围及页面流
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: 原型v3，P1/P2
+    decisions:
+    - D1
+    - D2
+    depends_on: []
+  F2:
+    revision: 1
+    kind: shared_foundation
+    owner: main
+    expected:
+      entry: 正常worker及单条/API审核入口
+      action: 领取、审核、结果落库与恢复
+      object: 内容、审计与批次项
+      context: 可信提交时身份、并发及租约失效
+      outcome: 成功三者原子，终态不重做，旧凭证不能写，系统故障最多三次
+      counterexample: 内容通过而项失败或旧worker覆盖新结果都不成立
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: 业务规则、验收场景与非功能目标
+    - path: docs/examples/plan-output/plan.md
+      anchor: 第3～8章
+    - path: docs/examples/plan-output/project-context.md
+      anchor: 已有审核能力及状态写入者
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: 冻结范围及页面流
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: 原型v3，P1/P2
+    decisions:
+    - D1
+    - D2
+    depends_on:
+    - F1
+  R1:
+    revision: 1
+    kind: user_result
+    owner: main
+    expected:
+      entry: 审核内容列表P1
+      action: 选择→同页确认→提交→查看逐条结果并返回
+      object: 本次选中内容及稳定批次
+      context: 有content.review；含待审、已通过/不存在及系统故障样本
+      outcome: 取消保留选择且不提交，确认才POST；202后P2最终逐条明确且副作用一致，可返回重新选择
+      counterexample: 202不是审核成功，网络重试不新建意图，完成不等于全部成功
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: 业务规则、验收场景与非功能目标
+    - path: docs/examples/plan-output/plan.md
+      anchor: 第3～8章
+    - path: docs/examples/plan-output/project-context.md
+      anchor: 已有审核能力及状态写入者
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: 冻结范围及页面流
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: 原型v3，P1/P2
+    - path: evals/plan/task-split-fixture/prototype/images/UI-01-selection.png
+      anchor: UI-01
+    - path: evals/plan/task-split-fixture/prototype/images/UI-02-confirm.png
+      anchor: UI-02
+    - path: evals/plan/task-split-fixture/prototype/images/UI-03-pending.png
+      anchor: UI-03
+    - path: evals/plan/task-split-fixture/prototype/images/UI-04-completed.png
+      anchor: UI-04
+    decisions:
+    - D1
+    - D2
+    depends_on:
+    - F1
+    - F2
+  R2:
+    revision: 1
+    kind: user_result
+    owner: main
+    expected:
+      entry: 提交后或保存/历史地址/review/batches/{batchId}
+      action: 查询、等待、重试、刷新恢复并返回列表
+      object: 当前地址对应批次全部项
+      context: 提交人且当前review权限、完成/处理中/网络失败/保留期
+      outcome: 2秒轮询、30秒提示、终态停查；失败保留、重试GET，区分三终态；至少90天保留，未完成不清理，结果观测与时效达标
+      counterexample: 查询重试不能POST；他人404、撤权403，清理不删审计；60秒恢复领取不是全批完成
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: 业务规则、验收场景与非功能目标
+    - path: docs/examples/plan-output/plan.md
+      anchor: 第3～8章
+    - path: docs/examples/plan-output/project-context.md
+      anchor: 已有审核能力及状态写入者
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: 冻结范围及页面流
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: 原型v3，P1/P2
+    - path: evals/plan/task-split-fixture/prototype/images/UI-03-pending.png
+      anchor: UI-03
+    - path: evals/plan/task-split-fixture/prototype/images/UI-04-completed.png
+      anchor: UI-04
+    - path: evals/plan/task-split-fixture/prototype/images/UI-05-query-failure.png
+      anchor: UI-05
+    decisions:
+    - D1
+    - D2
+    depends_on:
+    - F1
+    - F2
+tasks:
+  E01:
+    owner: main
+    results:
+    - F1
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-04/tasks/T01-批次身份与访问.md S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-04/tasks/T01-批次身份与访问.md#V01
+      / S01
+    depends_on: []
+  E02:
+    owner: main
+    results:
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-04/tasks/T03-批量提交体验.md S01 + T04-结果查看与找回.md
+      S01；完成全组体验门禁
+    self_check: evals/plan/task-split-fixture/runs/fresh-04/tasks/T03-批量提交体验.md#V01/V02
+      与 evals/plan/task-split-fixture/runs/fresh-04/tasks/T04-结果查看与找回.md#V01/V02；E02完整体验覆盖门禁
+    depends_on:
+    - E01
+  E03:
+    owner: main
+    results:
+    - F1
+    work: evals/plan/task-split-fixture/runs/fresh-04/tasks/T01-批次身份与访问.md S02；含真实HTTP生产/消费与F1独立验证CR
+    self_check: evals/plan/task-split-fixture/runs/fresh-04/tasks/T01-批次身份与访问.md#V02/V03
+      / S02；仅真实初态与访问边界，不要求未来终态
+    depends_on:
+    - E02
+  E04:
+    owner: main
+    results:
+    - F2
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-04/tasks/T02-原子审核与恢复.md S01/S02；含worker真实链及F2独立验证CR
+    self_check: evals/plan/task-split-fixture/runs/fresh-04/tasks/T02-原子审核与恢复.md#V01～V04；真实API、worker及同库存储入口，不等待页面
+    depends_on:
+    - E03
+  E05:
+    owner: main
+    results:
+    - R1
+    - R2
+    work: evals/plan/task-split-fixture/runs/fresh-04/tasks/T03-批量提交体验.md S02 + T04-结果查看与找回.md
+      S02；唯一首次同时接回POST/GET并合批独立核验
+    self_check: evals/plan/task-split-fixture/runs/fresh-04/tasks/T03-批量提交体验.md#V03
+      与 evals/plan/task-split-fixture/runs/fresh-04/tasks/T04-结果查看与找回.md#V03；POST/GET首次共同接回后的完整页面路径
+    depends_on:
+    - E04
+  E06:
+    owner: main
+    results:
+    - R1
+    - R2
+    - F1
+    - F2
+    work: evals/plan/task-split-fixture/runs/fresh-04/tasks/T05-保留观测与交付验证.md S01/S02/S03
+    self_check: evals/plan/task-split-fixture/runs/fresh-04/tasks/T05-保留观测与交付验证.md#V01～V03及S03最终差异、模拟清理
+    depends_on:
+    - E05

@@ -1,0 +1,242 @@
+schema_version: 3
+baseline_commit: 2f61c24cef93bcb780a4220c276a2dd4019536eb
+decisions:
+  D1:
+    text: 夹具F1采用需求v1、方案v12及原型v3，在本教学场景假定通过design CR；以adoption冻结为准，不修改原示例待评审历史。
+  D2:
+    text: request-fresh03只授权写runs/fresh-03交接文件；不实现业务/启动服务/连库/提交推送/创建App Goal。所有工程todo，无业务与性能验证通过。
+results:
+  F1:
+    revision: 1
+    kind: shared_foundation
+    owner: main
+    expected:
+      entry: API-01接收与API-02查询
+      action: 创建可信批次、请求去重并检查归属
+      object: ReviewBatch及条目
+      context: 当前content.review、可信提交人和租户
+      outcome: 同key同参数同批、异参409；批次/条目原子创建；仅提交人且当前有权限可查，404统一不可访问；去重至少保留90天
+      counterexample: ID换序不能多建，不能伪造操作者；签名或模拟200不能证明权限成立
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: R-01、R-04、R-05、R-08
+    - path: docs/examples/plan-output/plan.md
+      anchor: 第4/5/6章
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: 冻结范围；页面流；固定图片与到达步骤
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: 原型v3：P1/P2，教学控制器排除
+    decisions:
+    - D1
+    - D2
+    depends_on: []
+  F2:
+    revision: 1
+    kind: shared_foundation
+    owner: main
+    expected:
+      entry: 真实worker及恢复adapter
+      action: 同事务审核、结果保存并凭租约恢复
+      object: 内容、审核记录和批次项
+      context: 提交时身份、有效token/lease、单条事务
+      outcome: 成功三事实原子一致；竞争最多一个成功；终态不重领、旧凭证不得写；最多三次，数据库失效不造状态
+      counterexample: 不能内容通过而结果失败，也不能撤权后撤销已接收任务
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: R-02、R-03、R-05、R-06、R-07
+    - path: docs/examples/plan-output/project-context.md
+      anchor: 现有入口、approveWithAudit及状态写入者
+    - path: docs/examples/plan-output/plan.md
+      anchor: 第4/5章
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: 冻结范围；页面流；固定图片与到达步骤
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: 原型v3：P1/P2，教学控制器排除
+    decisions:
+    - D1
+    - D2
+    depends_on:
+    - F1
+  U1:
+    revision: 1
+    kind: user_result
+    owner: main
+    expected:
+      entry: P1审核列表→同页确认→P2
+      action: 选择1～100条确认，异步逐条处理并理解结果
+      object: 本次内容集合和批次
+      context: 审核人员；保留选择、意图key及batchId
+      outcome: 取消无请求保留选择；确认202进处理中；最终逐条成功/业务失败/系统错误，单项失败不阻断；网络原key、新意图新key；达到需求时效且可观测
+      counterexample: 202不能显示审核完成，混合终态不等于全成功；原型控制按钮不进入产品
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: R-01～R-08、A-01～A-05、非功能目标
+    - path: docs/examples/plan-output/plan.md
+      anchor: UC-01；第6/7/8章
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: 冻结范围；页面流；固定图片与到达步骤
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: 原型v3：P1/P2，教学控制器排除
+    decisions:
+    - D1
+    - D2
+    depends_on:
+    - F1
+    - F2
+  U2:
+    revision: 1
+    kind: user_result
+    owner: main
+    expected:
+      entry: /review/batches/{batchId}，保存地址及浏览器历史
+      action: 查询、轮询、失败重试及返回列表
+      object: 原提交批次的全部条目
+      context: 当前有审核权限且为提交人
+      outcome: 2秒查、30秒提示、终态停；网络失败保留已有结果可重试；刷新历史身份不变；至少90天保留并按规则清理；403/404保护，不承诺跨设备历史列表
+      counterexample: 查询失败不能清空结果，内容变化不能重写历史，他人不能凭ID访问
+    sources:
+    - path: docs/examples/plan-output/requirements.md
+      anchor: R-05、R-08、A-06、非功能目标
+    - path: docs/examples/plan-output/plan.md
+      anchor: UC-02；第5/6/7/8章
+    - path: evals/plan/task-split-fixture/adoption.md
+      anchor: 冻结范围；页面流；固定图片与到达步骤
+    - path: evals/plan/task-split-fixture/prototype/index.html
+      anchor: 原型v3：P1/P2，教学控制器排除
+    decisions:
+    - D1
+    - D2
+    depends_on:
+    - F1
+    - F2
+tasks:
+  E01:
+    owner: main
+    results:
+    - F1
+    - F2
+    - U1
+    - U2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T01-协议与模拟.md S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T01-协议与模拟.md V01；仅本步骤已具备入口/样本范围
+    depends_on: []
+  E02:
+    owner: main
+    results:
+    - U1
+    - U2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T01-协议与模拟.md S02
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T01-协议与模拟.md V02；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E01
+  E03:
+    owner: main
+    results:
+    - U1
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T03-选择提交.md S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T03-选择提交.md V01；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E02
+  E04:
+    owner: main
+    results:
+    - U2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T04-结果与集成.md S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T04-结果与集成.md V01；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E02
+  E05:
+    owner: main
+    results:
+    - U1
+    - U2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T04-结果与集成.md S02
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T04-结果与集成.md V02；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E03
+    - E04
+  E06:
+    owner: main
+    results:
+    - F1
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T02-批次能力.md S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T02-批次能力.md V01；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E05
+  E07:
+    owner: main
+    results:
+    - F1
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T02-批次能力.md S02
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T02-批次能力.md V02；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E06
+  E08:
+    owner: main
+    results:
+    - F2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T05-执行与恢复.md S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T05-执行与恢复.md V01；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E07
+  E09:
+    owner: main
+    results:
+    - F2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T05-执行与恢复.md S02
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T05-执行与恢复.md V01/V02/V03；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E08
+    - E11
+  E10:
+    owner: main
+    results:
+    - U1
+    - U2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T04-结果与集成.md S03，联合 evals/plan/task-split-fixture/runs/fresh-03/tasks/T03-选择提交.md
+      S02，同时首次接回POST/GET
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T04-结果与集成.md V03；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E09
+  E11:
+    owner: main
+    results:
+    - F2
+    - U1
+    - U2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T05-执行与恢复.md S03
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T05-执行与恢复.md V03；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E08
+  E12:
+    owner: main
+    results:
+    - U1
+    - U2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T04-结果与集成.md S04
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T04-结果与集成.md V04；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E10
+    - E11
+  E13:
+    owner: main
+    results:
+    - F1
+    - U1
+    - U2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T06-保留与质量.md S01
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T06-保留与质量.md V01、V02；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E11
+  E14:
+    owner: main
+    results:
+    - F1
+    - F2
+    - U1
+    - U2
+    work: evals/plan/task-split-fixture/runs/fresh-03/tasks/T06-保留与质量.md S02
+    self_check: evals/plan/task-split-fixture/runs/fresh-03/tasks/T06-保留与质量.md V03；仅本步骤已具备入口/样本范围
+    depends_on:
+    - E12
+    - E13

@@ -1,0 +1,8 @@
+{
+  "method": "现行GoalV3::Workspace#contracts的只读内存对比",
+  "source": "evals/plan/task-split-fixture/prototype/images/UI-01-selection.png",
+  "engineering_work_changes_contract": false,
+  "image_source_changes_contract": true,
+  "source_files_modified": false,
+  "limitations": "仅验证摘要机制；任务工程说明变化仍需完整差异影响裁决，不代表业务通过。首次stdin require_relative加载失败，改为File.expand_path加载后实际执行通过。"
+}
