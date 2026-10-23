@@ -1,0 +1,12 @@
+{
+  "evals/plan/task-split-fixture/runs/fresh-02/.goal/goal.yaml": "72df015513fb9f3d6175ccf8fa85992cd2ff6018c250fe77c45fe31ce69f1773",
+  "evals/plan/task-split-fixture/runs/fresh-02/.goal/status.yaml": "6c36fcab4b8c538f44456530fb83398708aa5195ce68e39199f9a32a6e60bedb",
+  "evals/plan/task-split-fixture/runs/fresh-02/tasks/README.md": "94a75ec41daafd3f646c4dbaca05ba7bf6bc8795b8a22cb7bd27817463a41f3a",
+  "evals/plan/task-split-fixture/runs/fresh-02/tasks/T01-批次共同能力.md": "970b662abf6295f845ecd1f84eae3b4eb2afe9b88763bab869877629033d4219",
+  "evals/plan/task-split-fixture/runs/fresh-02/tasks/T02-原子审核.md": "4ade49c030517ce68857ababe199b9e30831b464ee51d4ab2b9937cfad634b12",
+  "evals/plan/task-split-fixture/runs/fresh-02/tasks/T03-执行恢复.md": "b93c4dc844683432f3fde5426791b8f3b8c7cc1d54a0b1fd41b353d2e061b9ae",
+  "evals/plan/task-split-fixture/runs/fresh-02/tasks/T04-提交完整体验.md": "26946c92654e230721b29469cc4728330b6377df5349f60c98ec87b7d9acda50",
+  "evals/plan/task-split-fixture/runs/fresh-02/tasks/T05-结果查询体验.md": "bdaf7e9fc497f6073e3bca939443d8a4621ede8c5f714f40250265cc59b17e1e",
+  "evals/plan/task-split-fixture/runs/fresh-02/tasks/T06-保留清理.md": "0a590a60bb5b45cd62e749c10e8d8b409db0a9733b4dab246898516570dc8515",
+  "evals/plan/task-split-fixture/runs/fresh-02/tasks/T07-运行指标与交付.md": "01f370ed6b7de71a11ad14ef921a33f70d88d3f9034f17ebe765222fb52f58a9"
+}

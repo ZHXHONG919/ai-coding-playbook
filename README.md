@@ -73,6 +73,12 @@ AI 应该自动读取目标业务项目自己的 README / AGENTS / CLAUDE / docs
 
 有确认原型的全栈工作采用“领域与接口设计 → 服务端开发态 Mock API → 本组完整前端体验 → 按领域能力实现真实业务 → 逐项替换与合批验收”，详见[实施顺序](references/plan/task-breakdown.md)及[本次改动与审查记录](proposals/20261009-frontend-first/review.md)。
 
+## 任务拆解与执行承接
+
+本次变更与验证限制见[任务拆解说明](docs/releases/20261023-task-breakdown.md)。
+
+采用方案经有效评审后，按[任务拆解规则](references/plan/task-breakdown.md)将领域职责、用例行为和存储/接口设计落实为 `tasks/` 功能文档。使用[目录模板](templates/tasks/README.md)、[统一任务模板](templates/tasks/task.md)和[批量审核贯穿案例](docs/examples/task-breakdown/README.md)。领域任务提供共同能力，用例任务组织调用；界面任务定位采用原型及固定图片。Goal沿用schema 3引用任务文档与工程步骤，status维护唯一进度，不复制业务规则或新增审批。简单改动及既有tasks.md继续轻量使用。
+
 ## 方案输出与评审
 
 普通“做方案”请求由 Skill 定位规则根，先准备项目事实与相应方法，再按用例、共同领域职责、存储和接口逐步形成可实施设计。完整方案采用[八模块模板](templates/feature-design.md)与[编写规范](references/plan/plan-writing-guide.md)，图和 API 的合格示例见[批量审核方案](docs/examples/plan-output/plan.md)；局部修改采用[轻量方法](references/plan/plan-light-writing-guide.md)和[轻量模板](templates/plan-light.md)。

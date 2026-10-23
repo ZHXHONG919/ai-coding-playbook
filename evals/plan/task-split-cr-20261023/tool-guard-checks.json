@@ -1,0 +1,42 @@
+[
+  {
+    "check": "图片来源正例",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "passed": true,
+    "output": "{\n  \"check\": \"本夹具5张固定图片直接进入相关user_result来源集合\",\n  \"missing\": [\n\n  ],\n  \"passed\": true,\n  \"limitation\": \"只检直接引用覆盖；每张图归属的正确结果、语义、过程与业务仍须独立审查\"\n}\n",
+    "path_normalization": "证据仅将本机仓库/运行时绝对路径替换为占位符，退出码与错误原因保持实际输出"
+  },
+  {
+    "check": "图片来源反例",
+    "exit_code": 1,
+    "expected_exit": 1,
+    "passed": true,
+    "output": "{\n  \"check\": \"本夹具5张固定图片直接进入相关user_result来源集合\",\n  \"missing\": [\n    \"evals/plan/task-split-fixture/prototype/images/UI-01-selection.png\",\n    \"evals/plan/task-split-fixture/prototype/images/UI-02-confirm.png\",\n    \"evals/plan/task-split-fixture/prototype/images/UI-03-pending.png\",\n    \"evals/plan/task-split-fixture/prototype/images/UI-04-completed.png\",\n    \"evals/plan/task-split-fixture/prototype/images/UI-05-query-failure.png\"\n  ],\n  \"passed\": false,\n  \"limitation\": \"只检直接引用覆盖；每张图归属的正确结果、语义、过程与业务仍须独立审查\"\n}\n",
+    "path_normalization": "证据仅将本机仓库/运行时绝对路径替换为占位符，退出码与错误原因保持实际输出"
+  },
+  {
+    "check": "截图库拒绝无输出目录",
+    "exit_code": 1,
+    "expected_exit": 1,
+    "passed": true,
+    "output": "Error: 用法：node capture.cjs <尚不存在的候选输出目录>；禁止覆盖已采用图\n    at <repo>/evals/plan/task-split-fixture/capture.cjs:4:82\n    at Object.<anonymous> (<repo>/evals/plan/task-split-fixture/capture.cjs:4:1523)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n",
+    "path_normalization": "证据仅将本机仓库/运行时绝对路径替换为占位符，退出码与错误原因保持实际输出"
+  },
+  {
+    "check": "截图库拒绝覆盖固定目录",
+    "exit_code": 1,
+    "expected_exit": 1,
+    "passed": true,
+    "output": "Error: EEXIST: file already exists, mkdir '<repo>/evals/plan/task-split-fixture/prototype/images'\n    at Object.mkdirSync (node:fs:1411:26)\n    at <repo>/evals/plan/task-split-fixture/capture.cjs:4:180\n    at Object.<anonymous> (<repo>/evals/plan/task-split-fixture/capture.cjs:4:1523)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47 {\n  errno: -17,\n  code: 'EEXIST',\n  syscall: 'mkdir',\n  path: '<repo>/evals/plan/task-split-fixture/prototype/images'\n}\n",
+    "path_normalization": "证据仅将本机仓库/运行时绝对路径替换为占位符，退出码与错误原因保持实际输出"
+  },
+  {
+    "check": "缺少预期图拒绝假通过",
+    "exit_code": 1,
+    "expected_exit": 1,
+    "passed": true,
+    "output": "固定输入应有5张实际PNG，当前0；拒绝空/缺失夹具假通过\n",
+    "path_normalization": "证据仅将本机仓库/运行时绝对路径替换为占位符，退出码与错误原因保持实际输出"
+  }
+]

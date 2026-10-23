@@ -1,0 +1,33 @@
+---
+schema_version: 3
+state: active
+tasks:
+  E01: todo
+  E02: todo
+  E03: todo
+  E04: todo
+  E05: todo
+  E06: todo
+runs: []
+next_action: R1/R2、E01：先读skills/goal-execute/SKILL.md与T01/S01，只核对契约/调用场景及服务端模拟准备输入，在T01验证小节留下协议自查和实际项目接入缺口；本次只授权文档，遇到实现、启动服务或数据库动作立即停，取得适用实施授权及真实项目后才执行S01模拟开发，不顺带做前端。
+constraints:
+- evals/plan/task-split-fixture/request-fresh04.md：仅教学交接，不实现、不运行、不连接数据库、不提交推送、不创建App
+  Goal
+- evals/plan/task-split-fixture/adoption.md：原型演示与业务协议分工；五图不得由实现者替换
+- 当前项目AGENTS：默认既有开发库，验证前审查连接与建清库行为，不创建隔离库；独立核验前不宣称真实结果成立
+active_workers: []
+open_gaps:
+- id: G1
+  results:
+  - F1
+  - F2
+  - R1
+  - R2
+  detail: main负责：尚无业务实施授权与真实业务仓库/正常命令；在T01实施前定位真实应用、既有能力/事务/消费者与连接目标并确认可执行范围后解除。本教学文件可交接，不代表能在playbook内实现业务。
+  required: true
+- id: G2
+  results:
+  - R1
+  - R2
+  detail: main负责：T05/S02前明确真实环境规格、数据库规模、统计样本量、监控覆盖及实际阈值；以正常负载与采集入口观测解除，只阻止对应运行质量结论。
+  required: true

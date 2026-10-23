@@ -1,0 +1,41 @@
+---
+schema_version: 3
+state: active
+tasks:
+  E01: todo
+  E02: todo
+  E03: todo
+  E04: todo
+  E05: todo
+  E06: todo
+  E07: todo
+  E08: todo
+  E09: todo
+  E10: todo
+  E11: todo
+  E12: todo
+  E13: todo
+  E14: todo
+  E15: todo
+runs: []
+next_action: 仅做E01，关联F1/R1/R2：打开skills/nest-api-design/SKILL.md，对照T01/S01核对操作—请求—响应—错误映射，只在fresh-02/tasks/T01第6节留下契约核对记录，不改业务；发现需改变已采用协议或越过交接授权时停止该动作，不启动E02。
+constraints:
+- evals/plan/task-split-fixture/request-fresh02.md：仅交接授权
+- evals/plan/task-split-fixture/adoption.md：F1、P1/P2、原型v3及固定图片
+- AGENTS.md：开发库和截图约束；references/plan/task-breakdown.md：完整FE体验与共同规则核验
+active_workers: []
+open_gaps:
+- id: G1
+  results:
+  - F1
+  - F2
+  - R1
+  - R2
+  detail: 业务是虚构教学输入，没有真实项目/运行入口/环境及业务实施授权；main接入前定位代码、已有能力、命令、配置数据库目标及操作范围。仅E01纯文档可在现授权内执行；E02以后不得启动，取得真实接入授权及必要事实后解除。
+  required: true
+- id: G2
+  results:
+  - R1
+  - R2
+  detail: 机器规格、数据规模、样本量及监控覆盖尚未确定，main在T07/S02容量验证前补齐；阻止指标达标结论，不阻止契约和模拟设计。
+  required: true

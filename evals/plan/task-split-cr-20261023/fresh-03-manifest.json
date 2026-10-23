@@ -1,0 +1,12 @@
+{
+  "evals/plan/task-split-fixture/runs/fresh-03/.goal/goal.yaml": "96690771f7bc8462241a901dbaca3835b979725be24d4054a19f860bad21227b",
+  "evals/plan/task-split-fixture/runs/fresh-03/.goal/status.yaml": "180b3fae516df3513a5b593dabc2bae94830010f8a9841e8148b439a8f2fc123",
+  "evals/plan/task-split-fixture/runs/fresh-03/README.md": "d3bdf5d4a43031043d781e3d827224752f5559f7f339b945f83108f9c96e6217",
+  "evals/plan/task-split-fixture/runs/fresh-03/tasks/README.md": "fe7877fc6e5565fe34242428366f97f6a5c197f341ddd62c8a84afa6f245eb90",
+  "evals/plan/task-split-fixture/runs/fresh-03/tasks/T01-协议与模拟.md": "ec3e057d6577b4850dcb7ad847b21661d843287a66827c08500dc09de9a81b04",
+  "evals/plan/task-split-fixture/runs/fresh-03/tasks/T02-批次能力.md": "5301344da98415d35b748c7cd0ae83b153a0a5b249ceed08130c7df7cd68a951",
+  "evals/plan/task-split-fixture/runs/fresh-03/tasks/T03-选择提交.md": "e33eaf30dccef2af0d0484590985a89a832d4b5b560b201b70655b3141f8dd88",
+  "evals/plan/task-split-fixture/runs/fresh-03/tasks/T04-结果与集成.md": "bc07efb977419394ebfaf6f970a339aa71a200cf937258e2864359f15c991934",
+  "evals/plan/task-split-fixture/runs/fresh-03/tasks/T05-执行与恢复.md": "1a8fe7d9c372afc99a655029dbf6d2b71549c179a2ab03239cc2e423a862c596",
+  "evals/plan/task-split-fixture/runs/fresh-03/tasks/T06-保留与质量.md": "feb2c2a9ac4ec753c2bddebeb6673137db64af002a3fb5058cb849b18748e2af"
+}

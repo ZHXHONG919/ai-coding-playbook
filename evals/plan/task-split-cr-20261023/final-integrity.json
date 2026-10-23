@@ -1,0 +1,23 @@
+{
+  "all_changed_markdown_links": "passed",
+  "first_drafts": {
+    "fresh-01": {
+      "files": 9,
+      "unchanged": true
+    },
+    "fresh-02": {
+      "files": 10,
+      "unchanged": true
+    },
+    "fresh-03": {
+      "files": 10,
+      "unchanged": true
+    },
+    "fresh-04": {
+      "files": 8,
+      "unchanged": true
+    }
+  },
+  "evaluated_core_rules_unchanged": true,
+  "post_evaluation_changes": "仅记录/案例索引、检查器文件清单与测试工具输入及覆图保护；未改首稿、原型、图片或核心任务/Goal规则"
+}

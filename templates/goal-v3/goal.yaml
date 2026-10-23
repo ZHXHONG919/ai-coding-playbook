@@ -19,12 +19,15 @@ results:
     sources:
       - path: docs/requirements.md # 仓库相对路径
         anchor: R1 # 可定位的标题、编号或代码区块
+      # 有采用固定图片的界面结果，必须直接增加每个相关图片文件的source，不能只引用含图片链接的md/html。
+      # - path: docs/prototype/v3/images/已采用状态.png # 替换为实际仓库相对路径；不全局加入无关图片
+      #   anchor: UI-01 # 对应采用记录的具体状态
     decisions: [D1]
     depends_on: []
 tasks:
   T1:
     owner: main
     results: [R1] # 只引用，不另写一份预期
-    work: <实际工程工作，如接通入口与数据读取；不重述产品要求>
-    self_check: <按R1运行的最小检查命令或方法>
+    work: <实际工程工作；有任务文档时精确引用tasks/T01-功能.md的S01，不重述产品要求>
+    self_check: <按R1运行的最小检查命令或方法；可引用任务文档V01>
     depends_on: []

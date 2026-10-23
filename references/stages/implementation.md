@@ -4,7 +4,7 @@
 
 ## 开始与继续
 
-- 读取项目事实、当前结果及相关来源、授权与实际改动；不因换节点重复确认。仅讨论方案时不改代码。
+- 读取项目事实、当前结果及相关来源、授权与实际改动；从当前任务文档读取职责、具体行为、步骤依赖及检查项，按 references/plan/task-breakdown.md 判断近期任务可执行性；领域任务落实共同能力，用例任务组织调用，不在各入口复制规则；不因换节点重复确认。仅讨论方案时不改代码。
 - 默认当前目录与现有正常环境，不主动使用 worktree。Git 写操作按 `references/git-safety.md`；规则候选不应用时按 `skills/skill-maintenance/SKILL.md` 保护已安装源，不擅自改链接。
 - 轻量工作不建 Goal；需要恢复时按 `references/stages/goal-handoff.md`，创建与恢复均使用 schema 3，执行入口为 `skills/goal-execute/SKILL.md`。
 - 第三方能力按需读 `references/delivery/tooling-prerequisites.md`。首次核实必要入口、代表数据、权限和工具；不每步重复安装或做全量环境清点。真实 provider 验证属于范围且已有授权时执行，说明成本及证明边界。

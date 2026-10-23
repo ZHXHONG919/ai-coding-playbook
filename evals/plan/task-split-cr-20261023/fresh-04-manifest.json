@@ -1,0 +1,10 @@
+{
+  "evals/plan/task-split-fixture/runs/fresh-04/.goal/goal.yaml": "6fee7a83bf97e71faf218e10ab9456fb1398976781d3195f1bb02d10585d9a37",
+  "evals/plan/task-split-fixture/runs/fresh-04/.goal/status.yaml": "a2651b3cb5c3f251db6fd08dd00daa11c6ccc290b3048b226ae36ab52077cf24",
+  "evals/plan/task-split-fixture/runs/fresh-04/tasks/README.md": "1adc9c01f6ccb0737515d2b602118dd030d5fafe7ea16a2d663a5e2f3703556f",
+  "evals/plan/task-split-fixture/runs/fresh-04/tasks/T01-批次身份与访问.md": "ca6985c5a35aacc850d1c83736ca7b548d215ea74f07ff2b6315da82396f49ff",
+  "evals/plan/task-split-fixture/runs/fresh-04/tasks/T02-原子审核与恢复.md": "f6c895255bd71a8662904f85a231284c6956ac28b98fcbe2e59c76b77f825187",
+  "evals/plan/task-split-fixture/runs/fresh-04/tasks/T03-批量提交体验.md": "ccd027719af7a04eac03a6be59938ad1db2d4d772b9d5474188dc6a8971a94d6",
+  "evals/plan/task-split-fixture/runs/fresh-04/tasks/T04-结果查看与找回.md": "0c5d5f3d8f88f5513fa472d329f9261d1c2344114920ef70c8d2558c7f33c5fc",
+  "evals/plan/task-split-fixture/runs/fresh-04/tasks/T05-保留观测与交付验证.md": "c3928a265ca13ba1cc3fce565a77f200acd2a1114d3985b59da37748dd2d0079"
+}

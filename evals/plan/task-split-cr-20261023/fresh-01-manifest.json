@@ -1,0 +1,11 @@
+{
+  "evals/plan/task-split-fixture/runs/fresh-01/.goal/goal.yaml": "5d6699d806717762a1786e59be903ad2aedd0d8f8eb51270ccd9ec2599740908",
+  "evals/plan/task-split-fixture/runs/fresh-01/.goal/status.yaml": "29a8281ca0f820eed7818cd08d631726e4547fe54c6e261589f60422bed90d7d",
+  "evals/plan/task-split-fixture/runs/fresh-01/tasks/README.md": "9ae7c1c62c539c651be3a24b1d54f2cc666cbeac3c3f3151a1da67268b7a40dd",
+  "evals/plan/task-split-fixture/runs/fresh-01/tasks/T01-批次身份与结果能力.md": "81b872f24ffe8fa5e0b52ce980a20dcf6e58b49c0bf82f08b028a344cb0493ce",
+  "evals/plan/task-split-fixture/runs/fresh-01/tasks/T02-审核原子提交能力.md": "f283099c653a46c7b3e8fe57d96a03d685316eddfc8e80bf16d1ff255602fb0e",
+  "evals/plan/task-split-fixture/runs/fresh-01/tasks/T03-执行与恢复能力.md": "22cfc49b97f88e488a34e0b17648dae146520769ef2091481cb9a7378d694427",
+  "evals/plan/task-split-fixture/runs/fresh-01/tasks/T04-确认并提交批量审核.md": "c24e5f0464a1500351daf19d27c69263c23ce155fa602083abab4336405307a6",
+  "evals/plan/task-split-fixture/runs/fresh-01/tasks/T05-查看与找回批次结果.md": "8c1dcc692c9b5f4bb36af8581a584158abd017cb3ed80fbc4a18e9c221aae928",
+  "evals/plan/task-split-fixture/runs/fresh-01/tasks/T06-保留运维与容量验证.md": "d335eb53e9ec64bdde8118fda2de5fb6b62966d764098d14736fb89f3983894c"
+}

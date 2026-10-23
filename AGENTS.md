@@ -55,7 +55,7 @@
 | 新需求开工 / kickoff / 建方案和任务目录 / 开始一个需求 | `references/stages/feature-kickoff.md` + `references/git-safety.md`；落盘不改变复杂度，按实际范围选择轻量或复杂方案规则 |
 | 技术方案 / 功能设计 / 模型设计 / 架构设计 / 整体重构已有方案 | `references/stages/plan.md`；统一装配full/light方法包，完整返回后再选择和读取项目定义。旧轻量入口也转入同一准备，编写方法各维护一份；聊天与文件使用同一依据，统一衔接采用检查及评审 |
 | 方案评审 / 设计 CR / 设计评审 / 局部方案检查 | `skills/design-review/SKILL.md`；局部评审只检查受影响范围。转为整体重构时，重新进入 `references/stages/plan.md` 的完整编写流程，不沿旧稿零散追加 |
-| 拆任务 / 拆实现 / 拆 task | `references/plan/task-breakdown.md`；承接当前采用方案及有效设计评审范围，复用已有确认和授权；不因拆任务自动开始实现或创建 Goal |
+| 拆任务 / 拆实现 / 拆 task | `references/plan/task-breakdown.md`；正式承接采用方案与有效评审，按 `templates/tasks/` 输出领域能力/用例任务及依赖，界面任务定位采用原型和固定图片；不自动开始实现或创建 Goal |
 | 生成 Goal 包 / Goal Handoff / 执行契约 / 复杂方案转连续执行 | `references/stages/goal-handoff.md` + `references/plan/task-breakdown.md`；统一选择 `templates/goal-v3/` |
 | 开始实现 / 按方案落地 | `references/stages/implementation.md` + `references/git-safety.md` + `references/plan/task-breakdown.md` |
 | 按 Goal 执行 / 续跑 goal / 从 status.yaml next_action 继续 | `skills/goal-execute/SKILL.md` + `references/stages/implementation.md` + `references/git-safety.md` |
