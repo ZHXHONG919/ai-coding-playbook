@@ -1,6 +1,6 @@
 ---
 name: fullstack-ui-prototype
-description: 在实现前设计或审查全栈功能的界面流程和静态原型。适用于后台页面、流程工具、审核流、任务看板、批量操作，以及需要同时验证前端展示模型、接口契约、后端状态和用户操作的功能。
+description: 在实现前设计或审查全栈功能的界面流程和静态原型，准备、核对并交接已确认的原型关键状态图片。适用于原型图片维护、后台页面、流程工具、审核流、任务看板、批量操作，以及需要同时验证前端展示模型、接口契约、后端状态和用户操作的功能。
 ---
 
 # Fullstack UI Prototype
@@ -177,12 +177,15 @@ UI flow 至少回答：
 - 原型应能本地打开或通过项目已有 prototype dev server 预览。
 - 如果目标项目已有品牌、布局、组件风格，原型应尽量复用或模仿，不新起一套视觉语言。
 
+在相应界面开发前，由本原型准备环节按 `references/delivery/evidence-driven-delivery.md` 维护关键状态图片，核对实际保存的画面并随原型一并采用，再与可操作入口、业务约定一起交给实现者；不留给实现者临时选图建立基准。注明版本、角色、状态、视口及内容区，采用后保留稳定版本，变更留新版本和依据，不覆盖旧图。已有合格同版图片直接复用，不把图片当作完整交互或业务逻辑。
+
 ## 输出
 
 方案阶段输出：
 
 - `ui-flow.md`：页面地图、用户路径、ViewModel、操作矩阵、状态映射、权限和 smoke。
 - 可选 `prototype/`：静态页面和 mock 数据。
+- 进入按稿开发前的图片基准：关键状态图片已实际打开核对，随原型确认采用版本；在现有采用稿索引关联图片路径、端/状态及比较条件。交互原型仍可操作，开发和验收引用同一图片版本，不留给实现者自截补齐。
 - Open Design：`skip` / `existing-baseline` / `run` / `blocked`；按 decision 记录 reason / blocker，或 projectId、runId、studioUrl/previewUrl、entryFile 或 artifact bundle、采用版本、拒绝版本。
 - Product Flow Gate 结论：等待确认 / 已确认进入详细方案。
 - Impeccable Check：已执行 / 未安装跳过；采纳项、拒绝项、Blocking 项。

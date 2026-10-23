@@ -213,6 +213,10 @@ AI_CODING_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh --target cur
 
 ## 证据驱动交付
 
+按原型还原采用“**原型阶段准备并确认图片 → 开发阶段按固定图片实现 → 验收阶段按同版图片检查**”。关键状态图片由原型准备环节维护，开发线程实际打开后使用；它自行截取的实现画面只能作结果证据，不能成为或覆盖参考基准。缺图、错图或版本不符回原型准备环节处理。职责及现有记录方式只维护在[证据驱动交付](references/delivery/evidence-driven-delivery.md)，无需逐图新增审批或独立交接文件。
+
+本次采用范围、独立回归与有限真实试验的边界见[原型图片工作流发布说明](docs/releases/20261023-prototype-image-baseline.md)。
+
 `references/delivery/evidence-driven-delivery.md` 统一正常开发和问题修复的验证口径：问题可以来自对话、工单、截图、日志、监控、测试或代码审查；任务按风险选择证据等级，界面任务在 `tasks.md` 声明界面基线和证据门禁。截图用于证明用户可见结果，不作为所有任务的固定动作；批量问题按用户路径和共享根因聚类。最终视觉证据与 CR 可在同一固定版本并行完成，合并到批次验收；修复后只复核受影响状态，全量回归按实际影响与项目要求决定。
 
 `references/delivery/tooling-prerequisites.md` 统一第三方工具准备：任务开始前列出所需 CLI、连接器/API、安装和认证状态；优先使用已有 CLI 和结构化接口，缺失的必要 CLI 从可信来源安装到项目或用户范围。浏览器和桌面控制只用于无法结构化完成的授权与视觉验证，避免与用户正在进行的操作冲突。

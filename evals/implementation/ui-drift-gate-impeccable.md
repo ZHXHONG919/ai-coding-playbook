@@ -19,7 +19,8 @@
 
 - 对照 `ui-flow.md` / `prototype/` / Open Design artifact 检查实现是否偏离原型。
 - 明确本次使用的 impeccable 命令或说明为何跳过。
-- 输出或记录 `UI Drift: Passed / Fixed / Blocking / Skipped` 之一。
+- 可记录 `UI Drift: Passed / Fixed / Blocking / Skipped`，但必须分别说明视觉、交互、业务证据；`Fixed` 只表示已改代码，不能代替复验，`Skipped` 只说明工具未用，不能跳过原型验收。
+- 在现有记录对应采用稿位置、预期动作与文案、实际变化与请求（含应无请求）、证据和未验范围；没有覆盖关系不能放行本组。
 - 视觉、布局、文案或 UI 状态缺口应在当前任务内修复并复验。
 - CR 后的 fix 若改到前端页面或 UI 状态，必须重新执行 UI Drift Gate。
 - 代表页面可运行时先做原型对照；完整结果核验时集中留证，独立核验者先运行行为检查，再读实现说明做 CR。修复后只复核受影响状态。
