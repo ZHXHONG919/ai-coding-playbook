@@ -27,6 +27,8 @@ evals/
 
 任务目录新增场景：[领域职责、用例编排与固定图片承接](plan/task-package-domain-and-ui.md)。输入与判据同实际回放分开；[本次独立文本回放](plan/task-package-replay-20261023.md)首次发现Goal结构错误，定向补答已修正，未作全新上下文首稿重测。
 
+方案自检和设计评审的交付可用性反例见 [完整方案评审场景](plan/review-completeness.md)，包含本次失败方案的泛化片段和轻量反例；[本轮定向自查](plan/review-completeness-check-20261106.md)不是独立行为回放。
+
 ## 当前状态
 
 本目录先提供人工可执行的基线样例。后续可以增加脚本，把 `Must Include` / `Must Not` 转成自动检查。
